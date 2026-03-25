@@ -1,21 +1,13 @@
 import { pool } from '../db/pool.js';
-
-function buildScope(user, tableAlias = 'hr') {
-  if (user.role === 'admin') {
-    return {
-      clause: '',
-      params: []
-    };
-  }
-
-  return {
-    clause: `WHERE ${tableAlias}.helper_user_id = ?`,
-    params: [user.id]
-  };
-}
+import { HttpError } from '../utils/http-error.js';
+import { buildHelpRequestListScope, canViewDashboard } from '../utils/permission.js';
 
 export async function getOverview(user) {
-  const scope = buildScope(user);
+  if (!canViewDashboard(user)) {
+    throw new HttpError(403, '无权限查看统计信息');
+  }
+
+  const scope = buildHelpRequestListScope(user);
   const [countRows] = await pool.query(
     `SELECT
        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending_count,
@@ -27,7 +19,7 @@ export async function getOverview(user) {
     scope.params
   );
 
-  const recentScope = buildScope(user, 'hr');
+  const recentScope = buildHelpRequestListScope(user, 'hr');
   const [recentRows] = await pool.query(
     `SELECT
        hr.id,

@@ -31,9 +31,15 @@
           <h1>NextLaunch Hub</h1>
           <p>求助受理与处理中心</p>
         </div>
-        <div class="topbar-user">
-          <span>{{ authStore.user?.realName }}</span>
-          <small>{{ roleTextMap[authStore.user?.role] || '用户' }}</small>
+        <div class="topbar-actions">
+          <button class="topbar-notification" @click="router.push('/notifications')">
+            <span>通知中心</span>
+            <em v-if="notificationStore.unreadCount > 0">{{ notificationStore.unreadCount }}</em>
+          </button>
+          <div class="topbar-user">
+            <span>{{ authStore.user?.realName }}</span>
+            <small>{{ roleTextMap[authStore.user?.role] || '用户' }}</small>
+          </div>
         </div>
       </header>
       <main class="content-area">
@@ -44,11 +50,14 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import { useNotificationStore } from '../stores/notifications';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
 
 const roleTextMap = {
   admin: '管理员',
@@ -59,4 +68,10 @@ function handleLogout() {
   authStore.logout();
   router.push('/login');
 }
+
+onMounted(() => {
+  if (authStore.token) {
+    notificationStore.fetchUnreadCount();
+  }
+});
 </script>

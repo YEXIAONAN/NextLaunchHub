@@ -1,5 +1,12 @@
 import { pool } from '../db/pool.js';
 import { HttpError } from '../utils/http-error.js';
+import {
+  buildHelpRequestListScope,
+  canAddAssistant,
+  canAddCollaborationLog,
+  canUpdateHelpRequest,
+  canViewHelpRequest
+} from '../utils/permission.js';
 import { generateRequestNo } from '../utils/request-no.js';
 import { createNotification } from './notification-service.js';
 
@@ -49,23 +56,7 @@ async function getHelpRequestAssistantsById(executor, helpRequestId) {
   return rows;
 }
 
-async function getAccessibleHelpRequest(executor, user, helpRequestId) {
-  const params = [helpRequestId];
-  let permissionSql = '';
-
-  if (user.role !== 'admin') {
-    permissionSql = ` AND (
-      hr.helper_user_id = ?
-      OR EXISTS (
-        SELECT 1
-        FROM help_request_assistants hra
-        WHERE hra.help_request_id = hr.id
-          AND hra.assistant_user_id = ?
-      )
-    )`;
-    params.push(user.id, user.id);
-  }
-
+async function getHelpRequestBase(executor, helpRequestId) {
   const [rows] = await executor.query(
     `SELECT
        hr.id,
@@ -86,83 +77,37 @@ async function getAccessibleHelpRequest(executor, user, helpRequestId) {
        hr.updated_at
      FROM help_requests hr
      WHERE hr.id = ?
-     ${permissionSql}
      LIMIT 1`,
-    params
+    [helpRequestId]
   );
 
   if (rows.length === 0) {
-    throw new HttpError(404, '求助单不存在或无权限访问');
+    throw new HttpError(404, '求助单不存在');
   }
 
   return rows[0];
 }
 
-async function assertCanManageAssistants(executor, user, helpRequestId) {
-  const params = [helpRequestId];
-  let permissionSql = '';
+async function getHelpRequestPermissionContext(executor, helpRequestId) {
+  const helpRequest = await getHelpRequestBase(executor, helpRequestId);
+  const assistants = await getHelpRequestAssistantsById(executor, helpRequestId);
+  const assistantUserIds = assistants.map((item) => Number(item.assistant_user_id));
 
-  if (user.role !== 'admin') {
-    permissionSql = ' AND hr.helper_user_id = ?';
-    params.push(user.id);
-  }
-
-  const [rows] = await executor.query(
-    `SELECT
-       hr.id,
-       hr.request_no,
-       hr.helper_user_id,
-       hr.helper_name
-     FROM help_requests hr
-     WHERE hr.id = ?
-     ${permissionSql}
-     LIMIT 1`,
-    params
-  );
-
-  if (rows.length === 0) {
-    throw new HttpError(403, '无权限添加协同人员');
-  }
-
-  return rows[0];
+  return {
+    helpRequest,
+    assistants,
+    assistantUserIds
+  };
 }
 
-async function assertCanAddCollaborationLog(executor, user, helpRequestId) {
-  if (user.role === 'admin') {
-    const [rows] = await executor.query(
-      `SELECT id, request_no
-       FROM help_requests
-       WHERE id = ?
-       LIMIT 1`,
-      [helpRequestId]
-    );
+async function getAccessibleHelpRequest(executor, user, helpRequestId) {
+  const context = await getHelpRequestPermissionContext(executor, helpRequestId);
 
-    if (rows.length === 0) {
-      throw new HttpError(404, '求助单不存在或无权限访问');
-    }
-
-    return rows[0];
+  if (!canViewHelpRequest(user, context.helpRequest, context.assistantUserIds)) {
+    throw new HttpError(403, '求助单不存在或无权限访问');
   }
 
-  const [rows] = await executor.query(
-    `SELECT hr.id, hr.request_no
-     FROM help_requests hr
-     WHERE hr.id = ?
-       AND EXISTS (
-         SELECT 1
-         FROM help_request_assistants hra
-         WHERE hra.help_request_id = hr.id
-           AND hra.assistant_user_id = ?
-       )
-     LIMIT 1`,
-    [helpRequestId, user.id]
-  );
-
-  if (rows.length === 0) {
-    throw new HttpError(403, '只有协同人员可以新增协同处理日志');
-  }
-
-  return rows[0];
+  return context;
 }
 
 export async function createHelpRequest(payload) {
@@ -264,24 +209,10 @@ export async function createHelpRequest(payload) {
 }
 
 function buildListScope(user) {
-  if (user.role === 'admin') {
-    return {
-      whereSql: 'WHERE 1 = 1',
-      params: []
-    };
-  }
-
+  const scope = buildHelpRequestListScope(user, 'hr');
   return {
-    whereSql: `WHERE (
-      hr.helper_user_id = ?
-      OR EXISTS (
-        SELECT 1
-        FROM help_request_assistants hra
-        WHERE hra.help_request_id = hr.id
-          AND hra.assistant_user_id = ?
-      )
-    )`,
-    params: [user.id, user.id]
+    whereSql: scope.clause,
+    params: scope.params
   };
 }
 
@@ -315,13 +246,12 @@ export async function getHelpRequests(user, status) {
 }
 
 export async function getHelpRequestDetail(user, id) {
-  const detail = await getAccessibleHelpRequest(pool, user, id);
+  const context = await getAccessibleHelpRequest(pool, user, id);
   const logs = await getHelpRequestLogs(pool, id);
-  const assistants = await getHelpRequestAssistantsById(pool, id);
 
   return {
-    ...detail,
-    assistants,
+    ...context.helpRequest,
+    assistants: context.assistants,
     logs
   };
 }
@@ -371,25 +301,10 @@ export async function updateHelpRequestStatus(user, id, status) {
   try {
     await connection.beginTransaction();
 
-    const params = [id];
-    let permissionSql = '';
+    const { helpRequest } = await getHelpRequestPermissionContext(connection, id);
 
-    if (user.role !== 'admin') {
-      permissionSql = ' AND helper_user_id = ?';
-      params.push(user.id);
-    }
-
-    const [[record]] = await connection.query(
-      `SELECT id, request_no, title, status, helper_user_id, requester_user_id
-       FROM help_requests
-       WHERE id = ?
-       ${permissionSql}
-       LIMIT 1`,
-      params
-    );
-
-    if (!record) {
-      throw new HttpError(404, '求助单不存在或无权限操作');
+    if (!canUpdateHelpRequest(user, helpRequest)) {
+      throw new HttpError(403, '求助单不存在或无权限操作');
     }
 
     await connection.query(
@@ -413,10 +328,10 @@ export async function updateHelpRequestStatus(user, id, status) {
     );
 
     await createNotification(connection, {
-      receiverUserId: record.requester_user_id,
+      receiverUserId: helpRequest.requester_user_id,
       type: 'help_request_status_changed',
       title: '求助单状态已更新',
-      content: `求助单 ${record.request_no} 当前状态为：${STATUS_TEXT_MAP[status]}。`,
+      content: `求助单 ${helpRequest.request_no} 当前状态为：${STATUS_TEXT_MAP[status]}。`,
       relatedId: id
     });
 
@@ -436,8 +351,8 @@ export async function updateHelpRequestStatus(user, id, status) {
 }
 
 export async function getHelpRequestAssistants(user, id) {
-  await getAccessibleHelpRequest(pool, user, id);
-  return getHelpRequestAssistantsById(pool, id);
+  const context = await getAccessibleHelpRequest(pool, user, id);
+  return context.assistants;
 }
 
 export async function addHelpRequestAssistant(user, id, payload) {
@@ -454,7 +369,11 @@ export async function addHelpRequestAssistant(user, id, payload) {
   try {
     await connection.beginTransaction();
 
-    const helpRequest = await assertCanManageAssistants(connection, user, id);
+    const { helpRequest } = await getHelpRequestPermissionContext(connection, id);
+
+    if (!canAddAssistant(user, helpRequest)) {
+      throw new HttpError(403, '无权限添加协同人员');
+    }
 
     const [[assistantUser]] = await connection.query(
       `SELECT id, real_name, role, status
@@ -556,7 +475,11 @@ export async function addHelpRequestCollaborationLog(user, id, payload) {
   try {
     await connection.beginTransaction();
 
-    await assertCanAddCollaborationLog(connection, user, id);
+    const { helpRequest, assistantUserIds } = await getHelpRequestPermissionContext(connection, id);
+
+    if (!canAddCollaborationLog(user, helpRequest, assistantUserIds)) {
+      throw new HttpError(403, '只有协同人员可以新增协同处理日志');
+    }
 
     const [result] = await connection.query(
       `INSERT INTO help_request_logs

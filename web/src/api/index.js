@@ -44,10 +44,40 @@ export function getHelpRequestDetailApi(id) {
   return http.get(`/help-requests/${id}`);
 }
 
+export function getHelpRequestAssistantsApi(id) {
+  return http.get(`/help-requests/${id}/assistants`);
+}
+
+export function addHelpRequestAssistantApi(id, payload) {
+  return http.post(`/help-requests/${id}/assistants`, payload);
+}
+
+export function addHelpRequestCollaborationLogApi(id, payload) {
+  return http.post(`/help-requests/${id}/collaboration-log`, payload);
+}
+
 export function updateHelpRequestStatusApi(id, status) {
   return http.patch(`/help-requests/${id}/status`, { status });
 }
 
 export function getNotificationsApi() {
   return http.get('/notifications');
+}
+
+export function getNotificationsPageApi(params) {
+  return http.get('/notifications', {
+    params
+  });
+}
+
+export function markNotificationReadApi(id) {
+  return http.patch(`/notifications/${id}/read`);
+}
+
+export function markAllNotificationsReadApi() {
+  return http.patch('/notifications/read-all');
+}
+
+export function getUnreadNotificationCountApi() {
+  return http.get('/notifications/unread-count');
 }

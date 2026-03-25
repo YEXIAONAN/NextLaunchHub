@@ -3,9 +3,10 @@ import AdminLayout from '../layout/AdminLayout.vue';
 import DashboardView from '../views/dashboard/DashboardView.vue';
 import HelpCenterDetailView from '../views/help-center/HelpCenterDetailView.vue';
 import HelpCenterListView from '../views/help-center/HelpCenterListView.vue';
+import NotificationsView from '../views/notifications/NotificationsView.vue';
 import LoginView from '../views/public/LoginView.vue';
-import PublicHelpRequestView from '../views/public/PublicHelpRequestView.vue';
 import PublicHelpQueryView from '../views/public/PublicHelpQueryView.vue';
+import PublicHelpRequestView from '../views/public/PublicHelpRequestView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -50,6 +51,10 @@ const router = createRouter({
         {
           path: '/help-center/:id',
           component: HelpCenterDetailView
+        },
+        {
+          path: '/notifications',
+          component: NotificationsView
         }
       ]
     }
