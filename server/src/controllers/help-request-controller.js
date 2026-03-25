@@ -1,10 +1,21 @@
 import {
+  addHelpRequestAssistant,
+  addHelpRequestCollaborationLog,
   createHelpRequest,
+  getHelpRequestAssistants,
   getHelpRequestDetail,
   getHelpRequests,
+  publicConfirmHelpRequest,
+  queryPublicHelpRequest,
   updateHelpRequestStatus
 } from '../services/help-request-service.js';
+import {
+  clearPublicHelpRequestAccessCookie,
+  getPublicHelpRequestAccessPayload,
+  setPublicHelpRequestAccessCookie
+} from '../utils/public-help-request-access.js';
 import { getClientIp } from '../utils/request-ip.js';
+import { HttpError } from '../utils/http-error.js';
 import { success } from '../utils/response.js';
 
 export async function createHelpRequestController(req, res) {
@@ -36,4 +47,66 @@ export async function updateHelpRequestStatusController(req, res) {
     req.body.status || req.body.current_status
   );
   res.json(success(data, '状态更新成功'));
+}
+
+export async function getHelpRequestAssistantsController(req, res) {
+  const data = await getHelpRequestAssistants(req.user, Number(req.params.id));
+  res.json(success(data));
+}
+
+export async function addHelpRequestAssistantController(req, res) {
+  const data = await addHelpRequestAssistant(req.user, Number(req.params.id), {
+    assistantUserId: req.body.assistantUserId || req.body.assistant_user_id
+  });
+  res.json(success(data, '协同人员添加成功'));
+}
+
+export async function addHelpRequestCollaborationLogController(req, res) {
+  const data = await addHelpRequestCollaborationLog(req.user, Number(req.params.id), {
+    content: req.body.content
+  });
+  res.json(success(data, '协同处理日志提交成功'));
+}
+
+export async function queryPublicHelpRequestController(req, res) {
+  const requestNo = (req.query.requestNo || req.query.request_no || '').trim();
+  const requesterName = (req.query.requesterName || req.query.requester_name || '').trim();
+
+  if (!requestNo || !requesterName) {
+    throw new HttpError(400, '请填写求助单号和发起人姓名');
+  }
+
+  const data = await queryPublicHelpRequest({
+    requestNo,
+    requesterName
+  });
+
+  setPublicHelpRequestAccessCookie(res, {
+    helpRequestId: data.id,
+    requestNo: data.request_no,
+    requesterName: data.requester_name
+  });
+
+  res.json(success(data));
+}
+
+export async function publicConfirmHelpRequestController(req, res) {
+  const action = (req.body.action || '').trim();
+  const feedback = typeof req.body.feedback === 'string' ? req.body.feedback.trim() : '';
+  const accessPayload = getPublicHelpRequestAccessPayload(req);
+
+  if (!accessPayload) {
+    throw new HttpError(403, '请先通过求助单号和发起人姓名完成查询后再操作');
+  }
+
+  const data = await publicConfirmHelpRequest({
+    id: Number(req.params.id),
+    action,
+    feedback,
+    accessPayload
+  });
+
+  clearPublicHelpRequestAccessCookie(res);
+
+  res.json(success(data, action === 'confirm' ? '确认完成成功' : '已退回继续处理'));
 }

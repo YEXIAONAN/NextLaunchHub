@@ -5,6 +5,7 @@ import HelpCenterDetailView from '../views/help-center/HelpCenterDetailView.vue'
 import HelpCenterListView from '../views/help-center/HelpCenterListView.vue';
 import LoginView from '../views/public/LoginView.vue';
 import PublicHelpRequestView from '../views/public/PublicHelpRequestView.vue';
+import PublicHelpQueryView from '../views/public/PublicHelpQueryView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -23,6 +24,13 @@ const router = createRouter({
     {
       path: '/help-request',
       component: PublicHelpRequestView,
+      meta: {
+        public: true
+      }
+    },
+    {
+      path: '/help-query',
+      component: PublicHelpQueryView,
       meta: {
         public: true
       }
@@ -53,7 +61,7 @@ router.beforeEach((to) => {
   if (!to.meta.public && !token) {
     return '/login';
   }
-  if ((to.path === '/login' || to.path === '/help-request') && token && to.path === '/login') {
+  if (to.path === '/login' && token) {
     return '/dashboard';
   }
   return true;

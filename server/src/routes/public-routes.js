@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import {
-  createHelpRequestController
+  createHelpRequestController,
+  publicConfirmHelpRequestController,
+  queryPublicHelpRequestController
 } from '../controllers/help-request-controller.js';
 import {
   getHelpersController,
@@ -13,6 +15,7 @@ const router = Router();
 
 router.get('/requesters', asyncHandler(getRequestersController));
 router.get('/helpers', asyncHandler(getHelpersController));
+router.get('/help-requests/query', asyncHandler(queryPublicHelpRequestController));
 
 router.post(
   '/help-requests',
@@ -27,6 +30,23 @@ router.post(
     }
 
     await createHelpRequestController(req, res);
+  })
+);
+
+router.post(
+  '/help-requests/:id/confirm',
+  asyncHandler(async (req, res) => {
+    const action = req.body.action;
+
+    if (!action) {
+      throw new HttpError(400, '操作类型不能为空');
+    }
+
+    if (!['confirm', 'reject'].includes(action)) {
+      throw new HttpError(400, '操作类型不合法');
+    }
+
+    await publicConfirmHelpRequestController(req, res);
   })
 );
 

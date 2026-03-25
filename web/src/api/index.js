@@ -20,6 +20,16 @@ export function submitHelpRequestApi(payload) {
   return http.post('/public/help-requests', payload);
 }
 
+export function queryPublicHelpRequestApi(params) {
+  return http.get('/public/help-requests/query', {
+    params
+  });
+}
+
+export function confirmPublicHelpRequestApi(id, payload) {
+  return http.post(`/public/help-requests/${id}/confirm`, payload);
+}
+
 export function getDashboardOverviewApi() {
   return http.get('/dashboard/overview');
 }

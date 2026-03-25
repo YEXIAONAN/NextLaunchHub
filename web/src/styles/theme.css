@@ -532,6 +532,31 @@ a {
   width: min(980px, 100%);
 }
 
+.public-query-page {
+  align-items: flex-start;
+}
+
+.query-layout {
+  width: min(980px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.public-query-card {
+  width: 100%;
+}
+
+.query-form {
+  margin-bottom: 0;
+}
+
+.query-header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
