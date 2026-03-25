@@ -1,23 +1,38 @@
 <template>
   <div class="auth-page">
     <section class="auth-panel intro-panel">
-      <span class="eyebrow">统一支持入口</span>
-      <h1>NextLaunch Hub</h1>
-      <p>
-        面向日常业务支持场景的统一受理平台，用于接收求助、分派处理并跟踪状态进展。
-      </p>
-      <ul class="intro-list">
-        <li>集中查看个人负责的求助事项</li>
-        <li>快速跟进处理进度与通知提醒</li>
-        <li>保留完整日志，便于后续追踪</li>
-      </ul>
+      <div class="auth-hero">
+        <span class="eyebrow">统一支持入口</span>
+        <h1>NextLaunch Hub</h1>
+        <p>
+          面向日常业务支持场景的统一受理平台，用于接收求助、分派处理并跟踪状态进展。
+        </p>
+        <ul class="intro-list">
+          <li>集中查看个人负责的求助事项</li>
+          <li>快速跟进处理进度与通知提醒</li>
+          <li>保留完整日志，便于后续追踪</li>
+        </ul>
+      </div>
+
+      <div class="auth-metrics">
+        <div class="auth-metric-card">
+          <span>统一登记</span>
+          <strong>求助提交与分派处理</strong>
+        </div>
+        <div class="auth-metric-card">
+          <span>处理闭环</span>
+          <strong>状态跟踪与操作日志</strong>
+        </div>
+      </div>
+
       <el-button class="secondary-action" @click="router.push('/help-request')">
         提交求助
       </el-button>
     </section>
 
     <section class="auth-panel login-panel">
-      <div class="panel-header">
+      <div class="panel-header login-header">
+        <span class="panel-badge">后台登录</span>
         <h2>账号登录</h2>
         <p>请输入账号信息进入后台</p>
       </div>
@@ -41,6 +56,9 @@
           </el-button>
         </el-form-item>
       </el-form>
+      <div class="login-footer-note">
+        <span>登录后可查看主页统计、求助列表、详情与处理日志。</span>
+      </div>
     </section>
   </div>
 </template>

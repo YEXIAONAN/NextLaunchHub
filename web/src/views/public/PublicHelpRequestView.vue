@@ -128,7 +128,8 @@ async function handleSubmit() {
   submitting.value = true;
   try {
     const result = await submitHelpRequestApi(form);
-    await ElMessageBox.alert(`提交成功，求助单号：${result.data.requestNo}`, '提交成功', {
+    const requestNo = result.data.request_no || result.data.requestNo;
+    await ElMessageBox.alert(`提交成功，求助单号：${requestNo}`, '提交成功', {
       confirmButtonText: '我知道了'
     });
     form.title = '';

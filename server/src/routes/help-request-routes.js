@@ -11,10 +11,12 @@ const router = Router();
 
 router.get('/', asyncHandler(getHelpRequestsController));
 router.get('/:id', asyncHandler(getHelpRequestDetailController));
+
 router.patch(
   '/:id/status',
   asyncHandler(async (req, res) => {
-    if (!req.body.status) {
+    const status = req.body.status || req.body.current_status;
+    if (!status) {
       throw new HttpError(400, '状态不能为空');
     }
     await updateHelpRequestStatusController(req, res);

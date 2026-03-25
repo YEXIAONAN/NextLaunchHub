@@ -2,20 +2,36 @@
   <div class="page-section">
     <section class="stats-grid">
       <article class="stat-card">
-        <span>待处理求助数</span>
+        <div class="stat-card-head">
+          <span>待处理求助数</span>
+          <em>需要尽快跟进</em>
+        </div>
         <strong>{{ overview.stats.pending }}</strong>
+        <p>尚未进入处理流程的求助事项</p>
       </article>
       <article class="stat-card">
-        <span>处理中求助数</span>
+        <div class="stat-card-head">
+          <span>处理中求助数</span>
+          <em>持续推进</em>
+        </div>
         <strong>{{ overview.stats.processing }}</strong>
+        <p>已受理并正在排查或处理的事项</p>
       </article>
       <article class="stat-card">
-        <span>待确认求助数</span>
+        <div class="stat-card-head">
+          <span>待确认求助数</span>
+          <em>等待反馈</em>
+        </div>
         <strong>{{ overview.stats.waitingConfirm }}</strong>
+        <p>已完成处理，待发起人确认结果</p>
       </article>
       <article class="stat-card">
-        <span>已完成求助数</span>
+        <div class="stat-card-head">
+          <span>已完成求助数</span>
+          <em>已闭环</em>
+        </div>
         <strong>{{ overview.stats.completed }}</strong>
+        <p>当前已结束并完成归档的事项</p>
       </article>
     </section>
 
@@ -25,6 +41,7 @@
           <h2>最近求助记录</h2>
           <p>展示最近 5 条求助事项</p>
         </div>
+        <div class="table-meta-note">按发起时间倒序展示</div>
       </div>
       <el-table :data="overview.recentItems" class="custom-table">
         <el-table-column prop="request_no" label="求助单号" min-width="170" />

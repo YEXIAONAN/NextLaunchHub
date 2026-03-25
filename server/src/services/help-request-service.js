@@ -92,7 +92,8 @@ export async function createHelpRequest(payload) {
 
     return {
       id: helpRequestId,
-      requestNo
+      requestNo,
+      request_no: requestNo
     };
   } catch (error) {
     await connection.rollback();
@@ -272,7 +273,8 @@ export async function updateHelpRequestStatus(user, id, status) {
 
     return {
       id,
-      status
+      status,
+      current_status: status
     };
   } catch (error) {
     await connection.rollback();
