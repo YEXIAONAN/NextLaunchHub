@@ -1,12 +1,14 @@
 import {
   addHelpRequestAssistant,
   addHelpRequestCollaborationLog,
+  checkHelpRequestTimeouts,
   createHelpRequest,
   getHelpRequestAssistants,
   getHelpRequestDetail,
   getHelpRequests,
   publicConfirmHelpRequest,
   queryPublicHelpRequest,
+  reassignHelpRequestHelper,
   updateHelpRequestStatus
 } from '../services/help-request-service.js';
 import {
@@ -49,6 +51,13 @@ export async function updateHelpRequestStatusController(req, res) {
   res.json(success(data, '状态更新成功'));
 }
 
+export async function reassignHelpRequestHelperController(req, res) {
+  const data = await reassignHelpRequestHelper(req.user, Number(req.params.id), {
+    helperUserId: req.body.helperUserId || req.body.helper_user_id
+  });
+  res.json(success(data, '改派帮助人员成功'));
+}
+
 export async function getHelpRequestAssistantsController(req, res) {
   const data = await getHelpRequestAssistants(req.user, Number(req.params.id));
   res.json(success(data));
@@ -66,6 +75,11 @@ export async function addHelpRequestCollaborationLogController(req, res) {
     content: req.body.content
   });
   res.json(success(data, '协同处理日志提交成功'));
+}
+
+export async function checkHelpRequestTimeoutController(req, res) {
+  const data = await checkHelpRequestTimeouts(req.user);
+  res.json(success(data, '超时检查完成'));
 }
 
 export async function queryPublicHelpRequestController(req, res) {

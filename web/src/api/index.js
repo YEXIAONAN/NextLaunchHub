@@ -60,6 +60,10 @@ export function updateHelpRequestStatusApi(id, status) {
   return http.patch(`/help-requests/${id}/status`, { status });
 }
 
+export function reassignHelpRequestHelperApi(id, payload) {
+  return http.patch(`/help-requests/${id}/reassign-helper`, payload);
+}
+
 export function getNotificationsApi() {
   return http.get('/notifications');
 }

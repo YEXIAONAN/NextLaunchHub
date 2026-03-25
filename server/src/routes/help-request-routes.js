@@ -2,9 +2,11 @@ import { Router } from 'express';
 import {
   addHelpRequestAssistantController,
   addHelpRequestCollaborationLogController,
+  checkHelpRequestTimeoutController,
   getHelpRequestAssistantsController,
   getHelpRequestDetailController,
   getHelpRequestsController,
+  reassignHelpRequestHelperController,
   updateHelpRequestStatusController
 } from '../controllers/help-request-controller.js';
 import { asyncHandler } from '../utils/async-handler.js';
@@ -13,6 +15,7 @@ import { HttpError } from '../utils/http-error.js';
 const router = Router();
 
 router.get('/', asyncHandler(getHelpRequestsController));
+router.post('/check-timeout', asyncHandler(checkHelpRequestTimeoutController));
 router.get('/:id', asyncHandler(getHelpRequestDetailController));
 router.get('/:id/assistants', asyncHandler(getHelpRequestAssistantsController));
 
@@ -35,6 +38,17 @@ router.post(
       throw new HttpError(400, '协同处理说明不能为空');
     }
     await addHelpRequestCollaborationLogController(req, res);
+  })
+);
+
+router.patch(
+  '/:id/reassign-helper',
+  asyncHandler(async (req, res) => {
+    const helperUserId = req.body.helperUserId || req.body.helper_user_id;
+    if (!helperUserId) {
+      throw new HttpError(400, '帮助人员不能为空');
+    }
+    await reassignHelpRequestHelperController(req, res);
   })
 );
 

@@ -4,6 +4,7 @@ import {
   buildHelpRequestListScope,
   canAddAssistant,
   canAddCollaborationLog,
+  canReassignHelper,
   canUpdateHelpRequest,
   canViewHelpRequest
 } from '../utils/permission.js';
@@ -18,6 +19,29 @@ const STATUS_TEXT_MAP = {
   completed: '已完成'
 };
 
+async function syncHelpRequestTimeouts(executor, helpRequestId = null) {
+  const params = [];
+  let whereSql = 'WHERE deadline_at IS NOT NULL';
+
+  if (helpRequestId !== null) {
+    whereSql += ' AND id = ?';
+    params.push(helpRequestId);
+  }
+
+  await executor.query(
+    `UPDATE help_requests
+     SET is_timeout = CASE
+       WHEN deadline_at IS NOT NULL
+         AND NOW() > deadline_at
+         AND status <> 'completed'
+       THEN 1
+       ELSE 0
+     END
+     ${whereSql}`,
+    params
+  );
+}
+
 async function getHelpRequestLogs(executor, helpRequestId) {
   const [logs] = await executor.query(
     `SELECT
@@ -30,7 +54,7 @@ async function getHelpRequestLogs(executor, helpRequestId) {
        created_at
      FROM help_request_logs
      WHERE help_request_id = ?
-     ORDER BY created_at DESC, id DESC`,
+     ORDER BY created_at ASC, id ASC`,
     [helpRequestId]
   );
 
@@ -70,6 +94,9 @@ async function getHelpRequestBase(executor, helpRequestId) {
        hr.requester_ip,
        hr.request_datetime,
        hr.request_date,
+       hr.expected_handle_hours,
+       hr.deadline_at,
+       hr.is_timeout,
        hr.status,
        hr.requester_confirmed_at,
        hr.requester_feedback,
@@ -155,9 +182,10 @@ export async function createHelpRequest(payload) {
         (
           request_no, title, requester_user_id, requester_name,
           helper_user_id, helper_name, content, requester_ip,
-          request_datetime, request_date, status, created_at, updated_at
+          request_datetime, request_date, expected_handle_hours,
+          deadline_at, is_timeout, status, created_at, updated_at
         )
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), CURDATE(), 'pending', NOW(), NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), CURDATE(), 24, DATE_ADD(NOW(), INTERVAL 24 HOUR), 0, 'pending', NOW(), NOW())`,
       [
         requestNo,
         title,
@@ -217,6 +245,8 @@ function buildListScope(user) {
 }
 
 export async function getHelpRequests(user, status) {
+  await syncHelpRequestTimeouts(pool);
+
   const scope = buildListScope(user);
   const params = [...scope.params];
   let whereSql = scope.whereSql;
@@ -234,6 +264,8 @@ export async function getHelpRequests(user, status) {
        hr.requester_name,
        hr.helper_name,
        hr.status,
+       hr.deadline_at,
+       hr.is_timeout,
        hr.request_datetime,
        hr.requester_ip
      FROM help_requests hr
@@ -246,6 +278,7 @@ export async function getHelpRequests(user, status) {
 }
 
 export async function getHelpRequestDetail(user, id) {
+  await syncHelpRequestTimeouts(pool, id);
   const context = await getAccessibleHelpRequest(pool, user, id);
   const logs = await getHelpRequestLogs(pool, id);
 
@@ -267,6 +300,9 @@ export async function queryPublicHelpRequest({ requestNo, requesterName }) {
        hr.content,
        hr.request_datetime,
        hr.request_date,
+       hr.expected_handle_hours,
+       hr.deadline_at,
+       hr.is_timeout,
        hr.status,
        hr.requester_confirmed_at,
        hr.requester_feedback,
@@ -283,10 +319,35 @@ export async function queryPublicHelpRequest({ requestNo, requesterName }) {
     throw new HttpError(404, '未查询到匹配的求助单');
   }
 
+  await syncHelpRequestTimeouts(pool, rows[0].id);
+  const [updatedRows] = await pool.query(
+    `SELECT
+       hr.id,
+       hr.request_no,
+       hr.title,
+       hr.requester_name,
+       hr.helper_name,
+       hr.content,
+       hr.request_datetime,
+       hr.request_date,
+       hr.expected_handle_hours,
+       hr.deadline_at,
+       hr.is_timeout,
+       hr.status,
+       hr.requester_confirmed_at,
+       hr.requester_feedback,
+       hr.created_at,
+       hr.updated_at
+     FROM help_requests hr
+     WHERE hr.id = ?
+     LIMIT 1`,
+    [rows[0].id]
+  );
+
   const logs = await getHelpRequestLogs(pool, rows[0].id);
 
   return {
-    ...rows[0],
+    ...updatedRows[0],
     logs
   };
 }
@@ -307,11 +368,21 @@ export async function updateHelpRequestStatus(user, id, status) {
       throw new HttpError(403, '求助单不存在或无权限操作');
     }
 
+    const previousStatus = helpRequest.status;
+
     await connection.query(
       `UPDATE help_requests
-       SET status = ?, updated_at = NOW()
+       SET status = ?,
+           is_timeout = CASE
+             WHEN deadline_at IS NOT NULL
+               AND NOW() > deadline_at
+               AND ? <> 'completed'
+             THEN 1
+             ELSE 0
+           END,
+           updated_at = NOW()
        WHERE id = ?`,
-      [status, id]
+      [status, status, id]
     );
 
     await connection.query(
@@ -323,7 +394,7 @@ export async function updateHelpRequestStatus(user, id, status) {
         user.id,
         user.realName,
         'status_update',
-        `将状态更新为：${STATUS_TEXT_MAP[status]}`
+        buildStatusLogContent(previousStatus, status)
       ]
     );
 
@@ -350,7 +421,20 @@ export async function updateHelpRequestStatus(user, id, status) {
   }
 }
 
+function buildStatusLogContent(previousStatus, nextStatus) {
+  if (previousStatus === 'pending' && nextStatus === 'processing') {
+    return '接单并开始处理，当前状态：处理中';
+  }
+
+  if (previousStatus === nextStatus) {
+    return `重复提交状态更新，当前状态保持为：${STATUS_TEXT_MAP[nextStatus]}`;
+  }
+
+  return `将状态从：${STATUS_TEXT_MAP[previousStatus] || previousStatus} 更新为：${STATUS_TEXT_MAP[nextStatus]}`;
+}
+
 export async function getHelpRequestAssistants(user, id) {
+  await syncHelpRequestTimeouts(pool, id);
   const context = await getAccessibleHelpRequest(pool, user, id);
   return context.assistants;
 }
@@ -514,6 +598,96 @@ export async function addHelpRequestCollaborationLog(user, id, payload) {
   }
 }
 
+export async function reassignHelpRequestHelper(user, id, payload) {
+  const helperUserId = Number(payload.helperUserId);
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new HttpError(400, '求助单ID不合法');
+  }
+  if (!Number.isInteger(helperUserId) || helperUserId <= 0) {
+    throw new HttpError(400, '帮助人员ID不合法');
+  }
+
+  if (!canReassignHelper(user)) {
+    throw new HttpError(403, '只有管理员可以改派帮助人员');
+  }
+
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const { helpRequest } = await getHelpRequestPermissionContext(connection, id);
+
+    const [[nextHelper]] = await connection.query(
+      `SELECT id, real_name, role, status
+       FROM users
+       WHERE id = ?
+       LIMIT 1`,
+      [helperUserId]
+    );
+
+    if (!nextHelper || nextHelper.status !== 1 || nextHelper.role !== 'helper') {
+      throw new HttpError(400, '新的帮助人员不存在或不可用');
+    }
+
+    if (Number(helpRequest.helper_user_id) === nextHelper.id) {
+      throw new HttpError(400, '新帮助人员与当前帮助人员一致');
+    }
+
+    const previousHelperUserId = helpRequest.helper_user_id;
+    const previousHelperName = helpRequest.helper_name;
+
+    await connection.query(
+      `UPDATE help_requests
+       SET helper_user_id = ?, helper_name = ?, updated_at = NOW()
+       WHERE id = ?`,
+      [nextHelper.id, nextHelper.real_name, id]
+    );
+
+    await connection.query(
+      `INSERT INTO help_request_logs
+        (help_request_id, operator_user_id, operator_name, action_type, action_content, created_at)
+       VALUES (?, ?, ?, ?, ?, NOW())`,
+      [
+        id,
+        user.id,
+        user.realName,
+        'reassign_helper',
+        `将帮助人员从：${previousHelperName} 改派为：${nextHelper.real_name}`
+      ]
+    );
+
+    await createNotification(connection, {
+      receiverUserId: nextHelper.id,
+      type: 'helper_reassigned_in',
+      title: '收到改派求助单',
+      content: `求助单 ${helpRequest.request_no} 已改派给您，请尽快处理。`,
+      relatedId: id
+    });
+
+    await createNotification(connection, {
+      receiverUserId: previousHelperUserId,
+      type: 'helper_reassigned_out',
+      title: '求助单已改派',
+      content: `求助单 ${helpRequest.request_no} 已改派给 ${nextHelper.real_name}。`,
+      relatedId: id
+    });
+
+    await connection.commit();
+
+    return {
+      id,
+      helper_user_id: nextHelper.id,
+      helper_name: nextHelper.real_name
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
 export async function publicConfirmHelpRequest({ id, action, feedback, accessPayload }) {
   if (!Number.isInteger(id) || id <= 0) {
     throw new HttpError(400, '求助单ID不合法');
@@ -573,11 +747,18 @@ export async function publicConfirmHelpRequest({ id, action, feedback, accessPay
     await connection.query(
       `UPDATE help_requests
        SET status = ?,
+           is_timeout = CASE
+             WHEN deadline_at IS NOT NULL
+               AND NOW() > deadline_at
+               AND ? <> 'completed'
+             THEN 1
+             ELSE 0
+           END,
            requester_confirmed_at = ${requesterConfirmedAtSql},
            requester_feedback = ?,
            updated_at = NOW()
        WHERE id = ?`,
-      [nextStatus, feedback || null, id]
+      [nextStatus, nextStatus, feedback || null, id]
     );
 
     await connection.query(
@@ -624,4 +805,22 @@ export async function publicConfirmHelpRequest({ id, action, feedback, accessPay
   } finally {
     connection.release();
   }
+}
+
+export async function checkHelpRequestTimeouts(user) {
+  if (user.role !== 'admin') {
+    throw new HttpError(403, '只有管理员可以执行超时检查');
+  }
+
+  await syncHelpRequestTimeouts(pool);
+
+  const [[summary]] = await pool.query(
+    `SELECT COUNT(*) AS timeout_count
+     FROM help_requests
+     WHERE is_timeout = 1`
+  );
+
+  return {
+    timeoutCount: Number(summary?.timeout_count || 0)
+  };
 }

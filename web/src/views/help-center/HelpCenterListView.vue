@@ -13,7 +13,7 @@
           <el-option label="已完成" value="completed" />
         </el-select>
       </div>
-      <el-table :data="list" class="custom-table">
+      <el-table :data="list" class="custom-table" :row-class-name="getRowClassName">
         <el-table-column prop="request_no" label="求助单号" min-width="170" />
         <el-table-column prop="title" label="求助标题" min-width="220" />
         <el-table-column prop="requester_name" label="发起人姓名" min-width="120" />
@@ -21,6 +21,12 @@
         <el-table-column label="当前状态" min-width="120">
           <template #default="{ row }">
             <StatusTag :status="row.status" />
+          </template>
+        </el-table-column>
+        <el-table-column label="超时状态" min-width="120">
+          <template #default="{ row }">
+            <span v-if="Number(row.is_timeout) === 1" class="timeout-pill">已超时</span>
+            <span v-else class="table-meta-note">正常</span>
           </template>
         </el-table-column>
         <el-table-column prop="request_datetime" label="发起时间" min-width="180" />
@@ -50,6 +56,10 @@ const list = ref([]);
 async function loadList() {
   const result = await getHelpRequestsApi(status.value);
   list.value = result.data;
+}
+
+function getRowClassName({ row }) {
+  return Number(row.is_timeout) === 1 ? 'timeout-row' : '';
 }
 
 onMounted(loadList);

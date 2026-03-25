@@ -47,6 +47,17 @@
           <span><StatusTag :status="detail.status" /></span>
         </div>
         <div class="detail-item">
+          <label>超时状态</label>
+          <span>
+            <span v-if="Number(detail.is_timeout) === 1" class="timeout-pill">已超时</span>
+            <span v-else class="table-meta-note">正常</span>
+          </span>
+        </div>
+        <div class="detail-item">
+          <label>截止时间</label>
+          <span>{{ detail.deadline_at || '-' }}</span>
+        </div>
+        <div class="detail-item">
           <label>创建时间</label>
           <span>{{ detail.created_at }}</span>
         </div>
@@ -56,6 +67,7 @@
         <el-button class="secondary-action" @click="changeStatus('processing')">标记为处理中</el-button>
         <el-button class="secondary-action" @click="changeStatus('waiting_confirm')">标记为待确认</el-button>
         <el-button class="primary-action small" @click="changeStatus('completed')">标记为已完成</el-button>
+        <el-button v-if="isAdmin" class="secondary-action" @click="openReassignDialog">改派帮助人员</el-button>
       </div>
     </section>
 
@@ -144,13 +156,22 @@
           <p>记录求助单的处理变更过程</p>
         </div>
       </div>
-      <div class="log-list">
-        <div v-for="item in detail.logs" :key="item.id" class="log-item">
-          <div>
-            <strong>{{ item.operator_name }}</strong>
+      <div class="timeline-list">
+        <div v-for="item in detail.logs" :key="item.id" class="timeline-item">
+          <div class="timeline-axis">
+            <span class="timeline-dot"></span>
+            <span class="timeline-line"></span>
+          </div>
+          <div class="timeline-card">
+            <div class="timeline-card-head">
+              <div class="timeline-title-wrap">
+                <strong>{{ actionTypeTextMap[item.action_type] || item.action_type }}</strong>
+                <span class="timeline-operator">{{ item.operator_name }}</span>
+              </div>
+              <span class="timeline-time">{{ item.created_at }}</span>
+            </div>
             <p>{{ item.action_content }}</p>
           </div>
-          <span>{{ item.created_at }}</span>
         </div>
       </div>
     </section>
@@ -187,6 +208,39 @@
         </div>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="reassignDialogVisible" title="改派帮助人员" width="520px">
+      <el-form label-position="top">
+        <el-form-item label="新的帮助人员">
+          <el-select
+            v-model="reassignForm.helperUserId"
+            filterable
+            remote
+            reserve-keyword
+            placeholder="请输入姓名检索"
+            :remote-method="loadHelperOptions"
+            :loading="loadingHelperOptions"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="item in helperOptions"
+              :key="item.id"
+              :label="item.real_name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button class="secondary-action" @click="reassignDialogVisible = false">取消</el-button>
+          <el-button class="primary-action small" :loading="submittingReassign" @click="submitReassign">
+            确认改派
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -200,6 +254,7 @@ import {
   getHelpRequestAssistantsApi,
   getHelpRequestDetailApi,
   getHelpersApi,
+  reassignHelpRequestHelperApi,
   updateHelpRequestStatusApi
 } from '../../api';
 import StatusTag from '../../components/StatusTag.vue';
@@ -209,8 +264,10 @@ const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const assistantDialogVisible = ref(false);
+const reassignDialogVisible = ref(false);
 const submittingAssistant = ref(false);
 const submittingCollaborationLog = ref(false);
+const submittingReassign = ref(false);
 const loadingHelperOptions = ref(false);
 const helperOptions = ref([]);
 const assistants = ref([]);
@@ -225,6 +282,19 @@ const collaborationForm = reactive({
 const assistantForm = reactive({
   assistantUserId: ''
 });
+const reassignForm = reactive({
+  helperUserId: ''
+});
+const actionTypeTextMap = {
+  create: '发起求助',
+  status_update: '状态更新',
+  add_assistant: '添加协同人员',
+  assistant_added: '添加协同人员',
+  reassign_helper: '改派帮助人员',
+  collaboration: '协同处理记录',
+  requester_confirm: '发起人确认完成',
+  requester_reject: '发起人退回处理'
+};
 
 const collaborationLogs = computed(() => {
   return (detail.logs || []).filter((item) => item.action_type === 'collaboration');
@@ -238,6 +308,7 @@ const canSubmitCollaborationLog = computed(() => {
   return authStore.user?.role === 'admin'
     || assistants.value.some((item) => item.assistant_user_id === authStore.user?.id);
 });
+const isAdmin = computed(() => authStore.user?.role === 'admin');
 
 async function loadDetail() {
   const result = await getHelpRequestDetailApi(route.params.id);
@@ -272,6 +343,13 @@ function openAssistantDialog() {
   assistantForm.assistantUserId = '';
   helperOptions.value = [];
   assistantDialogVisible.value = true;
+  loadHelperOptions();
+}
+
+function openReassignDialog() {
+  reassignForm.helperUserId = '';
+  helperOptions.value = [];
+  reassignDialogVisible.value = true;
   loadHelperOptions();
 }
 
@@ -310,6 +388,26 @@ async function submitCollaborationLog() {
     await loadDetail();
   } finally {
     submittingCollaborationLog.value = false;
+  }
+}
+
+async function submitReassign() {
+  if (!reassignForm.helperUserId) {
+    ElMessage.warning('请选择新的帮助人员');
+    return;
+  }
+
+  submittingReassign.value = true;
+  try {
+    await reassignHelpRequestHelperApi(route.params.id, {
+      helperUserId: reassignForm.helperUserId
+    });
+    ElMessage.success('改派帮助人员成功');
+    reassignDialogVisible.value = false;
+    await loadDetail();
+    await loadAssistants();
+  } finally {
+    submittingReassign.value = false;
   }
 }
 
