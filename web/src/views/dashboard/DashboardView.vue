@@ -57,15 +57,21 @@
     <section class="dashboard-stats-band">
       <article
         v-for="item in statsCards"
-        :key="item.key"
-        class="stat-card"
-        :class="{ 'timeout-stat-card': item.key === 'timeout' }"
+        :key="item.type"
+        class="group flex overflow-hidden rounded-xl border border-gray-200 border-l-4 p-4 shadow-sm transition duration-200 hover:-translate-y-[2px]"
+        :class="[item.backgroundClass, item.borderClass]"
       >
-        <div class="stat-card-head">
-          <span>{{ item.label }}</span>
+        <div class="flex-1">
+          <strong
+            class="block text-3xl font-semibold leading-none"
+            :class="item.numberClass"
+          >
+            {{ item.value }}
+          </strong>
+          <span class="mt-2 block text-sm text-gray-500">
+            {{ item.label }}
+          </span>
         </div>
-        <strong>{{ item.value }}</strong>
-        <p>{{ item.tip }}</p>
       </article>
     </section>
 
@@ -239,42 +245,59 @@ const quotes = [
   'Every bug you fix becomes part of your intuition.'
 ];
 const quoteText = quotes[Math.floor(Math.random() * quotes.length)];
+
+function getStatCardStyle(type) {
+  const styleMap = {
+    pending: {
+      borderClass: 'border-l-blue-500',
+      numberClass: 'text-gray-900',
+      backgroundClass: 'bg-white'
+    },
+    processing: {
+      borderClass: 'border-l-yellow-500',
+      numberClass: 'text-gray-900',
+      backgroundClass: 'bg-gray-50'
+    },
+    done: {
+      borderClass: 'border-l-green-500',
+      numberClass: 'text-gray-900',
+      backgroundClass: 'bg-white'
+    },
+    overdue: {
+      borderClass: 'border-l-red-500',
+      numberClass: 'text-red-600',
+      backgroundClass: 'bg-gray-50'
+    }
+  };
+
+  return styleMap[type] || styleMap.pending;
+}
+
 const statsCards = computed(() => {
   return [
     {
-      key: 'pending',
-      label: '待处理求助数',
-      tip: '需要尽快跟进',
+      type: 'pending',
+      label: '待处理',
       value: overview.stats.pending,
-      description: '尚未进入处理流程的求助事项'
+      ...getStatCardStyle('pending')
     },
     {
-      key: 'processing',
-      label: '处理中求助数',
-      tip: '持续推进',
+      type: 'processing',
+      label: '处理中',
       value: overview.stats.processing,
-      description: '已受理并正在排查或处理的事项'
+      ...getStatCardStyle('processing')
     },
     {
-      key: 'waitingConfirm',
-      label: '待确认求助数',
-      tip: '等待反馈',
-      value: overview.stats.waitingConfirm,
-      description: '已完成处理，待发起人确认结果'
-    },
-    {
-      key: 'completed',
-      label: '已完成求助数',
-      tip: '已闭环',
+      type: 'done',
+      label: '已完成',
       value: overview.stats.completed,
-      description: '当前已结束并完成归档的事项'
+      ...getStatCardStyle('done')
     },
     {
-      key: 'timeout',
-      label: '超时求助数',
-      tip: '需要关注',
+      type: 'overdue',
+      label: '超时 / 异常',
       value: overview.stats.timeout,
-      description: '已超过截止时间且仍未完成的求助事项'
+      ...getStatCardStyle('overdue')
     }
   ];
 });
@@ -429,3 +452,132 @@ onMounted(async () => {
   ]);
 });
 </script>
+
+<style scoped>
+.dashboard-stats-band {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.rounded-xl {
+  border-radius: 12px;
+}
+
+.border {
+  border-style: solid;
+  border-width: 1px;
+}
+
+.border-l-4 {
+  border-left-width: 4px;
+}
+
+.border-gray-200 {
+  border-color: #e5e7eb;
+}
+
+.border-l-blue-500 {
+  border-left-color: #3b82f6;
+}
+
+.border-l-yellow-500 {
+  border-left-color: #eab308;
+}
+
+.border-l-green-500 {
+  border-left-color: #22c55e;
+}
+
+.border-l-red-500 {
+  border-left-color: #ef4444;
+}
+
+.bg-white {
+  background: #ffffff;
+}
+
+.bg-gray-50 {
+  background: #f9fafb;
+}
+
+.p-4 {
+  padding: 16px;
+}
+
+.shadow-sm {
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+}
+
+.transition {
+  transition-property: transform, box-shadow, border-color, background-color;
+}
+
+.duration-200 {
+  transition-duration: 200ms;
+}
+
+.group:hover {
+  transform: translateY(-2px);
+}
+
+.block {
+  display: block;
+}
+
+.text-3xl {
+  font-size: 30px;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.leading-none {
+  line-height: 1;
+}
+
+.text-gray-900 {
+  color: #111827;
+}
+
+.text-red-600 {
+  color: #dc2626;
+}
+
+.mt-2 {
+  margin-top: 8px;
+}
+
+.text-sm {
+  font-size: 14px;
+}
+
+.text-gray-500 {
+  color: #6b7280;
+}
+
+@media (max-width: 1280px) {
+  .dashboard-stats-band {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 960px) {
+  .dashboard-stats-band {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
