@@ -56,7 +56,6 @@
               filterable
               clearable
               placeholder="请选择所属项目"
-              :disabled="!canLoadRelationOptions"
               :loading="loadingProjects"
               @change="handleProjectChange"
             >
@@ -74,7 +73,7 @@
               filterable
               clearable
               placeholder="请选择关联任务"
-              :disabled="!form.projectId || !canLoadRelationOptions"
+              :disabled="!form.projectId"
               :loading="loadingTasks"
             >
               <el-option
@@ -85,10 +84,6 @@
               />
             </el-select>
           </el-form-item>
-        </div>
-
-        <div v-if="!canLoadRelationOptions" class="table-meta-note public-relation-note">
-          当前后端未开放公开项目/任务查询接口，未登录场景下无法加载关联选项。
         </div>
 
         <el-form-item label="求助内容" prop="content">
@@ -112,13 +107,13 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { ElMessageBox } from 'element-plus';
 import { useRouter } from 'vue-router';
 import {
   getHelpersApi,
-  getProjectTasksApi,
-  getProjectsApi,
+  getPublicProjectTasksApi,
+  getPublicProjectsApi,
   getRequestersApi,
   submitHelpRequestApi
 } from '../../api';
@@ -151,8 +146,6 @@ const rules = {
   content: [{ required: true, message: '请输入求助内容', trigger: 'blur' }]
 };
 
-const canLoadRelationOptions = computed(() => Boolean(localStorage.getItem('nextlaunch_hub_token')));
-
 async function loadRequesters(keyword = '') {
   loadingRequesters.value = true;
   try {
@@ -174,14 +167,9 @@ async function loadHelpers(keyword = '') {
 }
 
 async function loadProjects() {
-  if (!canLoadRelationOptions.value) {
-    projectOptions.value = [];
-    return;
-  }
-
   loadingProjects.value = true;
   try {
-    const result = await getProjectsApi({
+    const result = await getPublicProjectsApi({
       page: 1,
       pageSize: 100
     });
@@ -192,14 +180,14 @@ async function loadProjects() {
 }
 
 async function loadTasks(projectId) {
-  if (!projectId || !canLoadRelationOptions.value) {
+  if (!projectId) {
     taskOptions.value = [];
     return;
   }
 
   loadingTasks.value = true;
   try {
-    const result = await getProjectTasksApi(projectId, {
+    const result = await getPublicProjectTasksApi(projectId, {
       page: 1,
       pageSize: 100
     });

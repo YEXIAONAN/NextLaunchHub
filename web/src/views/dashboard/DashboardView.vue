@@ -320,15 +320,15 @@ async function loadOverview() {
 
 async function loadMyTodoItems() {
   if (authStore.user?.role === 'admin') {
-    const result = await getHelpRequestsApi('pending');
+    const result = await getHelpRequestsApi({ status: 'pending' });
     myTodoItems.value = result.data.slice(0, 6);
     return;
   }
 
   if (authStore.user?.role === 'helper') {
     const [pendingResult, processingResult] = await Promise.all([
-      getHelpRequestsApi('pending'),
-      getHelpRequestsApi('processing')
+      getHelpRequestsApi({ status: 'pending' }),
+      getHelpRequestsApi({ status: 'processing' })
     ]);
     myTodoItems.value = [...pendingResult.data, ...processingResult.data]
       .sort((a, b) => String(b.request_datetime).localeCompare(String(a.request_datetime)))
@@ -338,8 +338,8 @@ async function loadMyTodoItems() {
 
   if (authStore.user?.role === 'requester') {
     const [pendingResult, processingResult] = await Promise.all([
-      getHelpRequestsApi('pending'),
-      getHelpRequestsApi('processing')
+      getHelpRequestsApi({ status: 'pending' }),
+      getHelpRequestsApi({ status: 'processing' })
     ]);
     myTodoItems.value = [...pendingResult.data, ...processingResult.data]
       .sort((a, b) => String(b.request_datetime).localeCompare(String(a.request_datetime)))

@@ -655,3 +655,95 @@ export async function getProjectTasks(user, projectId, query = {}) {
     projectId
   });
 }
+
+export async function getPublicTasksByProjectId(projectId, query = {}) {
+  if (!Number.isInteger(projectId) || projectId <= 0) {
+    throw new HttpError(400, '项目ID不合法');
+  }
+
+  await getProjectBase(pool, projectId);
+
+  const filters = buildTaskListFilters({
+    ...query,
+    projectId
+  });
+  assertTaskStatus(filters.status);
+  assertTaskPriority(filters.priority);
+
+  if (filters.assigneeUserId !== null && (!Number.isInteger(filters.assigneeUserId) || filters.assigneeUserId <= 0)) {
+    throw new HttpError(400, '负责人ID不合法');
+  }
+
+  let whereSql = 'WHERE t.project_id = ?';
+  const params = [projectId];
+
+  if (filters.keyword) {
+    whereSql += ' AND (t.task_code LIKE ? OR t.title LIKE ?)';
+    params.push(`%${filters.keyword}%`, `%${filters.keyword}%`);
+  }
+
+  if (filters.status) {
+    whereSql += ' AND t.status = ?';
+    params.push(filters.status);
+  }
+
+  if (filters.priority) {
+    whereSql += ' AND t.priority = ?';
+    params.push(filters.priority);
+  }
+
+  if (filters.assigneeUserId !== null) {
+    whereSql += ' AND t.assignee_user_id = ?';
+    params.push(filters.assigneeUserId);
+  }
+
+  const offset = (filters.page - 1) * filters.pageSize;
+
+  const [rows] = await pool.query(
+    `SELECT
+       t.id,
+       t.task_code,
+       t.project_id,
+       t.iteration_id,
+       t.milestone_id,
+       p.project_code,
+       p.project_name,
+       t.title,
+       t.description,
+       t.assignee_user_id,
+       t.assignee_name,
+       t.priority,
+       t.status,
+       t.progress,
+       t.start_date,
+       t.due_date,
+       t.estimated_hours,
+       t.actual_hours,
+       t.created_by,
+       t.created_at,
+       t.updated_at
+     FROM tasks t
+     INNER JOIN projects p ON p.id = t.project_id
+     ${whereSql}
+     ORDER BY t.updated_at DESC, t.id DESC
+     LIMIT ?
+     OFFSET ?`,
+    [...params, filters.pageSize, offset]
+  );
+
+  const [[totalResult]] = await pool.query(
+    `SELECT COUNT(*) AS total
+     FROM tasks t
+     ${whereSql}`,
+    params
+  );
+
+  return {
+    list: rows,
+    pagination: {
+      page: filters.page,
+      pageSize: filters.pageSize,
+      total: Number(totalResult.total || 0)
+    }
+  };
+}

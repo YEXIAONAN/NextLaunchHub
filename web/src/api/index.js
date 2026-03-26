@@ -40,6 +40,12 @@ export function getProjectsApi(params) {
   });
 }
 
+export function getPublicProjectsApi(params) {
+  return http.get('/public/projects', {
+    params
+  });
+}
+
 export function createProjectApi(payload) {
   return http.post('/projects', payload);
 }
@@ -62,6 +68,12 @@ export function addProjectMemberApi(id, payload) {
 
 export function getProjectTasksApi(id, params) {
   return http.get(`/projects/${id}/tasks`, {
+    params
+  });
+}
+
+export function getPublicProjectTasksApi(id, params) {
+  return http.get(`/public/projects/${id}/tasks`, {
     params
   });
 }

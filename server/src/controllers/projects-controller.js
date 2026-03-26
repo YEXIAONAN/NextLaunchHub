@@ -8,6 +8,8 @@ import {
   getProjectIterations,
   getProjectMembers,
   getProjectMilestones,
+  getPublicProjects,
+  getPublicProjectTasks,
   getProjectTasks,
   getProjects,
   updateProject
@@ -55,6 +57,17 @@ export async function getProjectsController(req, res) {
   res.json(success(data));
 }
 
+export async function getPublicProjectsController(req, res) {
+  const data = await getPublicProjects({
+    keyword: req.query.keyword,
+    status: req.query.status,
+    priority: req.query.priority,
+    page: req.query.page,
+    pageSize: req.query.pageSize
+  });
+  res.json(success(data));
+}
+
 export async function exportProjectsController(req, res) {
   const rows = await exportProjects(req.user, {
     keyword: req.query.keyword,
@@ -87,6 +100,18 @@ export async function getProjectDetailController(req, res) {
 
 export async function getProjectTasksController(req, res) {
   const data = await getProjectTasks(req.user, Number(req.params.id), {
+    keyword: req.query.keyword,
+    status: req.query.status,
+    priority: req.query.priority,
+    assigneeUserId: req.query.assigneeUserId || req.query.assignee_user_id,
+    page: req.query.page,
+    pageSize: req.query.pageSize
+  });
+  res.json(success(data));
+}
+
+export async function getPublicProjectTasksController(req, res) {
+  const data = await getPublicProjectTasks(Number(req.params.id), {
     keyword: req.query.keyword,
     status: req.query.status,
     priority: req.query.priority,

@@ -112,8 +112,16 @@ export function buildHelpRequestListScope(user, tableAlias = 'hr') {
 
   if (isHelper(user)) {
     return {
-      clause: `WHERE ${tableAlias}.helper_user_id = ?`,
-      params: [user.id]
+      clause: `WHERE (
+        ${tableAlias}.helper_user_id = ?
+        OR EXISTS (
+          SELECT 1
+          FROM help_request_assistants hra
+          WHERE hra.help_request_id = ${tableAlias}.id
+            AND hra.assistant_user_id = ?
+        )
+      )`,
+      params: [user.id, user.id]
     };
   }
 

@@ -5,6 +5,10 @@ import {
   queryPublicHelpRequestController
 } from '../controllers/help-request-controller.js';
 import {
+  getPublicProjectsController,
+  getPublicProjectTasksController
+} from '../controllers/projects-controller.js';
+import {
   getHelpersController,
   getRequestersController
 } from '../controllers/users-controller.js';
@@ -15,6 +19,8 @@ const router = Router();
 
 router.get('/requesters', asyncHandler(getRequestersController));
 router.get('/helpers', asyncHandler(getHelpersController));
+router.get('/projects', asyncHandler(getPublicProjectsController));
+router.get('/projects/:id/tasks', asyncHandler(getPublicProjectTasksController));
 router.get('/help-requests/query', asyncHandler(queryPublicHelpRequestController));
 
 router.post(

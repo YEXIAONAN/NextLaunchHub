@@ -15,7 +15,10 @@ import {
   getProjectMilestones as getProjectMilestonesFromPlanningService,
   getProjectMilestonesByProjectId
 } from './project-planning-service.js';
-import { getProjectTasks as getProjectTasksFromTasksService } from './tasks-service.js';
+import {
+  getProjectTasks as getProjectTasksFromTasksService,
+  getPublicTasksByProjectId
+} from './tasks-service.js';
 
 const PROJECT_STATUS = ['not_started', 'in_progress', 'paused', 'completed', 'archived'];
 const PROJECT_PRIORITY = ['low', 'medium', 'high', 'urgent'];
@@ -336,6 +339,69 @@ export async function getProjects(user, query = {}) {
   };
 }
 
+export async function getPublicProjects(query = {}) {
+  const filters = buildProjectListFilters(query);
+  assertProjectStatus(filters.status);
+  assertProjectPriority(filters.priority);
+
+  let whereSql = 'WHERE 1 = 1';
+  const params = [];
+
+  if (filters.keyword) {
+    whereSql += ' AND (p.project_code LIKE ? OR p.project_name LIKE ?)';
+    params.push(`%${filters.keyword}%`, `%${filters.keyword}%`);
+  }
+
+  if (filters.status) {
+    whereSql += ' AND p.status = ?';
+    params.push(filters.status);
+  }
+
+  if (filters.priority) {
+    whereSql += ' AND p.priority = ?';
+    params.push(filters.priority);
+  }
+
+  const offset = (filters.page - 1) * filters.pageSize;
+
+  const [rows] = await pool.query(
+    `SELECT
+       p.id,
+       p.project_code,
+       p.project_name,
+       p.owner_name,
+       p.priority,
+       p.status,
+       p.start_date,
+       p.end_date,
+       p.progress,
+       p.created_at,
+       p.updated_at
+     FROM projects p
+     ${whereSql}
+     ORDER BY p.updated_at DESC, p.id DESC
+     LIMIT ?
+     OFFSET ?`,
+    [...params, filters.pageSize, offset]
+  );
+
+  const [[totalResult]] = await pool.query(
+    `SELECT COUNT(*) AS total
+     FROM projects p
+     ${whereSql}`,
+    params
+  );
+
+  return {
+    list: rows,
+    pagination: {
+      page: filters.page,
+      pageSize: filters.pageSize,
+      total: Number(totalResult.total || 0)
+    }
+  };
+}
+
 export async function exportProjects(user, query = {}) {
   const { whereSql, params } = buildProjectListQuery(user, query);
 
@@ -568,6 +634,10 @@ export async function getProjectMembers(user, projectId) {
 
 export async function getProjectTasks(user, projectId, query = {}) {
   return getProjectTasksFromTasksService(user, projectId, query);
+}
+
+export async function getPublicProjectTasks(projectId, query = {}) {
+  return getPublicTasksByProjectId(projectId, query);
 }
 
 export async function createProjectIteration(user, projectId, payload) {
