@@ -12,6 +12,7 @@ import milestonesRoutes from './routes/milestones-routes.js';
 import notificationRoutes from './routes/notification-routes.js';
 import projectsRoutes from './routes/projects-routes.js';
 import publicRoutes from './routes/public-routes.js';
+import realtimeRoutes from './routes/realtime-routes.js';
 import tasksRoutes from './routes/tasks-routes.js';
 import usersRoutes from './routes/users-routes.js';
 import adminDictionariesRoutes from './routes/admin-dictionaries-routes.js';
@@ -44,6 +45,7 @@ app.use('/api/dashboard', authMiddleware, dashboardRoutes);
 app.use('/api/users', authMiddleware, usersRoutes);
 app.use('/api/dictionaries', authMiddleware, dictionariesRoutes);
 app.use('/api/admin/dictionaries', authMiddleware, adminDictionariesRoutes);
+app.use('/api/realtime', authMiddleware, realtimeRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { loginApi } from '../api';
+import { connectRealtime, disconnectRealtime } from '../realtime/socket';
 import { useNotificationStore } from './notifications';
+import { useSystemNotificationStore } from './system-notification';
 
 const TOKEN_KEY = 'nextlaunch_hub_token';
 const USER_KEY = 'nextlaunch_hub_user';
@@ -11,6 +13,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(JSON.parse(localStorage.getItem(USER_KEY) || 'null'));
   const isLoggedIn = computed(() => Boolean(token.value));
   const notificationStore = useNotificationStore();
+  const systemNotificationStore = useSystemNotificationStore();
 
   async function login(formData) {
     const result = await loginApi(formData);
@@ -18,10 +21,13 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = result.data.user;
     localStorage.setItem(TOKEN_KEY, token.value);
     localStorage.setItem(USER_KEY, JSON.stringify(user.value));
+    connectRealtime(token.value);
     await notificationStore.fetchUnreadCount();
+    await systemNotificationStore.requestPermissionAfterLogin();
   }
 
   function logout() {
+    disconnectRealtime();
     token.value = '';
     user.value = null;
     localStorage.removeItem(TOKEN_KEY);

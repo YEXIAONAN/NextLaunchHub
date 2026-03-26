@@ -9,6 +9,7 @@ import {
   canViewHelpRequest
 } from '../utils/permission.js';
 import { generateRequestNo } from '../utils/request-no.js';
+import { emitToUser } from '../realtime/socket-server.js';
 import { createNotification } from './notification-service.js';
 
 const ALLOWED_STATUS = ['pending', 'processing', 'waiting_confirm', 'completed'];
@@ -220,6 +221,7 @@ export async function createHelpRequest(payload) {
   } = payload;
 
   const connection = await pool.getConnection();
+  let realtimePayload = null;
 
   try {
     await connection.beginTransaction();
@@ -300,7 +302,20 @@ export async function createHelpRequest(payload) {
       relatedId: helpRequestId
     });
 
+    realtimePayload = {
+      type: 'new_help_request',
+      requestId: helpRequestId,
+      requestNo,
+      title,
+      requesterName: requester.real_name,
+      helperUserId: helper.id,
+      createdAt: new Date().toISOString(),
+      message: `求助单 ${requestNo}《${title}》已由 ${requester.real_name} 提交，请及时处理。`
+    };
+
     await connection.commit();
+
+    emitToUser(helper.id, 'new_help_request', realtimePayload);
 
     return {
       id: helpRequestId,

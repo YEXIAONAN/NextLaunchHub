@@ -50,6 +50,13 @@
               <strong>{{ notificationStore.unreadCount }}</strong>
               <span>未读通知需及时处理</span>
             </div>
+            <div v-if="systemNotificationStore.shouldShowEnableEntry" class="dashboard-priority-item">
+              <label>系统提醒</label>
+              <strong>未开启</strong>
+              <span>
+                <el-button link type="primary" @click="handleEnableSystemNotification">开启系统提醒</el-button>
+              </span>
+            </div>
           </div>
         </div>
       </aside>
@@ -166,15 +173,18 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
+import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { getDashboardOverviewApi, getHelpRequestsApi } from '../../api';
 import StatusTag from '../../components/StatusTag.vue';
 import { useAuthStore } from '../../stores/auth';
 import { useNotificationStore } from '../../stores/notifications';
+import { useSystemNotificationStore } from '../../stores/system-notification';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
+const systemNotificationStore = useSystemNotificationStore();
 
 const overview = reactive({
   stats: {
@@ -358,7 +368,24 @@ function handleRowClick(row) {
   goDetail(row.id);
 }
 
+async function handleEnableSystemNotification() {
+  const permission = await systemNotificationStore.requestPermission({ force: true });
+
+  if (permission === 'granted') {
+    ElMessage.success('系统提醒已开启');
+    return;
+  }
+
+  if (permission === 'denied') {
+    ElMessage.warning('浏览器已拒绝系统提醒，请在浏览器设置中重新允许通知权限');
+    return;
+  }
+
+  ElMessage.info('系统提醒暂未开启');
+}
+
 onMounted(async () => {
+  systemNotificationStore.refreshPermission();
   await Promise.all([
     loadOverview(),
     loadMyTodoItems(),

@@ -40,6 +40,14 @@
           <p>求助受理与处理中心</p>
         </div>
         <div class="topbar-actions">
+          <el-button
+            v-if="systemNotificationStore.shouldShowEnableEntry"
+            class="secondary-action topbar-alert-btn"
+            size="small"
+            @click="handleEnableSystemNotification"
+          >
+            开启系统提醒
+          </el-button>
           <button class="topbar-notification" @click="router.push('/notifications')">
             <span>通知中心</span>
             <em v-if="notificationStore.unreadCount > 0">{{ notificationStore.unreadCount }}</em>
@@ -59,13 +67,16 @@
 
 <script setup>
 import { onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useNotificationStore } from '../stores/notifications';
+import { useSystemNotificationStore } from '../stores/system-notification';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
+const systemNotificationStore = useSystemNotificationStore();
 
 const roleTextMap = {
   admin: '管理员',
@@ -78,7 +89,24 @@ function handleLogout() {
   router.push('/login');
 }
 
+async function handleEnableSystemNotification() {
+  const permission = await systemNotificationStore.requestPermission({ force: true });
+
+  if (permission === 'granted') {
+    ElMessage.success('系统提醒已开启');
+    return;
+  }
+
+  if (permission === 'denied') {
+    ElMessage.warning('浏览器已拒绝系统提醒，请在浏览器设置中重新允许通知权限');
+    return;
+  }
+
+  ElMessage.info('系统提醒暂未开启');
+}
+
 onMounted(() => {
+  systemNotificationStore.refreshPermission();
   if (authStore.token) {
     notificationStore.fetchUnreadCount();
   }

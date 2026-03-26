@@ -294,6 +294,10 @@ a {
   text-align: center;
 }
 
+.topbar-alert-btn {
+  margin-right: 8px;
+}
+
 .content-area,
 .page-section {
   display: flex;

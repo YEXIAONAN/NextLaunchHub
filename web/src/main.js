@@ -4,11 +4,21 @@ import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import App from './App.vue';
 import router from './router';
+import { connectRealtime, setupRealtime } from './realtime/socket';
 import './styles/theme.css';
 
 const app = createApp(App);
+const pinia = createPinia();
 
-app.use(createPinia());
+app.use(pinia);
 app.use(router);
 app.use(ElementPlus);
+
+setupRealtime({ router, pinia });
+
+const token = localStorage.getItem('nextlaunch_hub_token');
+if (token) {
+  connectRealtime(token);
+}
+
 app.mount('#app');
