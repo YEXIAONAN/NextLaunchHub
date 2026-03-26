@@ -1,49 +1,74 @@
 # NextLaunch Hub
 
-NextLaunch Hub 是一个前后端分离的求助协同系统，当前已覆盖从公开发起、后台处理、协同参与、通知提醒到超时预警、项目任务协同的完整链路。
+NextLaunch Hub 是一个前后端分离的求助协同系统，覆盖公开发起、后台受理、状态流转、协同处理、通知提醒、超时预警与基础项目任务协同等核心场景。
 
 ![index](img/index.png)
+
+## 项目概览
+
+- 公开入口支持未登录提交求助
+- 后台支持受理、分派、协同、确认、归档
+- 首页提供工作台视图、待办摘要与最近记录
+- 通知中心支持未读统计、分页筛选与已读操作
+- 系统内置超时检查与超时状态展示
+
 ## 技术栈
 
-- 前端：Vue 3、Vite、Vue Router、Pinia、Element Plus、Axios
-- 后端：Node.js、Express、MySQL、mysql2、JWT、bcryptjs、dotenv、cors
+### 前端
 
-## 当前已实现能力
+- Vue 3
+- Vite
+- Vue Router
+- Pinia
+- Element Plus
+- Axios
+- Socket.IO Client
 
-- 用户登录与权限区分：`admin`、`helper`、`requester`
-- 未登录提交求助
+### 后端
+
+- Node.js
+- Express
+- MySQL
+- mysql2
+- JWT
+- bcryptjs
+- dotenv
+- cors
+- Socket.IO
+
+## 已实现能力
+
+- 用户登录与角色区分：`admin`、`helper`、`requester`
+- 公开求助提交
 - 公开求助查询与发起人确认/退回
-- 求助中心列表、详情、状态流转
-- 协同人员添加与协同处理记录
+- 求助中心列表、详情与状态流转
 - 管理员改派帮助人员
+- 协同人员添加与协同处理记录
 - 通知中心、未读统计、分页筛选、已读操作
-- 工作台首页统计、快捷入口、待办区、最近记录
+- 工作台首页统计、待办区、快捷入口、最近记录
 - 求助日志时间线
-- 超时预警：
-  - 默认 24 小时处理时限
-  - 自动计算截止时间
-  - 支持手动执行超时检查
-  - 首页统计超时数
-  - 列表和详情展示超时状态
+- 超时预警与超时状态展示
+- 项目与任务协同基础能力
 
 ## 项目结构
 
 ```text
 NextLaunchHub
+├── LICENSE
 ├── README.md
-├── .gitignore
-├── server
+├── img/
+├── server/
 │   ├── .env.example
 │   ├── package.json
-│   ├── sql
+│   ├── sql/
 │   │   ├── schema.sql
 │   │   └── seed.sql
-│   └── src
-└── web
+│   └── src/
+└── web/
     ├── .env.example
     ├── package.json
     ├── vite.config.js
-    └── src
+    └── src/
 ```
 
 ## 环境要求
@@ -52,7 +77,7 @@ NextLaunchHub
 - npm 9+
 - MySQL 8+
 
-检查命令：
+可先检查本地环境：
 
 ```bash
 node -v
@@ -60,9 +85,9 @@ npm -v
 mysql --version
 ```
 
-## 安装说明
+## 快速开始
 
-首次拉起项目时，需要分别安装前后端依赖：
+### 1. 安装依赖
 
 ```bash
 cd server
@@ -72,14 +97,9 @@ cd ../web
 npm install
 ```
 
-如果你只是继续拉取我这次的代码变更，而 `package.json` 没有变化，则通常不需要重新执行 `npm install`。
+如果只是拉取代码更新，且 `package.json` 与 `package-lock.json` 没有变化，通常不需要重新安装依赖。
 
-只有下面两种情况建议重新安装：
-
-- 你的 `node_modules` 不存在
-- `package.json` 或 `package-lock.json` 发生变化
-
-## 环境变量
+### 2. 配置环境变量
 
 后端：
 
@@ -88,7 +108,7 @@ cd server
 cp .env.example .env
 ```
 
-示例：
+参考配置：
 
 ```env
 PORT=3000
@@ -109,15 +129,13 @@ cd web
 cp .env.example .env
 ```
 
-示例：
+参考配置：
 
 ```env
 VITE_API_BASE_URL=/api
 ```
 
-## 数据库初始化
-
-首次初始化：
+### 3. 初始化数据库
 
 ```bash
 mysql -uroot -p < server/sql/schema.sql
@@ -130,53 +148,41 @@ mysql -uroot -p < server/sql/seed.sql
 nextlaunch_hub
 ```
 
-## 数据库说明
+### 4. 启动项目
 
-当前 SQL 目录只保留两份最终文件：
-
-- `server/sql/schema.sql`
-- `server/sql/seed.sql`
-
-初始化或重建本地数据库时，统一执行：
-
-```bash
-mysql -uroot -p < server/sql/schema.sql
-mysql -uroot -p < server/sql/seed.sql
-```
-
-不再需要执行任何 `migration_*.sql` 文件。
-
-## 启动方式
-
-后端开发启动：
+后端开发环境：
 
 ```bash
 cd server
 npm run dev
 ```
 
-后端生产启动：
+后端生产方式：
 
 ```bash
 cd server
 npm start
 ```
 
-前端开发启动：
+前端开发环境：
 
 ```bash
 cd web
 npm run dev
 ```
 
-默认访问地址：
+前端构建：
+
+```bash
+cd web
+npm run build
+```
+
+## 默认访问地址
 
 - 前端：`http://localhost:5173`
 - 后端：`http://localhost:3000`
-
-健康检查：
-
-- `GET /api/health`
+- 健康检查：`GET /api/health`
 
 ## 默认测试账号
 
@@ -220,7 +226,7 @@ zhouzhaoshuang
 
 ## 主要接口
 
-认证与公开接口：
+### 认证与公开接口
 
 - `POST /api/auth/login`
 - `GET /api/public/requesters?keyword=`
@@ -229,7 +235,7 @@ zhouzhaoshuang
 - `GET /api/public/help-requests/query`
 - `POST /api/public/help-requests/:id/confirm`
 
-求助单接口：
+### 求助单接口
 
 - `GET /api/help-requests`
 - `GET /api/help-requests/:id`
@@ -240,7 +246,7 @@ zhouzhaoshuang
 - `POST /api/help-requests/:id/collaboration-log`
 - `POST /api/help-requests/check-timeout`
 
-通知与统计：
+### 工作台与通知
 
 - `GET /api/dashboard/overview`
 - `GET /api/notifications`
@@ -248,111 +254,26 @@ zhouzhaoshuang
 - `PATCH /api/notifications/read-all`
 - `GET /api/notifications/unread-count`
 
-## Git 提交建议
+## 数据库说明
 
-当前仓库之前没有根级 `.gitignore`，所以这些内容会直接出现在 `git status` 里：
+SQL 目录保留的是可直接初始化的最终文件：
 
-- `server/node_modules/`
-- `web/node_modules/`
-- `.env`
-- `.DS_Store`
+- `server/sql/schema.sql`
+- `server/sql/seed.sql`
 
-现在已经补了根级 `.gitignore`，后续这些文件不会再被新加入版本控制。
-
-如果某些缓存文件已经被你执行过 `git add`，需要先从索引移除，再重新提交：
+重建本地数据库时，统一执行：
 
 ```bash
-git rm -r --cached server/node_modules web/node_modules
-git rm --cached .DS_Store
+mysql -uroot -p < server/sql/schema.sql
+mysql -uroot -p < server/sql/seed.sql
 ```
 
-然后再执行：
+## 开发说明
 
-```bash
-git status
-git add .
-git commit -m "chore: update ignore rules"
-```
+- 前后端目录独立，需分别安装依赖与启动
+- 当前仓库已包含根级 `.gitignore`
+- `server/node_modules/`、`web/node_modules/`、`.env`、`.DS_Store` 不应提交到版本库
 
-说明：
+## License
 
-- `node_modules` 不应该提交
-- `package-lock.json` 建议提交
-- `.env` 不应该提交
-- `.env.example` 应该保留提交
-
-## 联调检查清单
-
-1. 登录后台，进入 `/dashboard`
-2. 检查统计卡片是否包含“超时求助数”
-3. 打开 `/help-center`，确认超时项有明显标签和高亮
-4. 打开任意求助详情，确认能看到截止时间和超时状态
-5. 打开通知中心，检查未读数与分页是否正常
-6. 如需验证超时逻辑，可调用：
-
-```bash
-POST /api/help-requests/check-timeout
-```
-
-### 3. 提交求助检查
-
-- 打开 `http://localhost:5173/help-request`
-- 发起人姓名可通过后端检索
-- 帮助人员可通过后端检索
-- 提交成功后弹窗显示求助单号
-
-### 4. 列表权限检查
-
-使用 `waiting / 123456` 登录：
-
-- 进入 `/help-center`
-- 只能看到分配给 Waiting 的求助单
-
-使用 `admin / 123456` 登录：
-
-- 进入 `/help-center`
-- 可以看到全部求助单
-
-### 5. 详情与状态检查
-
-- 点击列表中的“查看详情”
-- 详情页能显示完整字段
-- 点击“标记为处理中 / 待确认 / 已完成”
-- 状态变更后详情页应刷新
-- 日志列表应新增一条状态变更记录
-
-### 6. 通知检查
-
-- 提交求助后，`notifications` 表会新增一条发给对应帮助人员的通知
-- 状态更新后，`notifications` 表会新增一条发给发起人的通知
-
-## 十一、常见问题
-
-### 1. 前端请求失败或跨域报错
-
-优先检查：
-
-- 后端是否已启动
-- 前端是否通过 `npm run dev` 启动
-- 后端 `.env` 中 `CORS_ORIGIN` 是否为 `http://localhost:5173`
-- 前端 `VITE_API_BASE_URL` 是否为 `/api`
-
-### 2. 登录失败
-
-优先检查：
-
-- 是否已执行 `seed.sql`
-- 数据库连接信息是否正确
-- `users` 表中是否存在初始化账号
-
-### 3. 页面没有数据
-
-优先检查：
-
-- `help_requests` 表是否已导入初始化数据
-- 后端控制台是否有报错
-- 浏览器开发者工具的 Network 中接口是否返回 `code: 0`
-
-## 十二、补充说明
-
-当前终端环境如果未安装 Node.js，将无法直接在当前会话中执行 `npm install` 和 `npm run dev`。这种情况下，请在你本地终端中按本说明执行即可。
+本项目使用 [MIT License](LICENSE)。
