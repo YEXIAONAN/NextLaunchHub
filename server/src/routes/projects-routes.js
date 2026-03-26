@@ -1,9 +1,14 @@
 import { Router } from 'express';
 import {
   addProjectMemberController,
+  createProjectIterationController,
+  createProjectMilestoneController,
   createProjectController,
   getProjectDetailController,
+  getProjectIterationsController,
   getProjectMembersController,
+  getProjectMilestonesController,
+  getProjectTasksController,
   getProjectsController,
   updateProjectController
 } from '../controllers/projects-controller.js';
@@ -29,6 +34,33 @@ router.post(
 
 router.get('/:id', asyncHandler(getProjectDetailController));
 router.patch('/:id', asyncHandler(updateProjectController));
+router.get('/:id/tasks', asyncHandler(getProjectTasksController));
+router.get('/:id/iterations', asyncHandler(getProjectIterationsController));
+router.post(
+  '/:id/iterations',
+  asyncHandler(async (req, res) => {
+    const iterationName = req.body.iterationName || req.body.iteration_name;
+
+    if (!iterationName) {
+      throw new HttpError(400, '迭代名称不能为空');
+    }
+
+    await createProjectIterationController(req, res);
+  })
+);
+router.get('/:id/milestones', asyncHandler(getProjectMilestonesController));
+router.post(
+  '/:id/milestones',
+  asyncHandler(async (req, res) => {
+    const milestoneName = req.body.milestoneName || req.body.milestone_name;
+
+    if (!milestoneName) {
+      throw new HttpError(400, '里程碑名称不能为空');
+    }
+
+    await createProjectMilestoneController(req, res);
+  })
+);
 router.get('/:id/members', asyncHandler(getProjectMembersController));
 router.post(
   '/:id/members',

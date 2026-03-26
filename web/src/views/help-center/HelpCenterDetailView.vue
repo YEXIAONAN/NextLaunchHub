@@ -26,6 +26,14 @@
           <label>帮助人员</label>
           <span>{{ detail.helper_name }}</span>
         </div>
+        <div class="detail-item">
+          <label>所属项目</label>
+          <span>{{ detail.project_name || '-' }}</span>
+        </div>
+        <div class="detail-item">
+          <label>关联任务</label>
+          <span>{{ detail.task_title || '-' }}</span>
+        </div>
         <div class="detail-item full-width">
           <label>内容</label>
           <span>{{ detail.content }}</span>

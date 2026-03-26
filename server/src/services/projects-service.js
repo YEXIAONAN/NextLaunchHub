@@ -7,6 +7,15 @@ import {
   canViewProject
 } from '../utils/permission.js';
 import { generateProjectCode } from '../utils/project-code.js';
+import {
+  createProjectIteration as createProjectIterationFromPlanningService,
+  createProjectMilestone as createProjectMilestoneFromPlanningService,
+  getProjectIterations as getProjectIterationsFromPlanningService,
+  getProjectIterationsByProjectId,
+  getProjectMilestones as getProjectMilestonesFromPlanningService,
+  getProjectMilestonesByProjectId
+} from './project-planning-service.js';
+import { getProjectTasks as getProjectTasksFromTasksService } from './tasks-service.js';
 
 const PROJECT_STATUS = ['not_started', 'in_progress', 'paused', 'completed', 'archived'];
 const PROJECT_PRIORITY = ['low', 'medium', 'high', 'urgent'];
@@ -315,9 +324,13 @@ export async function getProjects(user, query = {}) {
 export async function getProjectDetail(user, projectId) {
   const context = await getAccessibleProject(pool, user, projectId);
   const logs = await getProjectLogsByProjectId(pool, projectId);
+  const iterations = await getProjectIterationsByProjectId(pool, projectId);
+  const milestones = await getProjectMilestonesByProjectId(pool, projectId);
 
   return {
     ...context.project,
+    iterations,
+    milestones,
     logs
   };
 }
@@ -513,4 +526,24 @@ export async function addProjectMember(user, projectId, payload) {
 export async function getProjectMembers(user, projectId) {
   const context = await getAccessibleProject(pool, user, projectId);
   return context.members;
+}
+
+export async function getProjectTasks(user, projectId, query = {}) {
+  return getProjectTasksFromTasksService(user, projectId, query);
+}
+
+export async function createProjectIteration(user, projectId, payload) {
+  return createProjectIterationFromPlanningService(user, projectId, payload);
+}
+
+export async function getProjectIterations(user, projectId) {
+  return getProjectIterationsFromPlanningService(user, projectId);
+}
+
+export async function createProjectMilestone(user, projectId, payload) {
+  return createProjectMilestoneFromPlanningService(user, projectId, payload);
+}
+
+export async function getProjectMilestones(user, projectId) {
+  return getProjectMilestonesFromPlanningService(user, projectId);
 }

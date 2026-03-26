@@ -25,6 +25,8 @@ export async function createHelpRequestController(req, res) {
     title: req.body.title,
     requesterUserId: req.body.requesterUserId || req.body.requester_user_id,
     helperUserId: req.body.helperUserId || req.body.helper_user_id,
+    projectId: req.body.projectId || req.body.project_id,
+    taskId: req.body.taskId || req.body.task_id,
     content: req.body.content,
     requesterIp: getClientIp(req)
   };
@@ -33,7 +35,11 @@ export async function createHelpRequestController(req, res) {
 }
 
 export async function getHelpRequestsController(req, res) {
-  const data = await getHelpRequests(req.user, req.query.status || req.query.current_status || '');
+  const data = await getHelpRequests(req.user, {
+    status: req.query.status || req.query.current_status || '',
+    projectId: req.query.projectId || req.query.project_id,
+    taskId: req.query.taskId || req.query.task_id
+  });
   res.json(success(data));
 }
 

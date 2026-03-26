@@ -80,6 +80,28 @@ export function canAddProjectMember(user, project) {
   return isAdmin(user) || Number(project.owner_user_id) === Number(user.id);
 }
 
+export function canCreateTask(user, project) {
+  if (!user || !project) {
+    return false;
+  }
+
+  return isAdmin(user) || Number(project.owner_user_id) === Number(user.id);
+}
+
+export function canUpdateTask(user, project) {
+  return canCreateTask(user, project);
+}
+
+export function canUpdateTaskStatus(user, project, task) {
+  if (!user || !project || !task) {
+    return false;
+  }
+
+  return isAdmin(user)
+    || Number(project.owner_user_id) === Number(user.id)
+    || Number(task.assignee_user_id) === Number(user.id);
+}
+
 export function buildHelpRequestListScope(user, tableAlias = 'hr') {
   if (isAdmin(user)) {
     return {
@@ -139,6 +161,31 @@ export function buildProjectListScope(user, tableAlias = 'p') {
         WHERE pm.project_id = ${tableAlias}.id
           AND pm.user_id = ?
       )
+    )`,
+    params: [user.id, user.id]
+  };
+}
+
+export function buildTaskListScope(user, taskAlias = 't') {
+  if (isAdmin(user)) {
+    return {
+      clause: 'WHERE 1 = 1',
+      params: []
+    };
+  }
+
+  return {
+    clause: `WHERE EXISTS (
+      SELECT 1
+      FROM projects p
+      LEFT JOIN project_members pm
+        ON pm.project_id = p.id
+       AND pm.user_id = ?
+      WHERE p.id = ${taskAlias}.project_id
+        AND (
+          p.owner_user_id = ?
+          OR pm.user_id IS NOT NULL
+        )
     )`,
     params: [user.id, user.id]
   };

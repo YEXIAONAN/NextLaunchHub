@@ -34,9 +34,87 @@ export function getDashboardOverviewApi() {
   return http.get('/dashboard/overview');
 }
 
-export function getHelpRequestsApi(status = '') {
+export function getProjectsApi(params) {
+  return http.get('/projects', {
+    params
+  });
+}
+
+export function createProjectApi(payload) {
+  return http.post('/projects', payload);
+}
+
+export function getProjectDetailApi(id) {
+  return http.get(`/projects/${id}`);
+}
+
+export function updateProjectApi(id, payload) {
+  return http.patch(`/projects/${id}`, payload);
+}
+
+export function getProjectMembersApi(id) {
+  return http.get(`/projects/${id}/members`);
+}
+
+export function addProjectMemberApi(id, payload) {
+  return http.post(`/projects/${id}/members`, payload);
+}
+
+export function getProjectTasksApi(id, params) {
+  return http.get(`/projects/${id}/tasks`, {
+    params
+  });
+}
+
+export function getProjectIterationsApi(id) {
+  return http.get(`/projects/${id}/iterations`);
+}
+
+export function createProjectIterationApi(id, payload) {
+  return http.post(`/projects/${id}/iterations`, payload);
+}
+
+export function updateIterationApi(id, payload) {
+  return http.patch(`/iterations/${id}`, payload);
+}
+
+export function getProjectMilestonesApi(id) {
+  return http.get(`/projects/${id}/milestones`);
+}
+
+export function createProjectMilestoneApi(id, payload) {
+  return http.post(`/projects/${id}/milestones`, payload);
+}
+
+export function updateMilestoneApi(id, payload) {
+  return http.patch(`/milestones/${id}`, payload);
+}
+
+export function getTasksApi(params) {
+  return http.get('/tasks', {
+    params
+  });
+}
+
+export function createTaskApi(payload) {
+  return http.post('/tasks', payload);
+}
+
+export function getTaskDetailApi(id) {
+  return http.get(`/tasks/${id}`);
+}
+
+export function updateTaskApi(id, payload) {
+  return http.patch(`/tasks/${id}`, payload);
+}
+
+export function updateTaskStatusApi(id, status) {
+  return http.patch(`/tasks/${id}/status`, { status });
+}
+
+export function getHelpRequestsApi(params = {}) {
   return http.get('/help-requests', {
-    params: { status }
+    params
   });
 }
 

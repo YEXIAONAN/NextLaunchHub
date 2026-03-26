@@ -13,6 +13,8 @@
         <nav class="menu-list">
           <router-link class="menu-item" to="/dashboard">主页</router-link>
           <router-link class="menu-item" to="/help-center">求助中心</router-link>
+          <router-link class="menu-item" to="/projects">项目管理</router-link>
+          <router-link class="menu-item" to="/tasks">任务管理</router-link>
         </nav>
       </div>
       <div class="sidebar-bottom">

@@ -50,7 +50,47 @@
               />
             </el-select>
           </el-form-item>
+          <el-form-item label="所属项目">
+            <el-select
+              v-model="form.projectId"
+              filterable
+              clearable
+              placeholder="请选择所属项目"
+              :disabled="!canLoadRelationOptions"
+              :loading="loadingProjects"
+              @change="handleProjectChange"
+            >
+              <el-option
+                v-for="item in projectOptions"
+                :key="item.id"
+                :label="`${item.project_name}（${item.project_code}）`"
+                :value="item.id"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="关联任务">
+            <el-select
+              v-model="form.taskId"
+              filterable
+              clearable
+              placeholder="请选择关联任务"
+              :disabled="!form.projectId || !canLoadRelationOptions"
+              :loading="loadingTasks"
+            >
+              <el-option
+                v-for="item in taskOptions"
+                :key="item.id"
+                :label="`${item.title}（${item.task_code}）`"
+                :value="item.id"
+              />
+            </el-select>
+          </el-form-item>
         </div>
+
+        <div v-if="!canLoadRelationOptions" class="table-meta-note public-relation-note">
+          当前后端未开放公开项目/任务查询接口，未登录场景下无法加载关联选项。
+        </div>
+
         <el-form-item label="求助内容" prop="content">
           <el-input
             v-model="form.content"
@@ -72,23 +112,35 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { ElMessageBox } from 'element-plus';
 import { useRouter } from 'vue-router';
-import { getHelpersApi, getRequestersApi, submitHelpRequestApi } from '../../api';
+import {
+  getHelpersApi,
+  getProjectTasksApi,
+  getProjectsApi,
+  getRequestersApi,
+  submitHelpRequestApi
+} from '../../api';
 
 const router = useRouter();
 const formRef = ref();
 const submitting = ref(false);
 const requesterOptions = ref([]);
 const helperOptions = ref([]);
+const projectOptions = ref([]);
+const taskOptions = ref([]);
 const loadingRequesters = ref(false);
 const loadingHelpers = ref(false);
+const loadingProjects = ref(false);
+const loadingTasks = ref(false);
 
 const form = reactive({
   title: '',
   requesterUserId: '',
   helperUserId: '',
+  projectId: '',
+  taskId: '',
   content: ''
 });
 
@@ -98,6 +150,8 @@ const rules = {
   helperUserId: [{ required: true, message: '请选择帮助人员', trigger: 'change' }],
   content: [{ required: true, message: '请输入求助内容', trigger: 'blur' }]
 };
+
+const canLoadRelationOptions = computed(() => Boolean(localStorage.getItem('nextlaunch_hub_token')));
 
 async function loadRequesters(keyword = '') {
   loadingRequesters.value = true;
@@ -119,6 +173,47 @@ async function loadHelpers(keyword = '') {
   }
 }
 
+async function loadProjects() {
+  if (!canLoadRelationOptions.value) {
+    projectOptions.value = [];
+    return;
+  }
+
+  loadingProjects.value = true;
+  try {
+    const result = await getProjectsApi({
+      page: 1,
+      pageSize: 100
+    });
+    projectOptions.value = result.data.list;
+  } finally {
+    loadingProjects.value = false;
+  }
+}
+
+async function loadTasks(projectId) {
+  if (!projectId || !canLoadRelationOptions.value) {
+    taskOptions.value = [];
+    return;
+  }
+
+  loadingTasks.value = true;
+  try {
+    const result = await getProjectTasksApi(projectId, {
+      page: 1,
+      pageSize: 100
+    });
+    taskOptions.value = result.data.list;
+  } finally {
+    loadingTasks.value = false;
+  }
+}
+
+async function handleProjectChange(projectId) {
+  form.taskId = '';
+  await loadTasks(projectId);
+}
+
 async function handleSubmit() {
   const valid = await formRef.value.validate().catch(() => false);
   if (!valid) {
@@ -127,7 +222,14 @@ async function handleSubmit() {
 
   submitting.value = true;
   try {
-    const result = await submitHelpRequestApi(form);
+    const result = await submitHelpRequestApi({
+      title: form.title,
+      requesterUserId: form.requesterUserId,
+      helperUserId: form.helperUserId,
+      projectId: form.projectId || null,
+      taskId: form.taskId || null,
+      content: form.content
+    });
     const requestNo = result.data.request_no || result.data.requestNo;
     await ElMessageBox.alert(`提交成功，求助单号：${requestNo}`, '提交成功', {
       confirmButtonText: '我知道了'
@@ -135,7 +237,10 @@ async function handleSubmit() {
     form.title = '';
     form.requesterUserId = '';
     form.helperUserId = '';
+    form.projectId = '';
+    form.taskId = '';
     form.content = '';
+    taskOptions.value = [];
     formRef.value.clearValidate();
   } finally {
     submitting.value = false;
@@ -145,5 +250,6 @@ async function handleSubmit() {
 onMounted(() => {
   loadRequesters();
   loadHelpers();
+  loadProjects();
 });
 </script>

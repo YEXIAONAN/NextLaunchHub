@@ -90,6 +90,10 @@ async function getHelpRequestBase(executor, helpRequestId) {
        hr.requester_name,
        hr.helper_user_id,
        hr.helper_name,
+       hr.project_id,
+       hr.project_name,
+       hr.task_id,
+       hr.task_title,
        hr.content,
        hr.requester_ip,
        hr.request_datetime,
@@ -113,6 +117,73 @@ async function getHelpRequestBase(executor, helpRequestId) {
   }
 
   return rows[0];
+}
+
+async function resolveHelpRequestRelation(executor, projectIdInput, taskIdInput) {
+  const normalizedProjectId = projectIdInput === undefined || projectIdInput === null || projectIdInput === ''
+    ? null
+    : Number(projectIdInput);
+  const normalizedTaskId = taskIdInput === undefined || taskIdInput === null || taskIdInput === ''
+    ? null
+    : Number(taskIdInput);
+
+  if (normalizedProjectId !== null && (!Number.isInteger(normalizedProjectId) || normalizedProjectId <= 0)) {
+    throw new HttpError(400, '关联项目ID不合法');
+  }
+
+  if (normalizedTaskId !== null && (!Number.isInteger(normalizedTaskId) || normalizedTaskId <= 0)) {
+    throw new HttpError(400, '关联任务ID不合法');
+  }
+
+  if (normalizedTaskId !== null && normalizedProjectId === null) {
+    throw new HttpError(400, '选择任务时必须同时选择所属项目');
+  }
+
+  let project = null;
+  let task = null;
+
+  if (normalizedProjectId !== null) {
+    const [[projectRow]] = await executor.query(
+      `SELECT id, project_name
+       FROM projects
+       WHERE id = ?
+       LIMIT 1`,
+      [normalizedProjectId]
+    );
+
+    if (!projectRow) {
+      throw new HttpError(400, '关联项目不存在');
+    }
+
+    project = projectRow;
+  }
+
+  if (normalizedTaskId !== null) {
+    const [[taskRow]] = await executor.query(
+      `SELECT id, project_id, title
+       FROM tasks
+       WHERE id = ?
+       LIMIT 1`,
+      [normalizedTaskId]
+    );
+
+    if (!taskRow) {
+      throw new HttpError(400, '关联任务不存在');
+    }
+
+    if (Number(taskRow.project_id) !== normalizedProjectId) {
+      throw new HttpError(400, '所选任务不属于当前项目');
+    }
+
+    task = taskRow;
+  }
+
+  return {
+    projectId: project?.id || null,
+    projectName: project?.project_name || null,
+    taskId: task?.id || null,
+    taskTitle: task?.title || null
+  };
 }
 
 async function getHelpRequestPermissionContext(executor, helpRequestId) {
@@ -142,6 +213,8 @@ export async function createHelpRequest(payload) {
     title,
     requesterUserId,
     helperUserId,
+    projectId,
+    taskId,
     content,
     requesterIp
   } = payload;
@@ -175,17 +248,19 @@ export async function createHelpRequest(payload) {
       throw new HttpError(400, '帮助人员不存在或不可用');
     }
 
+    const relation = await resolveHelpRequestRelation(connection, projectId, taskId);
     const requestNo = await generateRequestNo(connection);
 
     const [result] = await connection.query(
       `INSERT INTO help_requests
         (
           request_no, title, requester_user_id, requester_name,
-          helper_user_id, helper_name, content, requester_ip,
+          helper_user_id, helper_name, project_id, project_name,
+          task_id, task_title, content, requester_ip,
           request_datetime, request_date, expected_handle_hours,
           deadline_at, is_timeout, status, created_at, updated_at
         )
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), CURDATE(), 24, DATE_ADD(NOW(), INTERVAL 24 HOUR), 0, 'pending', NOW(), NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), CURDATE(), 24, DATE_ADD(NOW(), INTERVAL 24 HOUR), 0, 'pending', NOW(), NOW())`,
       [
         requestNo,
         title,
@@ -193,6 +268,10 @@ export async function createHelpRequest(payload) {
         requester.real_name,
         helper.id,
         helper.real_name,
+        relation.projectId,
+        relation.projectName,
+        relation.taskId,
+        relation.taskTitle,
         content,
         requesterIp
       ]
@@ -244,16 +323,41 @@ function buildListScope(user) {
   };
 }
 
-export async function getHelpRequests(user, status) {
+export async function getHelpRequests(user, filters = {}) {
   await syncHelpRequestTimeouts(pool);
 
   const scope = buildListScope(user);
   const params = [...scope.params];
   let whereSql = scope.whereSql;
+  const status = (filters.status || '').trim();
+  const projectId = filters.projectId === undefined || filters.projectId === null || filters.projectId === ''
+    ? null
+    : Number(filters.projectId);
+  const taskId = filters.taskId === undefined || filters.taskId === null || filters.taskId === ''
+    ? null
+    : Number(filters.taskId);
+
+  if (projectId !== null && (!Number.isInteger(projectId) || projectId <= 0)) {
+    throw new HttpError(400, '项目ID不合法');
+  }
+
+  if (taskId !== null && (!Number.isInteger(taskId) || taskId <= 0)) {
+    throw new HttpError(400, '任务ID不合法');
+  }
 
   if (status) {
     whereSql += ' AND hr.status = ?';
     params.push(status);
+  }
+
+  if (projectId !== null) {
+    whereSql += ' AND hr.project_id = ?';
+    params.push(projectId);
+  }
+
+  if (taskId !== null) {
+    whereSql += ' AND hr.task_id = ?';
+    params.push(taskId);
   }
 
   const [rows] = await pool.query(
@@ -263,6 +367,10 @@ export async function getHelpRequests(user, status) {
        hr.title,
        hr.requester_name,
        hr.helper_name,
+       hr.project_id,
+       hr.project_name,
+       hr.task_id,
+       hr.task_title,
        hr.status,
        hr.deadline_at,
        hr.is_timeout,
@@ -297,6 +405,10 @@ export async function queryPublicHelpRequest({ requestNo, requesterName }) {
        hr.title,
        hr.requester_name,
        hr.helper_name,
+       hr.project_id,
+       hr.project_name,
+       hr.task_id,
+       hr.task_title,
        hr.content,
        hr.request_datetime,
        hr.request_date,
@@ -327,6 +439,10 @@ export async function queryPublicHelpRequest({ requestNo, requesterName }) {
        hr.title,
        hr.requester_name,
        hr.helper_name,
+       hr.project_id,
+       hr.project_name,
+       hr.task_id,
+       hr.task_title,
        hr.content,
        hr.request_datetime,
        hr.request_date,

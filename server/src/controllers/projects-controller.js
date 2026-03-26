@@ -1,8 +1,13 @@
 import {
+  createProjectIteration,
+  createProjectMilestone,
   addProjectMember,
   createProject,
   getProjectDetail,
+  getProjectIterations,
   getProjectMembers,
+  getProjectMilestones,
+  getProjectTasks,
   getProjects,
   updateProject
 } from '../services/projects-service.js';
@@ -35,6 +40,51 @@ export async function getProjectsController(req, res) {
 
 export async function getProjectDetailController(req, res) {
   const data = await getProjectDetail(req.user, Number(req.params.id));
+  res.json(success(data));
+}
+
+export async function getProjectTasksController(req, res) {
+  const data = await getProjectTasks(req.user, Number(req.params.id), {
+    keyword: req.query.keyword,
+    status: req.query.status,
+    priority: req.query.priority,
+    assigneeUserId: req.query.assigneeUserId || req.query.assignee_user_id,
+    page: req.query.page,
+    pageSize: req.query.pageSize
+  });
+  res.json(success(data));
+}
+
+export async function createProjectIterationController(req, res) {
+  const data = await createProjectIteration(req.user, Number(req.params.id), {
+    iterationName: req.body.iterationName || req.body.iteration_name,
+    goal: req.body.goal,
+    status: req.body.status,
+    startDate: req.body.startDate || req.body.start_date,
+    endDate: req.body.endDate || req.body.end_date
+  });
+
+  res.json(success(data, '项目迭代创建成功'));
+}
+
+export async function getProjectIterationsController(req, res) {
+  const data = await getProjectIterations(req.user, Number(req.params.id));
+  res.json(success(data));
+}
+
+export async function createProjectMilestoneController(req, res) {
+  const data = await createProjectMilestone(req.user, Number(req.params.id), {
+    milestoneName: req.body.milestoneName || req.body.milestone_name,
+    description: req.body.description,
+    status: req.body.status,
+    dueDate: req.body.dueDate || req.body.due_date
+  });
+
+  res.json(success(data, '项目里程碑创建成功'));
+}
+
+export async function getProjectMilestonesController(req, res) {
+  const data = await getProjectMilestones(req.user, Number(req.params.id));
   res.json(success(data));
 }
 
