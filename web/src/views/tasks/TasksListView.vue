@@ -73,14 +73,14 @@
         <el-table-column label="优先级" min-width="110">
           <template #default="{ row }">
             <span class="task-priority-pill" :class="`task-priority-${row.priority}`">
-              {{ priorityTextMap[row.priority] || row.priority }}
+              {{ dictionaryStore.getLabel('task_priority', row.priority) || row.priority }}
             </span>
           </template>
         </el-table-column>
         <el-table-column label="状态" min-width="120">
           <template #default="{ row }">
             <span class="task-status-pill" :class="`task-status-${row.status}`">
-              {{ statusTextMap[row.status] || row.status }}
+              {{ dictionaryStore.getLabel('task_status', row.status) || row.status }}
             </span>
           </template>
         </el-table-column>
@@ -137,8 +137,10 @@ import { getProjectsApi, getTasksApi } from '../../api';
 import TaskCreateDialog from '../../components/tasks/TaskCreateDialog.vue';
 import TaskDetailDrawer from '../../components/tasks/TaskDetailDrawer.vue';
 import { useAuthStore } from '../../stores/auth';
+import { useDictionaryStore } from '../../stores/dictionaries';
 
 const authStore = useAuthStore();
+const dictionaryStore = useDictionaryStore();
 const tasks = ref([]);
 const projectOptions = ref([]);
 const createDialogVisible = ref(false);
@@ -158,23 +160,15 @@ const pagination = reactive({
   total: 0
 });
 
-const statusOptions = [
-  { label: '待开始', value: 'todo' },
-  { label: '进行中', value: 'in_progress' },
-  { label: '受阻', value: 'blocked' },
-  { label: '已完成', value: 'done' },
-  { label: '已取消', value: 'cancelled' }
-];
+const statusOptions = computed(() => dictionaryStore.getOptions('task_status').map((item) => ({
+  label: item.dict_label,
+  value: item.dict_value
+})));
 
-const priorityOptions = [
-  { label: '低', value: 'low' },
-  { label: '中', value: 'medium' },
-  { label: '高', value: 'high' },
-  { label: '紧急', value: 'urgent' }
-];
-
-const statusTextMap = Object.fromEntries(statusOptions.map((item) => [item.value, item.label]));
-const priorityTextMap = Object.fromEntries(priorityOptions.map((item) => [item.value, item.label]));
+const priorityOptions = computed(() => dictionaryStore.getOptions('task_priority').map((item) => ({
+  label: item.dict_label,
+  value: item.dict_value
+})));
 
 const canCreateTask = computed(() => authStore.user?.role !== 'requester');
 
@@ -228,6 +222,7 @@ async function handleTaskCreated() {
 }
 
 onMounted(async () => {
+  await dictionaryStore.ensureDictTypes(['task_status', 'task_priority']);
   await Promise.all([loadProjectOptions(), loadTasks()]);
 });
 </script>

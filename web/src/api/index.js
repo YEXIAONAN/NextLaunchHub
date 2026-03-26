@@ -163,3 +163,41 @@ export function markAllNotificationsReadApi() {
 export function getUnreadNotificationCountApi() {
   return http.get('/notifications/unread-count');
 }
+
+export function getUsersApi(params) {
+  return http.get('/users', {
+    params
+  });
+}
+
+export function createUserApi(payload) {
+  return http.post('/users', payload);
+}
+
+export function updateUserApi(id, payload) {
+  return http.patch(`/users/${id}`, payload);
+}
+
+export function resetUserPasswordApi(id, payload) {
+  return http.patch(`/users/${id}/reset-password`, payload);
+}
+
+export function getDictionariesApi(params) {
+  return http.get('/dictionaries', {
+    params
+  });
+}
+
+export function getAdminDictionariesApi(params) {
+  return http.get('/admin/dictionaries', {
+    params
+  });
+}
+
+export function createDictionaryApi(payload) {
+  return http.post('/admin/dictionaries', payload);
+}
+
+export function updateDictionaryApi(id, payload) {
+  return http.patch(`/admin/dictionaries/${id}`, payload);
+}

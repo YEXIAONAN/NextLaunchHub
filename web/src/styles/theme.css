@@ -1057,6 +1057,73 @@ a {
   margin-top: 20px;
 }
 
+.dictionary-toolbar {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.dictionary-toolbar .el-select {
+  width: 240px;
+}
+
+.user-toolbar {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.user-toolbar .el-input,
+.user-toolbar .el-select {
+  width: 220px;
+}
+
+.user-toolbar .user-keyword {
+  width: 280px;
+}
+
+.user-role-pill,
+.user-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid rgba(17, 17, 17, 0.06);
+  background: rgba(17, 17, 17, 0.04);
+  color: var(--text-primary);
+}
+
+.user-role-admin,
+.user-status-1 {
+  background: rgba(17, 17, 17, 0.1);
+}
+
+.user-role-helper {
+  background: rgba(17, 17, 17, 0.07);
+}
+
+.user-role-requester,
+.user-status-0 {
+  background: rgba(17, 17, 17, 0.04);
+}
+
+.user-table-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
 .help-request-toolbar {
   display: flex;
   gap: 14px;
@@ -1366,6 +1433,23 @@ a {
   line-height: 1.7;
 }
 
+.project-task-planning {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.project-task-planning span {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.05);
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
 .project-task-side {
   display: flex;
   flex-direction: column;
@@ -1388,6 +1472,104 @@ a {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.project-planning-board {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.project-planning-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.project-planning-panel {
+  padding: 20px;
+  border-radius: 22px;
+  background: rgba(17, 17, 17, 0.028);
+  border: 1px solid rgba(17, 17, 17, 0.05);
+}
+
+.project-planning-panel .page-header {
+  margin-bottom: 14px;
+}
+
+.planning-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.planning-card {
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.52);
+  border: 1px solid rgba(17, 17, 17, 0.05);
+}
+
+.planning-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.planning-card-head strong {
+  display: block;
+  font-size: 15px;
+}
+
+.planning-card-head p {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.planning-card-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.planning-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.milestone-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid rgba(17, 17, 17, 0.06);
+  background: rgba(17, 17, 17, 0.04);
+  color: var(--text-primary);
+}
+
+.milestone-status-pending {
+  background: rgba(17, 17, 17, 0.04);
+}
+
+.milestone-status-in_progress {
+  background: rgba(17, 17, 17, 0.08);
+}
+
+.milestone-status-completed {
+  background: rgba(17, 17, 17, 0.12);
+}
+
+.milestone-status-delayed {
+  background: rgba(17, 17, 17, 0.16);
 }
 
 .collaboration-layout {
@@ -1620,6 +1802,7 @@ a {
   .dashboard-workspace,
   .dashboard-key-facts,
   .project-detail-layout,
+  .project-planning-grid,
   .detail-grid,
   .collaboration-layout,
   .form-grid,
@@ -1661,6 +1844,10 @@ a {
   .project-toolbar .el-input,
   .project-toolbar .el-select,
   .project-toolbar .project-keyword,
+  .dictionary-toolbar .el-select,
+  .user-toolbar .el-input,
+  .user-toolbar .el-select,
+  .user-toolbar .user-keyword,
   .help-request-toolbar .el-select,
   .task-toolbar .el-input,
   .task-toolbar .el-select,

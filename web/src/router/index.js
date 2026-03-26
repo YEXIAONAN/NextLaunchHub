@@ -7,9 +7,11 @@ import NotificationsView from '../views/notifications/NotificationsView.vue';
 import ProjectDetailView from '../views/projects/ProjectDetailView.vue';
 import ProjectsListView from '../views/projects/ProjectsListView.vue';
 import TasksListView from '../views/tasks/TasksListView.vue';
+import DictionariesView from '../views/system/DictionariesView.vue';
 import LoginView from '../views/public/LoginView.vue';
 import PublicHelpQueryView from '../views/public/PublicHelpQueryView.vue';
 import PublicHelpRequestView from '../views/public/PublicHelpRequestView.vue';
+import UsersListView from '../views/users/UsersListView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -70,6 +72,20 @@ const router = createRouter({
         {
           path: '/notifications',
           component: NotificationsView
+        },
+        {
+          path: '/users',
+          component: UsersListView,
+          meta: {
+            adminOnly: true
+          }
+        },
+        {
+          path: '/system/dictionaries',
+          component: DictionariesView,
+          meta: {
+            adminOnly: true
+          }
         }
       ]
     }
@@ -78,10 +94,14 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const token = localStorage.getItem('nextlaunch_hub_token');
+  const user = JSON.parse(localStorage.getItem('nextlaunch_hub_user') || 'null');
   if (!to.meta.public && !token) {
     return '/login';
   }
   if (to.path === '/login' && token) {
+    return '/dashboard';
+  }
+  if (to.meta.adminOnly && user?.role !== 'admin') {
     return '/dashboard';
   }
   return true;

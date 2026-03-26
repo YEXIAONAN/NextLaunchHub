@@ -161,6 +161,7 @@ import {
   getProjectMilestonesApi,
   getProjectsApi
 } from '../../api';
+import { useDictionaryStore } from '../../stores/dictionaries';
 
 const props = defineProps({
   modelValue: {
@@ -178,6 +179,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue', 'success']);
+const dictionaryStore = useDictionaryStore();
 
 const dialogVisible = computed({
   get: () => props.modelValue,
@@ -205,20 +207,15 @@ const form = reactive({
   estimatedHours: null
 });
 
-const statusOptions = [
-  { label: '待开始', value: 'todo' },
-  { label: '进行中', value: 'in_progress' },
-  { label: '受阻', value: 'blocked' },
-  { label: '已完成', value: 'done' },
-  { label: '已取消', value: 'cancelled' }
-];
+const statusOptions = computed(() => dictionaryStore.getOptions('task_status').map((item) => ({
+  label: item.dict_label,
+  value: item.dict_value
+})));
 
-const priorityOptions = [
-  { label: '低', value: 'low' },
-  { label: '中', value: 'medium' },
-  { label: '高', value: 'high' },
-  { label: '紧急', value: 'urgent' }
-];
+const priorityOptions = computed(() => dictionaryStore.getOptions('task_priority').map((item) => ({
+  label: item.dict_label,
+  value: item.dict_value
+})));
 
 function resetForm() {
   form.projectId = props.defaultProjectId ? Number(props.defaultProjectId) : '';
@@ -272,6 +269,7 @@ async function initializeDialog() {
   helperOptions.value = [];
   iterationOptions.value = [];
   milestoneOptions.value = [];
+  await dictionaryStore.ensureDictTypes(['task_status', 'task_priority']);
   await loadProjectOptions();
   await loadHelperOptions();
   if (form.projectId) {

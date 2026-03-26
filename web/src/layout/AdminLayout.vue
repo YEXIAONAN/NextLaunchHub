@@ -15,6 +15,12 @@
           <router-link class="menu-item" to="/help-center">求助中心</router-link>
           <router-link class="menu-item" to="/projects">项目管理</router-link>
           <router-link class="menu-item" to="/tasks">任务管理</router-link>
+          <router-link v-if="authStore.user?.role === 'admin'" class="menu-item" to="/users">
+            用户管理
+          </router-link>
+          <router-link v-if="authStore.user?.role === 'admin'" class="menu-item" to="/system/dictionaries">
+            字典配置
+          </router-link>
         </nav>
       </div>
       <div class="sidebar-bottom">

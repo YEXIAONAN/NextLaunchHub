@@ -51,14 +51,14 @@
         <el-table-column label="优先级" min-width="110">
           <template #default="{ row }">
             <span class="project-priority-pill" :class="`project-priority-${row.priority}`">
-              {{ priorityTextMap[row.priority] || row.priority }}
+              {{ dictionaryStore.getLabel('project_priority', row.priority) || row.priority }}
             </span>
           </template>
         </el-table-column>
         <el-table-column label="状态" min-width="120">
           <template #default="{ row }">
             <span class="project-status-pill" :class="`project-status-${row.status}`">
-              {{ statusTextMap[row.status] || row.status }}
+              {{ dictionaryStore.getLabel('project_status', row.status) || row.status }}
             </span>
           </template>
         </el-table-column>
@@ -196,9 +196,11 @@ import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { createProjectApi, getHelpersApi, getProjectsApi } from '../../api';
 import { useAuthStore } from '../../stores/auth';
+import { useDictionaryStore } from '../../stores/dictionaries';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const dictionaryStore = useDictionaryStore();
 const projects = ref([]);
 const createDialogVisible = ref(false);
 const loadingHelperOptions = ref(false);
@@ -227,23 +229,15 @@ const createForm = reactive({
   endDate: ''
 });
 
-const statusOptions = [
-  { label: '未开始', value: 'not_started' },
-  { label: '进行中', value: 'in_progress' },
-  { label: '已暂停', value: 'paused' },
-  { label: '已完成', value: 'completed' },
-  { label: '已归档', value: 'archived' }
-];
+const statusOptions = computed(() => dictionaryStore.getOptions('project_status').map((item) => ({
+  label: item.dict_label,
+  value: item.dict_value
+})));
 
-const priorityOptions = [
-  { label: '低', value: 'low' },
-  { label: '中', value: 'medium' },
-  { label: '高', value: 'high' },
-  { label: '紧急', value: 'urgent' }
-];
-
-const statusTextMap = Object.fromEntries(statusOptions.map((item) => [item.value, item.label]));
-const priorityTextMap = Object.fromEntries(priorityOptions.map((item) => [item.value, item.label]));
+const priorityOptions = computed(() => dictionaryStore.getOptions('project_priority').map((item) => ({
+  label: item.dict_label,
+  value: item.dict_value
+})));
 
 const canCreateProject = computed(() => authStore.user?.role === 'admin');
 
@@ -335,5 +329,8 @@ async function submitCreate() {
   }
 }
 
-onMounted(loadProjects);
+onMounted(async () => {
+  await dictionaryStore.ensureDictTypes(['project_status', 'project_priority']);
+  await loadProjects();
+});
 </script>
