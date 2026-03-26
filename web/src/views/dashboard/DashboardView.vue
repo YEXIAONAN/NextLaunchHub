@@ -1,112 +1,101 @@
 <template>
-  <div class="page-section">
-    <section class="page-card workbench-hero">
-      <div class="workbench-hero-main">
-        <span class="eyebrow">今日工作台</span>
-        <h2>{{ authStore.user?.realName || '用户' }}，今天也有清晰的处理节奏</h2>
-        <p>{{ todayText }} ｜ {{ tipText }}</p>
-      </div>
-      <div class="workbench-hero-side">
-        <div class="workbench-focus-card">
-          <span>当前重点</span>
-          <strong>{{ focusText }}</strong>
-          <p>优先处理待办事项，确保求助单状态持续推进。</p>
+  <div class="page-section dashboard-page">
+    <section class="page-card dashboard-hero">
+      <div class="dashboard-hero-main">
+        <div class="dashboard-hero-heading">
+          <span class="eyebrow">今日工作台</span>
+          <h2>{{ authStore.user?.realName || '用户' }}，先处理最重要的事项</h2>
+          <p>{{ todayText }} ｜ {{ tipText }}</p>
         </div>
-      </div>
-    </section>
 
-    <section class="stats-grid">
-      <article class="stat-card">
-        <div class="stat-card-head">
-          <span>待处理求助数</span>
-          <em>需要尽快跟进</em>
-        </div>
-        <strong>{{ overview.stats.pending }}</strong>
-        <p>尚未进入处理流程的求助事项</p>
-      </article>
-      <article class="stat-card">
-        <div class="stat-card-head">
-          <span>处理中求助数</span>
-          <em>持续推进</em>
-        </div>
-        <strong>{{ overview.stats.processing }}</strong>
-        <p>已受理并正在排查或处理的事项</p>
-      </article>
-      <article class="stat-card">
-        <div class="stat-card-head">
-          <span>待确认求助数</span>
-          <em>等待反馈</em>
-        </div>
-        <strong>{{ overview.stats.waitingConfirm }}</strong>
-        <p>已完成处理，待发起人确认结果</p>
-      </article>
-      <article class="stat-card">
-        <div class="stat-card-head">
-          <span>已完成求助数</span>
-          <em>已闭环</em>
-        </div>
-        <strong>{{ overview.stats.completed }}</strong>
-        <p>当前已结束并完成归档的事项</p>
-      </article>
-      <article class="stat-card timeout-stat-card">
-        <div class="stat-card-head">
-          <span>超时求助数</span>
-          <em>需要关注</em>
-        </div>
-        <strong>{{ overview.stats.timeout }}</strong>
-        <p>已超过截止时间且仍未完成的求助事项</p>
-      </article>
-    </section>
+        <div class="dashboard-hero-summary">
+          <div class="dashboard-key-metric">
+            <span>当前重点</span>
+            <strong>{{ priorityMetric.count }}</strong>
+            <h3>{{ priorityMetric.title }}</h3>
+            <p>{{ priorityMetric.description }}</p>
+          </div>
 
-    <section class="workbench-grid">
-      <article class="page-card">
-        <div class="page-header">
-          <div>
-            <h2>快捷入口</h2>
-            <p>常用工作入口集中放置，减少切换成本。</p>
+          <div class="dashboard-key-facts">
+            <div class="dashboard-key-fact">
+              <label>待处理</label>
+              <strong>{{ overview.stats.pending }}</strong>
+            </div>
+            <div class="dashboard-key-fact">
+              <label>处理中</label>
+              <strong>{{ overview.stats.processing }}</strong>
+            </div>
+            <div class="dashboard-key-fact">
+              <label>超时</label>
+              <strong>{{ overview.stats.timeout }}</strong>
+            </div>
           </div>
         </div>
-        <div class="quick-grid">
-          <button class="quick-card" @click="router.push('/help-query')">
-            <span>提交求助记录查看</span>
-            <strong>查看公开求助查询</strong>
-            <p>面向发起人的公开查询入口</p>
-          </button>
-          <button class="quick-card" @click="router.push('/help-center')">
-            <span>进入求助中心</span>
-            <strong>查看全部业务单据</strong>
-            <p>进入列表页继续处理和跟进</p>
-          </button>
-          <button class="quick-card" @click="router.push('/notifications')">
-            <span>进入通知中心</span>
-            <strong>处理最新系统提醒</strong>
-            <p>未读通知：{{ notificationStore.unreadCount }}</p>
-          </button>
-        </div>
-      </article>
+      </div>
 
-      <article class="page-card">
-        <div class="page-header">
+      <aside class="dashboard-hero-side">
+        <div class="dashboard-priority-panel">
+          <span class="dashboard-section-kicker">优先浏览</span>
+          <h3>{{ focusText }}</h3>
+          <p>{{ priorityPanelText }}</p>
+
+          <div class="dashboard-priority-list">
+            <div class="dashboard-priority-item">
+              <label>{{ pendingSectionTitle }}</label>
+              <strong>{{ myTodoItems.length }}</strong>
+              <span>{{ pendingSectionDesc }}</span>
+            </div>
+            <div class="dashboard-priority-item">
+              <label>通知提醒</label>
+              <strong>{{ notificationStore.unreadCount }}</strong>
+              <span>未读通知需及时处理</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="dashboard-stats-band">
+      <article
+        v-for="item in statsCards"
+        :key="item.key"
+        class="stat-card"
+        :class="{ 'timeout-stat-card': item.key === 'timeout' }"
+      >
+        <div class="stat-card-head">
+          <span>{{ item.label }}</span>
+          <em>{{ item.tip }}</em>
+        </div>
+        <strong>{{ item.value }}</strong>
+        <p>{{ item.description }}</p>
+      </article>
+    </section>
+
+    <section class="dashboard-workspace">
+      <article class="page-card dashboard-main-panel">
+        <div class="page-header with-action">
           <div>
             <h2>{{ pendingSectionTitle }}</h2>
             <p>{{ pendingSectionDesc }}</p>
           </div>
-          <div class="table-meta-note">点击记录可进入详情</div>
+          <div class="table-meta-note">点击记录进入详情</div>
         </div>
 
-        <div v-if="myTodoItems.length" class="work-list">
+        <div v-if="myTodoItems.length" class="dashboard-work-list">
           <button
             v-for="item in myTodoItems"
             :key="`${item.status}-${item.id}`"
-            class="work-list-item"
+            class="dashboard-work-item"
             @click="goDetail(item.id)"
           >
-            <div class="work-list-item-main">
-              <strong>{{ item.title }}</strong>
+            <div class="dashboard-work-item-main">
+              <div class="dashboard-work-item-title">
+                <strong>{{ item.title }}</strong>
+                <span v-if="Number(item.is_timeout) === 1" class="timeout-pill">已超时</span>
+              </div>
               <p>{{ item.request_no }} ｜ {{ item.requester_name }} ｜ {{ item.helper_name }}</p>
             </div>
-            <div class="work-list-item-side">
-              <span v-if="Number(item.is_timeout) === 1" class="timeout-pill">已超时</span>
+            <div class="dashboard-work-item-side">
               <StatusTag :status="item.status" />
               <span>{{ item.request_datetime }}</span>
             </div>
@@ -114,13 +103,42 @@
         </div>
         <el-empty v-else description="当前没有需要优先处理的求助单" />
       </article>
+
+      <aside class="dashboard-side-panel">
+        <article class="page-card dashboard-quick-panel">
+          <div class="page-header">
+            <div>
+              <h2>快捷入口</h2>
+              <p>常用入口收敛展示，减少切换成本。</p>
+            </div>
+          </div>
+
+          <div class="dashboard-shortcuts">
+            <button class="dashboard-shortcut-card" @click="router.push('/notifications')">
+              <span>通知中心</span>
+              <strong>处理系统提醒</strong>
+              <p>未读通知：{{ notificationStore.unreadCount }}</p>
+            </button>
+            <button class="dashboard-shortcut-card" @click="router.push('/help-center')">
+              <span>求助中心</span>
+              <strong>查看业务单据</strong>
+              <p>进入列表页继续跟进处理状态</p>
+            </button>
+            <button class="dashboard-shortcut-card" @click="router.push('/help-query')">
+              <span>公开查询</span>
+              <strong>查看提交记录</strong>
+              <p>面向发起人的公开求助查询入口</p>
+            </button>
+          </div>
+        </article>
+      </aside>
     </section>
 
-    <section class="page-card">
+    <section class="page-card dashboard-recent-panel">
       <div class="page-header with-action">
         <div>
           <h2>最近求助记录</h2>
-          <p>展示最近 5 条求助事项</p>
+          <p>作为补充信息，按时间倒序展示最近 5 条求助事项</p>
         </div>
         <div class="table-meta-note">按发起时间倒序展示</div>
       </div>
@@ -169,6 +187,45 @@ const overview = reactive({
   recentItems: []
 });
 const myTodoItems = ref([]);
+const statsCards = computed(() => {
+  return [
+    {
+      key: 'pending',
+      label: '待处理求助数',
+      tip: '需要尽快跟进',
+      value: overview.stats.pending,
+      description: '尚未进入处理流程的求助事项'
+    },
+    {
+      key: 'processing',
+      label: '处理中求助数',
+      tip: '持续推进',
+      value: overview.stats.processing,
+      description: '已受理并正在排查或处理的事项'
+    },
+    {
+      key: 'waitingConfirm',
+      label: '待确认求助数',
+      tip: '等待反馈',
+      value: overview.stats.waitingConfirm,
+      description: '已完成处理，待发起人确认结果'
+    },
+    {
+      key: 'completed',
+      label: '已完成求助数',
+      tip: '已闭环',
+      value: overview.stats.completed,
+      description: '当前已结束并完成归档的事项'
+    },
+    {
+      key: 'timeout',
+      label: '超时求助数',
+      tip: '需要关注',
+      value: overview.stats.timeout,
+      description: '已超过截止时间且仍未完成的求助事项'
+    }
+  ];
+});
 
 const todayText = computed(() => {
   return new Intl.DateTimeFormat('zh-CN', {
@@ -199,6 +256,48 @@ const focusText = computed(() => {
     return `当前有 ${overview.stats.processing} 条处理中求助`;
   }
   return '当前暂无紧急待办';
+});
+const priorityMetric = computed(() => {
+  if (overview.stats.timeout > 0) {
+    return {
+      count: overview.stats.timeout,
+      title: '超时事项优先处理',
+      description: '这些求助单已经超过截止时间，建议优先推进处理或确认状态。'
+    };
+  }
+
+  if (overview.stats.pending > 0) {
+    return {
+      count: overview.stats.pending,
+      title: '待处理事项需要响应',
+      description: '尚未进入处理流程的求助单应优先被接单和跟进。'
+    };
+  }
+
+  if (overview.stats.processing > 0) {
+    return {
+      count: overview.stats.processing,
+      title: '处理中事项持续推进',
+      description: '当前已有事项在推进中，建议同步关注处理进展和确认节点。'
+    };
+  }
+
+  return {
+    count: overview.stats.completed,
+    title: '当前工作节奏稳定',
+    description: '暂时没有紧急待办，可以查看记录或处理通知提醒。'
+  };
+});
+const priorityPanelText = computed(() => {
+  if (authStore.user?.role === 'admin') {
+    return '先看全局重点，再处理待办与通知，最后再回看最新记录。';
+  }
+
+  if (authStore.user?.role === 'requester') {
+    return '先看自己发起事项的当前进展，再查看待办状态和通知反馈。';
+  }
+
+  return '先处理分配给你的事项，再查看提醒入口和最近新增记录。';
 });
 
 const pendingSectionTitle = computed(() => {

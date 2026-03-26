@@ -2,6 +2,7 @@
 
 NextLaunch Hub 是一个前后端分离的求助协同系统，当前已覆盖从公开发起、后台处理、协同参与、通知提醒到超时预警的完整链路。
 
+![index](img/index.png)
 ## 技术栈
 
 - 前端：Vue 3、Vite、Vue Router、Pinia、Element Plus、Axios
