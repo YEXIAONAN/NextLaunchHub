@@ -28,7 +28,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 你目前没有 test/lint 脚本，所以先做基础检查
       - name: Print node/npm version
         run: |
           node -v
