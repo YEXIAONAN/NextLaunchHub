@@ -3,6 +3,7 @@ import {
   createProjectMilestone,
   addProjectMember,
   createProject,
+  exportProjects,
   getProjectDetail,
   getProjectIterations,
   getProjectMembers,
@@ -11,7 +12,23 @@ import {
   getProjects,
   updateProject
 } from '../services/projects-service.js';
+import { buildExportFileName, sendExcelFile } from '../utils/excel-export.js';
 import { success } from '../utils/response.js';
+
+const PROJECT_STATUS_TEXT_MAP = {
+  not_started: '未开始',
+  in_progress: '进行中',
+  paused: '已暂停',
+  completed: '已完成',
+  archived: '已归档'
+};
+
+const PROJECT_PRIORITY_TEXT_MAP = {
+  low: '低',
+  medium: '中',
+  high: '高',
+  urgent: '紧急'
+};
 
 export async function createProjectController(req, res) {
   const data = await createProject(req.user, {
@@ -36,6 +53,31 @@ export async function getProjectsController(req, res) {
     pageSize: req.query.pageSize
   });
   res.json(success(data));
+}
+
+export async function exportProjectsController(req, res) {
+  const rows = await exportProjects(req.user, {
+    keyword: req.query.keyword,
+    status: req.query.status,
+    priority: req.query.priority
+  });
+
+  sendExcelFile(res, {
+    fileName: buildExportFileName('项目列表'),
+    sheetName: '项目列表',
+    columns: [
+      { header: '项目编号', value: 'project_code' },
+      { header: '项目名称', value: 'project_name' },
+      { header: '项目负责人', value: 'owner_name' },
+      { header: '优先级', value: (row) => PROJECT_PRIORITY_TEXT_MAP[row.priority] || row.priority },
+      { header: '状态', value: (row) => PROJECT_STATUS_TEXT_MAP[row.status] || row.status },
+      { header: '开始日期', value: (row) => row.start_date || '' },
+      { header: '结束日期', value: (row) => row.end_date || '' },
+      { header: '进度(%)', value: 'progress' },
+      { header: '创建时间', value: (row) => row.created_at || '' }
+    ],
+    rows
+  });
 }
 
 export async function getProjectDetailController(req, res) {

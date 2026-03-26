@@ -401,6 +401,34 @@ export async function getTasks(user, query = {}) {
   };
 }
 
+export async function exportTasks(user, query = {}) {
+  const { whereSql, params } = await buildTaskWhereScope(user, query);
+
+  const [rows] = await pool.query(
+    `SELECT
+       t.task_code,
+       p.project_code,
+       p.project_name,
+       t.title,
+       t.assignee_name,
+       t.priority,
+       t.status,
+       t.progress,
+       t.start_date,
+       t.due_date,
+       t.estimated_hours,
+       t.actual_hours,
+       t.created_at
+     FROM tasks t
+     INNER JOIN projects p ON p.id = t.project_id
+     ${whereSql}
+     ORDER BY t.updated_at DESC, t.id DESC`,
+    params
+  );
+
+  return rows;
+}
+
 export async function getTaskDetail(user, taskId) {
   const { task } = await getAccessibleTask(pool, user, taskId);
   const [logs] = await pool.query(

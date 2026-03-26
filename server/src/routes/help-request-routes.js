@@ -3,6 +3,7 @@ import {
   addHelpRequestAssistantController,
   addHelpRequestCollaborationLogController,
   checkHelpRequestTimeoutController,
+  exportHelpRequestsController,
   getHelpRequestAssistantsController,
   getHelpRequestDetailController,
   getHelpRequestsController,
@@ -15,6 +16,7 @@ import { HttpError } from '../utils/http-error.js';
 const router = Router();
 
 router.get('/', asyncHandler(getHelpRequestsController));
+router.get('/export', asyncHandler(exportHelpRequestsController));
 router.post('/check-timeout', asyncHandler(checkHelpRequestTimeoutController));
 router.get('/:id', asyncHandler(getHelpRequestDetailController));
 router.get('/:id/assistants', asyncHandler(getHelpRequestAssistantsController));

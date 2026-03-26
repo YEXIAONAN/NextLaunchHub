@@ -6,7 +6,7 @@ import { HttpError } from '../utils/http-error.js';
 
 export async function login({ username, password }) {
   const [rows] = await pool.query(
-    `SELECT id, username, password, real_name, role, status
+    `SELECT id, username, password, real_name, role, status, can_login
      FROM users
      WHERE username = ?
      LIMIT 1`,
@@ -21,6 +21,10 @@ export async function login({ username, password }) {
 
   if (user.status !== 1) {
     throw new HttpError(403, '当前账号已停用');
+  }
+
+  if (Number(user.can_login) !== 1) {
+    throw new HttpError(403, '当前账号不允许登录');
   }
 
   const matched = await bcrypt.compare(password, user.password);

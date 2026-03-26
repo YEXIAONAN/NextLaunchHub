@@ -28,6 +28,47 @@ function parsePagination(value, defaultValue) {
   return parsed;
 }
 
+function buildProjectListFilters(query = {}) {
+  return {
+    keyword: (query.keyword || '').trim(),
+    status: (query.status || '').trim(),
+    priority: (query.priority || '').trim(),
+    page: parsePagination(query.page, 1),
+    pageSize: parsePagination(query.pageSize, 10)
+  };
+}
+
+function buildProjectListQuery(user, query = {}) {
+  const scope = buildProjectListScope(user, 'p');
+  const params = [...scope.params];
+  let whereSql = scope.clause;
+  const filters = buildProjectListFilters(query);
+
+  assertProjectStatus(filters.status);
+  assertProjectPriority(filters.priority);
+
+  if (filters.keyword) {
+    whereSql += ' AND (p.project_code LIKE ? OR p.project_name LIKE ?)';
+    params.push(`%${filters.keyword}%`, `%${filters.keyword}%`);
+  }
+
+  if (filters.status) {
+    whereSql += ' AND p.status = ?';
+    params.push(filters.status);
+  }
+
+  if (filters.priority) {
+    whereSql += ' AND p.priority = ?';
+    params.push(filters.priority);
+  }
+
+  return {
+    filters,
+    whereSql,
+    params
+  };
+}
+
 function assertProjectStatus(status) {
   if (status !== undefined && status !== null && status !== '' && !PROJECT_STATUS.includes(status)) {
     throw new HttpError(400, '项目状态值不合法');
@@ -249,36 +290,10 @@ export async function createProject(user, payload) {
 }
 
 export async function getProjects(user, query = {}) {
-  const scope = buildProjectListScope(user, 'p');
-  const params = [...scope.params];
-  let whereSql = scope.clause;
-
-  const keyword = (query.keyword || '').trim();
-  const status = (query.status || '').trim();
-  const priority = (query.priority || '').trim();
-  const page = parsePagination(query.page, 1);
-  const pageSize = parsePagination(query.pageSize, 10);
-
-  assertProjectStatus(status);
-  assertProjectPriority(priority);
-
-  if (keyword) {
-    whereSql += ' AND (p.project_code LIKE ? OR p.project_name LIKE ?)';
-    params.push(`%${keyword}%`, `%${keyword}%`);
-  }
-
-  if (status) {
-    whereSql += ' AND p.status = ?';
-    params.push(status);
-  }
-
-  if (priority) {
-    whereSql += ' AND p.priority = ?';
-    params.push(priority);
-  }
+  const { filters, whereSql, params } = buildProjectListQuery(user, query);
 
   const countParams = [...params];
-  const offset = (page - 1) * pageSize;
+  const offset = (filters.page - 1) * filters.pageSize;
 
   const [rows] = await pool.query(
     `SELECT
@@ -301,7 +316,7 @@ export async function getProjects(user, query = {}) {
      ORDER BY p.updated_at DESC, p.id DESC
      LIMIT ?
      OFFSET ?`,
-    [...params, pageSize, offset]
+    [...params, filters.pageSize, offset]
   );
 
   const [[totalResult]] = await pool.query(
@@ -314,11 +329,34 @@ export async function getProjects(user, query = {}) {
   return {
     list: rows,
     pagination: {
-      page,
-      pageSize,
+      page: filters.page,
+      pageSize: filters.pageSize,
       total: Number(totalResult.total || 0)
     }
   };
+}
+
+export async function exportProjects(user, query = {}) {
+  const { whereSql, params } = buildProjectListQuery(user, query);
+
+  const [rows] = await pool.query(
+    `SELECT
+       p.project_code,
+       p.project_name,
+       p.owner_name,
+       p.priority,
+       p.status,
+       p.start_date,
+       p.end_date,
+       p.progress,
+       p.created_at
+     FROM projects p
+     ${whereSql}
+     ORDER BY p.updated_at DESC, p.id DESC`,
+    params
+  );
+
+  return rows;
 }
 
 export async function getProjectDetail(user, projectId) {

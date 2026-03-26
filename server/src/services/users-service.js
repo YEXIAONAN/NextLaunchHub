@@ -45,6 +45,30 @@ function parsePagination(value, defaultValue) {
   return parsed;
 }
 
+function resolveUserFlags(role) {
+  if (role === 'admin') {
+    return {
+      isHelper: 0,
+      isRequester: 0,
+      canLogin: 1
+    };
+  }
+
+  if (role === 'helper') {
+    return {
+      isHelper: 1,
+      isRequester: 0,
+      canLogin: 1
+    };
+  }
+
+  return {
+    isHelper: 0,
+    isRequester: 1,
+    canLogin: 0
+  };
+}
+
 async function getUserBase(executor, userId) {
   const [rows] = await executor.query(
     `SELECT
@@ -53,6 +77,9 @@ async function getUserBase(executor, userId) {
        real_name,
        role,
        status,
+       is_helper,
+       is_requester,
+       can_login,
        created_at,
        updated_at
      FROM users
@@ -72,10 +99,10 @@ export async function searchRequesters(keyword = '') {
   const [rows] = await pool.query(
     `SELECT id, real_name
      FROM users
-     WHERE role = 'requester'
+     WHERE is_requester = 1
        AND status = 1
        AND real_name LIKE ?
-     ORDER BY real_name ASC
+     ORDER BY real_name ASC, id ASC
      LIMIT 20`,
     [`%${keyword}%`]
   );
@@ -87,10 +114,10 @@ export async function searchHelpers(keyword = '') {
   const [rows] = await pool.query(
     `SELECT id, real_name, username
      FROM users
-     WHERE role = 'helper'
+     WHERE is_helper = 1
        AND status = 1
        AND real_name LIKE ?
-     ORDER BY real_name ASC
+     ORDER BY real_name ASC, id ASC
      LIMIT 20`,
     [`%${keyword}%`]
   );
@@ -136,6 +163,9 @@ export async function getUsers(user, query = {}) {
        real_name,
        role,
        status,
+       is_helper,
+       is_requester,
+       can_login,
        created_at,
        updated_at
      FROM users
@@ -187,6 +217,7 @@ export async function createUser(currentUser, payload) {
   assertRole(role, true);
 
   const status = normalizedStatus ?? 1;
+  const { isHelper, isRequester, canLogin } = resolveUserFlags(role);
   const connection = await pool.getConnection();
 
   try {
@@ -207,9 +238,12 @@ export async function createUser(currentUser, payload) {
     const encryptedPassword = await bcrypt.hash(password, 10);
     const [result] = await connection.query(
       `INSERT INTO users
-        (username, password, real_name, role, status, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
-      [username, encryptedPassword, realName, role, status]
+        (
+          username, password, real_name, role, status,
+          is_helper, is_requester, can_login, created_at, updated_at
+        )
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [username, encryptedPassword, realName, role, status, isHelper, isRequester, canLogin]
     );
 
     await connection.commit();
@@ -252,8 +286,9 @@ export async function updateUser(currentUser, userId, payload) {
     if (payload.role !== undefined) {
       const role = (payload.role || '').trim();
       assertRole(role, true);
-      updates.push('role = ?');
-      params.push(role);
+      const { isHelper, isRequester, canLogin } = resolveUserFlags(role);
+      updates.push('role = ?', 'is_helper = ?', 'is_requester = ?', 'can_login = ?');
+      params.push(role, isHelper, isRequester, canLogin);
     }
 
     if (payload.status !== undefined) {

@@ -5,6 +5,8 @@
 .env
 .env.local
 .env.*.local
+server/.env
+web/.env
 
 # Dependencies
 node_modules/

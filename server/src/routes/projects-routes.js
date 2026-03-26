@@ -4,6 +4,7 @@ import {
   createProjectIterationController,
   createProjectMilestoneController,
   createProjectController,
+  exportProjectsController,
   getProjectDetailController,
   getProjectIterationsController,
   getProjectMembersController,
@@ -18,6 +19,7 @@ import { HttpError } from '../utils/http-error.js';
 const router = Router();
 
 router.get('/', asyncHandler(getProjectsController));
+router.get('/export', asyncHandler(exportProjectsController));
 router.post(
   '/',
   asyncHandler(async (req, res) => {

@@ -3,6 +3,7 @@ import {
   addHelpRequestCollaborationLog,
   checkHelpRequestTimeouts,
   createHelpRequest,
+  exportHelpRequests,
   getHelpRequestAssistants,
   getHelpRequestDetail,
   getHelpRequests,
@@ -17,6 +18,7 @@ import {
   setPublicHelpRequestAccessCookie
 } from '../utils/public-help-request-access.js';
 import { getClientIp } from '../utils/request-ip.js';
+import { buildExportFileName, sendExcelFile } from '../utils/excel-export.js';
 import { HttpError } from '../utils/http-error.js';
 import { success } from '../utils/response.js';
 
@@ -41,6 +43,33 @@ export async function getHelpRequestsController(req, res) {
     taskId: req.query.taskId || req.query.task_id
   });
   res.json(success(data));
+}
+
+export async function exportHelpRequestsController(req, res) {
+  const rows = await exportHelpRequests(req.user, {
+    status: req.query.status || req.query.current_status || '',
+    projectId: req.query.projectId || req.query.project_id,
+    taskId: req.query.taskId || req.query.task_id
+  });
+
+  sendExcelFile(res, {
+    fileName: buildExportFileName('求助列表'),
+    sheetName: '求助列表',
+    columns: [
+      { header: '求助单号', value: 'request_no' },
+      { header: '求助标题', value: 'title' },
+      { header: '发起人', value: 'requester_name' },
+      { header: '帮助人员', value: 'helper_name' },
+      { header: '关联项目', value: (row) => row.project_name || '' },
+      { header: '关联任务', value: (row) => row.task_title || '' },
+      { header: '状态', value: 'status_text' },
+      { header: '截止时间', value: (row) => row.deadline_at || '' },
+      { header: '是否超时', value: 'is_timeout_text' },
+      { header: '求助时间', value: (row) => row.request_datetime || '' },
+      { header: '发起IP', value: (row) => row.requester_ip || '' }
+    ],
+    rows
+  });
 }
 
 export async function getHelpRequestDetailController(req, res) {

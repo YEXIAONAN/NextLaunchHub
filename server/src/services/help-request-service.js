@@ -227,7 +227,7 @@ export async function createHelpRequest(payload) {
     const [[requester]] = await connection.query(
       `SELECT id, real_name
        FROM users
-       WHERE id = ? AND role = 'requester' AND status = 1
+       WHERE id = ? AND is_requester = 1 AND status = 1
        LIMIT 1`,
       [requesterUserId]
     );
@@ -239,7 +239,7 @@ export async function createHelpRequest(payload) {
     const [[helper]] = await connection.query(
       `SELECT id, real_name
        FROM users
-       WHERE id = ? AND role = 'helper' AND status = 1
+       WHERE id = ? AND is_helper = 1 AND status = 1
        LIMIT 1`,
       [helperUserId]
     );
@@ -323,42 +323,57 @@ function buildListScope(user) {
   };
 }
 
-export async function getHelpRequests(user, filters = {}) {
-  await syncHelpRequestTimeouts(pool);
+function buildHelpRequestFilters(filters = {}) {
+  return {
+    status: (filters.status || '').trim(),
+    projectId: filters.projectId === undefined || filters.projectId === null || filters.projectId === ''
+      ? null
+      : Number(filters.projectId),
+    taskId: filters.taskId === undefined || filters.taskId === null || filters.taskId === ''
+      ? null
+      : Number(filters.taskId)
+  };
+}
 
+function buildHelpRequestListQuery(user, filters = {}) {
   const scope = buildListScope(user);
   const params = [...scope.params];
   let whereSql = scope.whereSql;
-  const status = (filters.status || '').trim();
-  const projectId = filters.projectId === undefined || filters.projectId === null || filters.projectId === ''
-    ? null
-    : Number(filters.projectId);
-  const taskId = filters.taskId === undefined || filters.taskId === null || filters.taskId === ''
-    ? null
-    : Number(filters.taskId);
+  const normalizedFilters = buildHelpRequestFilters(filters);
 
-  if (projectId !== null && (!Number.isInteger(projectId) || projectId <= 0)) {
+  if (normalizedFilters.projectId !== null && (!Number.isInteger(normalizedFilters.projectId) || normalizedFilters.projectId <= 0)) {
     throw new HttpError(400, '项目ID不合法');
   }
 
-  if (taskId !== null && (!Number.isInteger(taskId) || taskId <= 0)) {
+  if (normalizedFilters.taskId !== null && (!Number.isInteger(normalizedFilters.taskId) || normalizedFilters.taskId <= 0)) {
     throw new HttpError(400, '任务ID不合法');
   }
 
-  if (status) {
+  if (normalizedFilters.status) {
     whereSql += ' AND hr.status = ?';
-    params.push(status);
+    params.push(normalizedFilters.status);
   }
 
-  if (projectId !== null) {
+  if (normalizedFilters.projectId !== null) {
     whereSql += ' AND hr.project_id = ?';
-    params.push(projectId);
+    params.push(normalizedFilters.projectId);
   }
 
-  if (taskId !== null) {
+  if (normalizedFilters.taskId !== null) {
     whereSql += ' AND hr.task_id = ?';
-    params.push(taskId);
+    params.push(normalizedFilters.taskId);
   }
+
+  return {
+    filters: normalizedFilters,
+    whereSql,
+    params
+  };
+}
+
+export async function getHelpRequests(user, filters = {}) {
+  await syncHelpRequestTimeouts(pool);
+  const { whereSql, params } = buildHelpRequestListQuery(user, filters);
 
   const [rows] = await pool.query(
     `SELECT
@@ -383,6 +398,36 @@ export async function getHelpRequests(user, filters = {}) {
   );
 
   return rows;
+}
+
+export async function exportHelpRequests(user, filters = {}) {
+  await syncHelpRequestTimeouts(pool);
+  const { whereSql, params } = buildHelpRequestListQuery(user, filters);
+
+  const [rows] = await pool.query(
+    `SELECT
+       hr.request_no,
+       hr.title,
+       hr.requester_name,
+       hr.helper_name,
+       hr.project_name,
+       hr.task_title,
+       hr.status,
+       hr.deadline_at,
+       hr.is_timeout,
+       hr.request_datetime,
+       hr.requester_ip
+     FROM help_requests hr
+     ${whereSql}
+     ORDER BY hr.request_datetime DESC, hr.id DESC`,
+    params
+  );
+
+  return rows.map((item) => ({
+    ...item,
+    status_text: STATUS_TEXT_MAP[item.status] || item.status,
+    is_timeout_text: Number(item.is_timeout) === 1 ? '是' : '否'
+  }));
 }
 
 export async function getHelpRequestDetail(user, id) {
@@ -576,7 +621,7 @@ export async function addHelpRequestAssistant(user, id, payload) {
     }
 
     const [[assistantUser]] = await connection.query(
-      `SELECT id, real_name, role, status
+      `SELECT id, real_name, role, status, is_helper
        FROM users
        WHERE id = ?
        LIMIT 1`,
@@ -587,7 +632,7 @@ export async function addHelpRequestAssistant(user, id, payload) {
       throw new HttpError(400, '协同人员不存在或不可用');
     }
 
-    if (!['admin', 'helper'].includes(assistantUser.role)) {
+    if (!(assistantUser.role === 'admin' || Number(assistantUser.is_helper) === 1)) {
       throw new HttpError(400, '协同人员必须为管理员或帮助人员');
     }
 
@@ -735,14 +780,14 @@ export async function reassignHelpRequestHelper(user, id, payload) {
     const { helpRequest } = await getHelpRequestPermissionContext(connection, id);
 
     const [[nextHelper]] = await connection.query(
-      `SELECT id, real_name, role, status
+      `SELECT id, real_name, status, is_helper
        FROM users
        WHERE id = ?
        LIMIT 1`,
       [helperUserId]
     );
 
-    if (!nextHelper || nextHelper.status !== 1 || nextHelper.role !== 'helper') {
+    if (!nextHelper || nextHelper.status !== 1 || Number(nextHelper.is_helper) !== 1) {
       throw new HttpError(400, '新的帮助人员不存在或不可用');
     }
 

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   createTaskController,
+  exportTasksController,
   getTaskDetailController,
   getTasksController,
   updateTaskController,
@@ -12,6 +13,7 @@ import { HttpError } from '../utils/http-error.js';
 const router = Router();
 
 router.get('/', asyncHandler(getTasksController));
+router.get('/export', asyncHandler(exportTasksController));
 router.post(
   '/',
   asyncHandler(async (req, res) => {
