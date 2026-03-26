@@ -7,6 +7,7 @@ import authRoutes from './routes/auth-routes.js';
 import dashboardRoutes from './routes/dashboard-routes.js';
 import helpRequestRoutes from './routes/help-request-routes.js';
 import notificationRoutes from './routes/notification-routes.js';
+import projectsRoutes from './routes/projects-routes.js';
 import publicRoutes from './routes/public-routes.js';
 import { success } from './utils/response.js';
 
@@ -28,6 +29,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/help-requests', authMiddleware, helpRequestRoutes);
+app.use('/api/projects', authMiddleware, projectsRoutes);
 app.use('/api/notifications', authMiddleware, notificationRoutes);
 app.use('/api/dashboard', authMiddleware, dashboardRoutes);
 

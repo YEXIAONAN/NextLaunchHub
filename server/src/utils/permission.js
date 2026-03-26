@@ -58,6 +58,28 @@ export function canViewDashboard(user) {
   return isAdmin(user) || isHelper(user) || isRequester(user);
 }
 
+export function canViewProject(user, project, memberUserIds = []) {
+  if (!user || !project) {
+    return false;
+  }
+
+  return isAdmin(user)
+    || Number(project.owner_user_id) === Number(user.id)
+    || memberUserIds.includes(Number(user.id));
+}
+
+export function canUpdateProject(user) {
+  return isAdmin(user);
+}
+
+export function canAddProjectMember(user, project) {
+  if (!user || !project) {
+    return false;
+  }
+
+  return isAdmin(user) || Number(project.owner_user_id) === Number(user.id);
+}
+
 export function buildHelpRequestListScope(user, tableAlias = 'hr') {
   if (isAdmin(user)) {
     return {
@@ -97,5 +119,27 @@ export function buildNotificationScope(user, tableAlias = 'n') {
   return {
     clause: `WHERE ${tableAlias}.receiver_user_id = ?`,
     params: [user.id]
+  };
+}
+
+export function buildProjectListScope(user, tableAlias = 'p') {
+  if (isAdmin(user)) {
+    return {
+      clause: 'WHERE 1 = 1',
+      params: []
+    };
+  }
+
+  return {
+    clause: `WHERE (
+      ${tableAlias}.owner_user_id = ?
+      OR EXISTS (
+        SELECT 1
+        FROM project_members pm
+        WHERE pm.project_id = ${tableAlias}.id
+          AND pm.user_id = ?
+      )
+    )`,
+    params: [user.id, user.id]
   };
 }
