@@ -1,64 +1,71 @@
 <template>
   <div class="auth-page">
-    <section class="auth-panel intro-panel">
-      <div class="auth-hero">
-        <span class="eyebrow">统一支持入口</span>
-        <h1>NextLaunch Hub</h1>
-        <p>
-          面向日常业务支持场景的统一受理平台，用于接收求助、分派处理并跟踪状态进展。
-        </p>
-        <ul class="intro-list">
-          <li>集中查看个人负责的求助事项</li>
-          <li>快速跟进处理进度与通知提醒</li>
-          <li>保留完整日志，便于后续追踪</li>
-        </ul>
-      </div>
-
-      <div class="auth-metrics">
-        <div class="auth-metric-card">
-          <span>统一登记</span>
-          <strong>求助提交与分派处理</strong>
+    <section class="auth-shell">
+      <div class="auth-brand-panel">
+        <div class="auth-brand-top">
+          <span class="eyebrow">统一支持入口</span>
+          <h1>NextLaunch Hub</h1>
+          <p>统一处理求助受理、跟进与状态记录。</p>
         </div>
-        <div class="auth-metric-card">
-          <span>处理闭环</span>
-          <strong>状态跟踪与操作日志</strong>
+
+        <div class="auth-brand-body">
+          <ul class="auth-brand-list">
+            <li>
+              <strong>统一受理</strong>
+              <span>集中登记业务支持事项。</span>
+            </li>
+            <li>
+              <strong>过程可追踪</strong>
+              <span>处理状态与记录统一留存。</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="auth-brand-footer">
+          <div class="auth-brand-note">
+            <span>公开入口</span>
+            <strong>需要提交求助时，可直接使用公开入口。</strong>
+          </div>
+          <div class="auth-brand-footer-action">
+            <el-button class="secondary-action auth-secondary-btn" @click="router.push('/help-request')">
+              提交求助
+            </el-button>
+          </div>
         </div>
       </div>
 
-      <el-button class="secondary-action" @click="router.push('/help-request')">
-        提交求助
-      </el-button>
-    </section>
+      <section class="auth-login-panel">
+        <div class="panel-header login-header">
+          <span class="panel-badge">后台登录</span>
+          <h2>账号登录</h2>
+          <p>请输入账号信息进入系统</p>
+        </div>
 
-    <section class="auth-panel login-panel">
-      <div class="panel-header login-header">
-        <span class="panel-badge">后台登录</span>
-        <h2>账号登录</h2>
-        <p>请输入账号信息进入后台</p>
-      </div>
-      <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="form.username" placeholder="请输入用户名" size="large" />
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input
-            v-model="form.password"
-            type="password"
-            show-password
-            placeholder="请输入密码"
-            size="large"
-            @keyup.enter="handleLogin"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button class="primary-action" :loading="loading" @click="handleLogin">
-            登录并进入后台
-          </el-button>
-        </el-form-item>
-      </el-form>
-      <div class="login-footer-note">
-        <span>登录后可查看主页统计、求助列表、详情与处理日志。</span>
-      </div>
+        <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="auth-login-form">
+          <el-form-item label="用户名" prop="username">
+            <el-input v-model="form.username" placeholder="请输入用户名" size="large" />
+          </el-form-item>
+          <el-form-item label="密码" prop="password">
+            <el-input
+              v-model="form.password"
+              type="password"
+              show-password
+              placeholder="请输入密码"
+              size="large"
+              @keyup.enter="handleLogin"
+            />
+          </el-form-item>
+          <el-form-item>
+            <el-button class="primary-action auth-primary-btn" :loading="loading" @click="handleLogin">
+              登录并进入后台
+            </el-button>
+          </el-form-item>
+        </el-form>
+
+        <div class="login-footer-note">
+          <span>登录后可查看工作台、求助记录与处理进度。</span>
+        </div>
+      </section>
     </section>
   </div>
 </template>
