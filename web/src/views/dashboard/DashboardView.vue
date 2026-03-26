@@ -27,24 +27,24 @@
             <div class="dashboard-side-metric">
               <label>待处理数量</label>
               <strong>{{ overview.stats.pending }}</strong>
-              <span>当前全局待响应事项</span>
+              <span>当前待响应</span>
             </div>
             <div class="dashboard-side-metric">
               <label>{{ pendingSectionTitle }}</label>
               <strong>{{ myTodoItems.length }}</strong>
-              <span>{{ pendingSectionDesc }}</span>
+              <span>{{ pendingMetricText }}</span>
             </div>
             <div class="dashboard-side-metric">
               <label>通知提醒</label>
               <strong>{{ notificationStore.unreadCount }}</strong>
-              <span>未读系统通知待查看</span>
+              <span>未读通知</span>
             </div>
           </div>
 
           <div v-if="systemNotificationStore.shouldShowEnableEntry" class="dashboard-system-alert">
             <div>
               <strong>系统提醒未开启</strong>
-              <p>建议开启浏览器通知，及时接收状态变化提醒。</p>
+              <p>建议开启浏览器通知。</p>
             </div>
             <el-button class="secondary-action" @click="handleEnableSystemNotification">
               开启系统提醒
@@ -63,10 +63,9 @@
       >
         <div class="stat-card-head">
           <span>{{ item.label }}</span>
-          <em>{{ item.tip }}</em>
         </div>
         <strong>{{ item.value }}</strong>
-        <p>{{ item.description }}</p>
+        <p>{{ item.tip }}</p>
       </article>
     </section>
 
@@ -78,7 +77,7 @@
               <h2>{{ pendingSectionTitle }}</h2>
               <p>{{ pendingSectionDesc }}</p>
             </div>
-            <div class="table-meta-note">优先展示最近需要跟进的 6 条事项</div>
+            <div class="table-meta-note">最近 6 条</div>
           </div>
 
           <div v-if="myTodoItems.length" class="dashboard-work-list">
@@ -108,7 +107,7 @@
           <div class="page-header with-action">
             <div>
               <h2>最近求助记录</h2>
-              <p>作为补充信息，按时间倒序展示最近 5 条求助事项</p>
+              <p>最近 5 条记录</p>
             </div>
             <div class="table-meta-note">点击行可查看详情</div>
           </div>
@@ -138,7 +137,7 @@
           <div class="page-header">
             <div>
               <h2>快捷入口</h2>
-              <p>高频页面集中展示，减少页面切换成本。</p>
+              <p>常用入口</p>
             </div>
           </div>
 
@@ -146,17 +145,17 @@
             <button class="dashboard-shortcut-card" @click="router.push('/notifications')">
               <span>通知中心</span>
               <strong>处理系统提醒</strong>
-              <p>未读通知：{{ notificationStore.unreadCount }}</p>
+              <p>未读 {{ notificationStore.unreadCount }}</p>
             </button>
             <button class="dashboard-shortcut-card" @click="router.push('/help-center')">
               <span>求助中心</span>
               <strong>查看业务单据</strong>
-              <p>进入列表页继续跟进处理状态</p>
+              <p>继续跟进处理</p>
             </button>
             <button class="dashboard-shortcut-card" @click="router.push('/help-query')">
               <span>公开查询</span>
               <strong>查看提交记录</strong>
-              <p>面向发起人的公开求助查询入口</p>
+              <p>查看公开记录</p>
             </button>
           </div>
         </article>
@@ -165,7 +164,7 @@
           <div class="page-header">
             <div>
               <h2>处理概览</h2>
-              <p>补充查看待确认与已完成情况。</p>
+              <p>补充信息</p>
             </div>
           </div>
 
@@ -173,12 +172,12 @@
             <div class="dashboard-summary-item">
               <label>待确认</label>
               <strong>{{ overview.stats.waitingConfirm }}</strong>
-              <span>等待发起人确认处理结果</span>
+              <span>等待确认</span>
             </div>
             <div class="dashboard-summary-item">
               <label>已完成</label>
               <strong>{{ overview.stats.completed }}</strong>
-              <span>当前已闭环归档的求助事项</span>
+              <span>已完成归档</span>
             </div>
           </div>
         </article>
@@ -318,14 +317,14 @@ const priorityMetric = computed(() => {
 
 const priorityPanelText = computed(() => {
   if (authStore.user?.role === 'admin') {
-    return '先看全局重点，再处理待办与通知，最后回看最近记录。';
+    return '先处理全局重点，再回看待办与记录。';
   }
 
   if (authStore.user?.role === 'requester') {
-    return '先看自己发起事项的当前进展，再查看待办状态和通知反馈。';
+    return '先看当前进展，再查看通知反馈。';
   }
 
-  return '先处理分配给你的事项，再查看提醒入口和最近新增记录。';
+  return '先处理分配事项，再查看提醒与记录。';
 });
 
 const pendingSectionTitle = computed(() => {
@@ -334,10 +333,14 @@ const pendingSectionTitle = computed(() => {
 
 const pendingSectionDesc = computed(() => {
   return authStore.user?.role === 'admin'
-    ? '管理员视角下的全局待处理求助事项'
+    ? '优先查看需要跟进的待处理事项'
     : authStore.user?.role === 'requester'
-      ? '展示你发起且仍在处理中的求助单'
-      : '展示当前分配给你的待处理和处理中求助';
+      ? '查看你发起且仍在处理中的求助单'
+      : '查看当前分配给你的待处理事项';
+});
+
+const pendingMetricText = computed(() => {
+  return authStore.user?.role === 'admin' ? '优先跟进' : '分配给你';
 });
 
 async function loadOverview() {

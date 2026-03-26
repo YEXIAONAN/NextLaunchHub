@@ -63,7 +63,7 @@
         </el-form>
 
         <div class="login-footer-note">
-          <span>登录后可查看工作台、求助记录与处理进度。</span>
+          <span>Powered By Waiting</span>
         </div>
       </section>
     </section>
