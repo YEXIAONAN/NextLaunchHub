@@ -3,21 +3,21 @@
     <aside class="sidebar">
       <div class="sidebar-scroll">
         <div class="brand-block">
-          <div class="brand-mark">NL</div>
+          <div class="brand-mark">NLH</div>
           <div class="brand-copy">
             <div class="brand-title">NextLaunch Hub</div>
-            <div class="brand-subtitle">业务支持后台</div>
+            <div class="brand-subtitle">系统主页</div>
           </div>
         </div>
 
-        <div class="sidebar-user-card">
-          <span class="sidebar-user-name">{{ authStore.user?.realName }}</span>
-          <small>{{ roleTextMap[authStore.user?.role] || '用户' }}</small>
-        </div>
+<!--        <div class="sidebar-user-card">-->
+<!--          <span class="sidebar-user-name">{{ authStore.user?.realName }}</span>-->
+<!--          <small>{{ roleTextMap[authStore.user?.role] || '用户' }}</small>-->
+<!--        </div>-->
 
         <div class="sidebar-section-label">导航菜单</div>
         <nav class="menu-list">
-          <router-link class="menu-item" to="/dashboard">主页</router-link>
+          <router-link class="menu-item" to="/dashboard">系统主页</router-link>
           <router-link class="menu-item" to="/help-center">求助中心</router-link>
           <router-link class="menu-item" to="/projects">项目管理</router-link>
           <router-link class="menu-item" to="/tasks">任务管理</router-link>
@@ -32,8 +32,10 @@
       </div>
 
       <div class="sidebar-footer">
-        <div class="sidebar-footer-title">当前系统</div>
-        <p>支持求助受理、流转处理、通知提醒与业务协同。</p>
+        <div class="sidebar-footer-title">当前运行系统</div>
+        <p><span></span></p>
+        <p><a href="https://github.com/YEXIAONAN/NextLaunchHub">稳定版</a></p>
+        <p><a href="https://github.com/YEXIAONAN">Powered By Waiting</a></p>
       </div>
     </aside>
 
@@ -105,7 +107,7 @@ const roleTextMap = {
 };
 
 const pageMetaMap = [
-  { match: (path) => path === '/dashboard', title: '主页', description: '查看重点事项、统计概览与最近求助记录。' },
+  { match: (path) => path === '/dashboard', title: '系统主页', description: '查看重点事项、统计概览与最近求助记录。' },
   { match: (path) => path.startsWith('/help-center'), title: '求助中心', description: '统一查看求助单、处理状态与流转详情。' },
   { match: (path) => path.startsWith('/projects'), title: '项目管理', description: '管理项目进度、成员安排与里程碑信息。' },
   { match: (path) => path.startsWith('/tasks'), title: '任务管理', description: '跟进任务状态、优先级与执行安排。' },

@@ -270,7 +270,7 @@ select {
 
 .topbar-eyebrow {
   display: inline-flex;
-  margin-bottom: 0;
+  margin-bottom: 1px;
   color: #6b7280;
   font-size: 12px;
   font-weight: 600;
@@ -356,6 +356,8 @@ select {
 
 .topbar-user span {
   font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .topbar-user small {
@@ -394,7 +396,7 @@ select {
 }
 
 .page-card {
-  padding: 24px;
+  padding: 26px;
   border-radius: var(--radius-lg);
 }
 
@@ -421,7 +423,7 @@ select {
 .table-meta-note {
   display: inline-flex;
   align-items: center;
-  min-height: 30px;
+  min-height: 10px;
   padding: 0 12px;
   border-radius: 999px;
   background: #fafafa;
@@ -436,14 +438,14 @@ select {
   width: fit-content;
   min-height: 30px;
   align-items: center;
-  padding: 0 12px;
+  padding: 0 11px;
   border-radius: 999px;
   background: #f3f4f6;
   color: #374151;
-  border: 1px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.09em;
 }
 
 .stats-grid,
@@ -583,12 +585,12 @@ select {
 }
 
 .custom-table th.el-table__cell {
-  font-weight: 600;
+  font-weight: 900;
 }
 
 .custom-table td.el-table__cell,
 .custom-table th.el-table__cell {
-  padding: 14px 0;
+  padding: 12px 0;
 }
 
 .custom-table .timeout-row td.el-table__cell {
@@ -832,7 +834,7 @@ select {
 .dashboard-hero-feature {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 28.5px;
   padding: 30px;
   background: #ffffff;
   border-color: #e5e7eb;
@@ -841,15 +843,15 @@ select {
 
 .dashboard-hero-heading h2 {
   margin: 0;
-  font-size: 34px;
+  font-size: 39px;
   line-height: 1.12;
   letter-spacing: -0.03em;
   color: #111827;
 }
 
 .dashboard-hero-heading p {
-  margin-top: 10px;
-  font-size: 13px;
+  margin-top: 9px;
+  font-size: 17px;
   color: #6b7280;
 }
 
@@ -940,7 +942,7 @@ select {
 
 .dashboard-side-metric span {
   display: block;
-  margin-top: 6px;
+  margin-top: 25.8px;
   color: #6b7280;
   font-size: 12px;
   line-height: 1.5;
@@ -1112,7 +1114,7 @@ select {
 
 .dashboard-summary-item span {
   display: block;
-  margin-top: 6px;
+  margin-top: 50.5px;
   color: #6b7280;
   line-height: 1.5;
   font-size: 12px;
@@ -1138,7 +1140,7 @@ select {
 
 .dashboard-recent-panel {
   min-height: 0;
-  padding-top: 22px;
+  padding-top: 46px;
 }
 
 .form-grid,
@@ -1189,8 +1191,9 @@ select {
 .collaboration-actions,
 .dialog-footer {
   display: flex;
-  gap: 12px;
+  gap: 19px;
   flex-wrap: wrap;
+  margin-top: 19px;
 }
 
 .notification-item {

@@ -3,8 +3,8 @@
     <section class="dashboard-hero">
       <article class="page-card dashboard-hero-feature">
         <div class="dashboard-hero-heading">
-          <span class="eyebrow">今日工作台</span>
-          <h2>{{ authStore.user?.realName || '用户' }}，先处理最重要的事项</h2>
+<!--          <span class="eyebrow">今日工作台</span>-->
+          <h2>尊敬的 {{ authStore.user?.realName || '用户' }} 欢迎登陆</h2>
           <p>{{ todayText }} ｜ {{ tipText }}</p>
         </div>
 
@@ -41,15 +41,15 @@
             </div>
           </div>
 
-          <div v-if="systemNotificationStore.shouldShowEnableEntry" class="dashboard-system-alert">
-            <div>
-              <strong>系统提醒未开启</strong>
-              <p>建议开启浏览器通知。</p>
-            </div>
-            <el-button class="secondary-action" @click="handleEnableSystemNotification">
-              开启系统提醒
-            </el-button>
-          </div>
+<!--          <div v-if="systemNotificationStore.shouldShowEnableEntry" class="dashboard-system-alert">-->
+<!--            <div>-->
+<!--              <strong>系统提醒未开启</strong>-->
+<!--              <p>建议开启浏览器通知。</p>-->
+<!--            </div>-->
+<!--            <el-button class="secondary-action" @click="handleEnableSystemNotification">-->
+<!--              开启系统提醒-->
+<!--            </el-button>-->
+<!--          </div>-->
         </article>
       </aside>
     </section>
@@ -149,7 +149,7 @@
             </button>
             <button class="dashboard-shortcut-card" @click="router.push('/help-center')">
               <span>求助中心</span>
-              <strong>查看业务单据</strong>
+              <strong>查看求助信息</strong>
               <p>继续跟进处理</p>
             </button>
             <button class="dashboard-shortcut-card" @click="router.push('/help-query')">

@@ -3,7 +3,7 @@
     <section class="auth-shell">
       <div class="auth-brand-panel">
         <div class="auth-brand-top">
-          <span class="eyebrow">统一支持入口</span>
+<!--          <span class="eyebrow">统一支持入口</span>-->
           <h1>NextLaunch Hub</h1>
           <p>统一处理求助受理、跟进与状态记录。</p>
         </div>
@@ -36,7 +36,7 @@
 
       <section class="auth-login-panel">
         <div class="panel-header login-header">
-          <span class="panel-badge">后台登录</span>
+<!--          <span class="panel-badge">后台登录</span>-->
           <h2>账号登录</h2>
           <p>请输入账号信息进入系统</p>
         </div>

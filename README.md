@@ -2,7 +2,8 @@
 
 NextLaunch Hub 是一个前后端分离的求助协同系统，覆盖公开发起、后台受理、状态流转、协同处理、通知提醒、超时预警与基础项目任务协同等核心场景。
 
-![index](img/index.png)
+![Index](img/index.png)
+![Dashboard](img/dashboard.png)
 
 ## 项目概览
 

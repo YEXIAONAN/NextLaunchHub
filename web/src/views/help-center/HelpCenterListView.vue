@@ -63,14 +63,14 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="关联任务" min-width="220">
-          <template #default="{ row }">
-            <div class="relation-cell">
-              <strong>{{ row.task_title || '-' }}</strong>
-              <span v-if="row.task_id">ID: {{ row.task_id }}</span>
-            </div>
-          </template>
-        </el-table-column>
+<!--        <el-table-column label="关联任务" min-width="220">-->
+<!--          <template #default="{ row }">-->
+<!--            <div class="relation-cell">-->
+<!--              <strong>{{ row.task_title || '-' }}</strong>-->
+<!--              <span v-if="row.task_id">ID: {{ row.task_id }}</span>-->
+<!--            </div>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
         <el-table-column label="当前状态" min-width="120">
           <template #default="{ row }">
             <StatusTag :status="row.status" />
