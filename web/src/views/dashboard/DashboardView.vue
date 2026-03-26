@@ -5,7 +5,7 @@
         <div class="dashboard-hero-heading">
 <!--          <span class="eyebrow">今日工作台</span>-->
           <h2>尊敬的 {{ authStore.user?.realName || '用户' }} 欢迎登陆</h2>
-          <p>{{ todayText }} ｜ {{ tipText }}</p>
+          <p>{{ todayText }} ｜ {{ quoteText }}</p>
         </div>
 
         <div class="dashboard-priority-card">
@@ -212,6 +212,33 @@ const overview = reactive({
   recentItems: []
 });
 const myTodoItems = ref([]);
+const quotes = [
+  '代码不会骗你，理解不到位一定会报错。',
+  '写不出来，不是你不努力，是你没理解本质。',
+  'Debug 的过程，就是你认知升级的过程。',
+  '你今天逃避的知识，明天会用 Bug 的形式找你。',
+  '不要假装理解，机器会帮你揭穿。',
+  '会写 ≠ 会做项目，会做项目 ≠ 会设计系统。',
+  '工程能力，远比刷题更接近现实世界。',
+  '写代码不是目的，解决问题才是。',
+  '复制代码能跑，不代表你会。',
+  '技术的本质：抽象 + 拆解 + 复用。',
+  'You don’t learn programming by watching — you learn by breaking things.',
+  'If it works but you don’t understand it, it’s a time bomb.',
+  'Comfort kills growth. Debugging builds engineers.',
+  'The difference between junior and senior is not syntax, but thinking.',
+  'Code is cheap. Thinking is expensive.',
+  '不要追新技术，要追“底层逻辑”。',
+  '框架会过时，但计算机原理不会。',
+  '会用工具的人很多，会造工具的人很少。',
+  '你写的每一行代码，都在定义你的上限。',
+  '技术成长，本质是不断降低复杂度的能力。',
+  'The best engineers are not faster typers — they make fewer mistakes.',
+  'Simplicity is the ultimate sophistication in code.',
+  'If you can’t explain it, you don’t understand it.',
+  'Every bug you fix becomes part of your intuition.'
+];
+const quoteText = quotes[Math.floor(Math.random() * quotes.length)];
 const statsCards = computed(() => {
   return [
     {
@@ -253,21 +280,9 @@ const statsCards = computed(() => {
 });
 
 const todayText = computed(() => {
-  return new Intl.DateTimeFormat('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    weekday: 'long'
-  }).format(new Date());
-});
-
-const tipText = computed(() => {
-  if (authStore.user?.role === 'requester') {
-    return '这里会展示你发起的求助进展，优先关注待处理和处理中事项';
-  }
-  return authStore.user?.role === 'admin'
-    ? '请优先关注全局待处理事项与跨人协同情况'
-    : '请先清理自己负责的待处理事项，再跟进处理中任务';
+  const now = new Date();
+  const weekday = new Intl.DateTimeFormat('zh-CN', { weekday: 'long' }).format(now);
+  return `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${weekday}`;
 });
 
 const focusText = computed(() => {
