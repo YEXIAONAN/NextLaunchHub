@@ -180,6 +180,9 @@ const todayText = computed(() => {
 });
 
 const tipText = computed(() => {
+  if (authStore.user?.role === 'requester') {
+    return '这里会展示你发起的求助进展，优先关注待处理和处理中事项';
+  }
   return authStore.user?.role === 'admin'
     ? '请优先关注全局待处理事项与跨人协同情况'
     : '请先清理自己负责的待处理事项，再跟进处理中任务';
@@ -205,6 +208,8 @@ const pendingSectionTitle = computed(() => {
 const pendingSectionDesc = computed(() => {
   return authStore.user?.role === 'admin'
     ? '管理员视角下的全局待处理求助事项'
+    : authStore.user?.role === 'requester'
+      ? '展示你发起且仍在处理中的求助单'
     : '展示当前分配给你的待处理和处理中求助';
 });
 
@@ -222,6 +227,17 @@ async function loadMyTodoItems() {
   }
 
   if (authStore.user?.role === 'helper') {
+    const [pendingResult, processingResult] = await Promise.all([
+      getHelpRequestsApi('pending'),
+      getHelpRequestsApi('processing')
+    ]);
+    myTodoItems.value = [...pendingResult.data, ...processingResult.data]
+      .sort((a, b) => String(b.request_datetime).localeCompare(String(a.request_datetime)))
+      .slice(0, 6);
+    return;
+  }
+
+  if (authStore.user?.role === 'requester') {
     const [pendingResult, processingResult] = await Promise.all([
       getHelpRequestsApi('pending'),
       getHelpRequestsApi('processing')

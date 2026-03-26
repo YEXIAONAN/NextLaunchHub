@@ -4,7 +4,7 @@
       <div class="page-header">
         <div>
           <h2>求助中心</h2>
-          <p>管理员可查看全部求助单，帮助人员仅查看本人负责的求助单。</p>
+          <p>管理员可查看全部求助单，帮助人员查看本人负责的求助单，发起人查看自己提交的求助单。</p>
         </div>
         <el-select v-model="status" placeholder="按状态筛选" clearable style="width: 180px" @change="loadList">
           <el-option label="待处理" value="pending" />

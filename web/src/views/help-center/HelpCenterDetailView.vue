@@ -63,7 +63,7 @@
         </div>
       </div>
 
-      <div class="status-actions">
+      <div v-if="canUpdateStatus || isAdmin" class="status-actions">
         <el-button class="secondary-action" @click="changeStatus('processing')">标记为处理中</el-button>
         <el-button class="secondary-action" @click="changeStatus('waiting_confirm')">标记为待确认</el-button>
         <el-button class="primary-action small" @click="changeStatus('completed')">标记为已完成</el-button>
@@ -309,6 +309,9 @@ const canSubmitCollaborationLog = computed(() => {
     || assistants.value.some((item) => item.assistant_user_id === authStore.user?.id);
 });
 const isAdmin = computed(() => authStore.user?.role === 'admin');
+const canUpdateStatus = computed(() => {
+  return authStore.user?.role === 'admin' || authStore.user?.id === detail.helper_user_id;
+});
 
 async function loadDetail() {
   const result = await getHelpRequestDetailApi(route.params.id);

@@ -61,7 +61,8 @@ const notificationStore = useNotificationStore();
 
 const roleTextMap = {
   admin: '管理员',
-  helper: '帮助人员'
+  helper: '帮助人员',
+  requester: '发起人'
 };
 
 function handleLogout() {
