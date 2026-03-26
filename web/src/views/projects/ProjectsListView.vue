@@ -50,16 +50,12 @@
         <el-table-column prop="owner_name" label="负责人" min-width="120" />
         <el-table-column label="优先级" min-width="110">
           <template #default="{ row }">
-            <span class="project-priority-pill" :class="`project-priority-${row.priority}`">
-              {{ dictionaryStore.getLabel('project_priority', row.priority) || row.priority }}
-            </span>
+            <StatusTag type="priority" :value="row.priority" />
           </template>
         </el-table-column>
         <el-table-column label="状态" min-width="120">
           <template #default="{ row }">
-            <span class="project-status-pill" :class="`project-status-${row.status}`">
-              {{ dictionaryStore.getLabel('project_status', row.status) || row.status }}
-            </span>
+            <StatusTag type="status" :value="row.status" />
           </template>
         </el-table-column>
         <el-table-column prop="start_date" label="开始日期" min-width="130" />
@@ -195,6 +191,7 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { createProjectApi, getHelpersApi, getProjectsApi } from '../../api';
+import StatusTag from '../../components/StatusTag.vue';
 import { useAuthStore } from '../../stores/auth';
 import { useDictionaryStore } from '../../stores/dictionaries';
 
