@@ -4,7 +4,8 @@
       <div class="auth-brand-panel">
         <div class="auth-brand-top">
 <!--          <span class="eyebrow">统一支持入口</span>-->
-          <h1>NextLaunch Hub</h1>
+          <img class="auth-brand-logo" :src="logoHorizontal" alt="NextLaunch Hub" />
+          <h1 class="visually-hidden">NextLaunch Hub</h1>
           <p>统一处理求助受理、跟进与状态记录。</p>
         </div>
 
@@ -75,6 +76,7 @@ import { reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
+import logoHorizontal from '../../assets/brand/nextlaunch-logo-horizontal.png';
 
 const router = useRouter();
 const authStore = useAuthStore();

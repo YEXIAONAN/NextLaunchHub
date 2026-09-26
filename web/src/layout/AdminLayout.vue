@@ -3,7 +3,9 @@
     <aside class="sidebar">
       <div class="sidebar-scroll">
         <div class="brand-block">
-          <div class="brand-mark">NLH</div>
+          <div class="brand-mark">
+            <img :src="logoSquare" alt="NextLaunch Hub" />
+          </div>
           <div class="brand-copy">
             <div class="brand-title">NextLaunch Hub</div>
             <div class="brand-subtitle">系统主页</div>
@@ -118,6 +120,7 @@ import { useAuthStore } from '../stores/auth';
 import { useNotificationStore } from '../stores/notifications';
 import { useSystemNotificationStore } from '../stores/system-notification';
 import { useUiPreferencesStore } from '../stores/ui-preferences';
+import logoSquare from '../assets/brand/nextlaunch-logo-square.png';
 
 const route = useRoute();
 const router = useRouter();
