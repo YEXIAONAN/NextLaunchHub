@@ -341,6 +341,9 @@ function buildListScope(user) {
 function buildHelpRequestFilters(filters = {}) {
   return {
     status: (filters.status || '').trim(),
+    isTimeout: filters.isTimeout === undefined || filters.isTimeout === null || filters.isTimeout === ''
+      ? null
+      : Number(filters.isTimeout),
     projectId: filters.projectId === undefined || filters.projectId === null || filters.projectId === ''
       ? null
       : Number(filters.projectId),
@@ -364,9 +367,18 @@ function buildHelpRequestListQuery(user, filters = {}) {
     throw new HttpError(400, '任务ID不合法');
   }
 
+  if (normalizedFilters.isTimeout !== null && ![0, 1].includes(normalizedFilters.isTimeout)) {
+    throw new HttpError(400, '超时筛选参数不合法');
+  }
+
   if (normalizedFilters.status) {
     whereSql += ' AND hr.status = ?';
     params.push(normalizedFilters.status);
+  }
+
+  if (normalizedFilters.isTimeout !== null) {
+    whereSql += ' AND hr.is_timeout = ?';
+    params.push(normalizedFilters.isTimeout);
   }
 
   if (normalizedFilters.projectId !== null) {

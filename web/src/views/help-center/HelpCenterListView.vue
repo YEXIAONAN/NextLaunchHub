@@ -16,6 +16,11 @@
           <el-option label="已完成" value="completed" />
         </el-select>
 
+        <el-select v-model="filters.isTimeout" placeholder="按超时状态筛选" clearable @change="loadList">
+          <el-option label="已超时" value="1" />
+          <el-option label="正常" value="0" />
+        </el-select>
+
         <el-select
           v-model="filters.projectId"
           filterable
@@ -97,12 +102,13 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { onMounted, reactive, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { getHelpRequestsApi, getProjectTasksApi, getProjectsApi } from '../../api';
 import StatusTag from '../../components/StatusTag.vue';
 
 const router = useRouter();
+const route = useRoute();
 const list = ref([]);
 const projectOptions = ref([]);
 const taskOptions = ref([]);
@@ -110,7 +116,8 @@ const loadingProjects = ref(false);
 const loadingTasks = ref(false);
 
 const filters = reactive({
-  status: '',
+  status: String(route.query.status || ''),
+  isTimeout: String(route.query.isTimeout || ''),
   projectId: '',
   taskId: ''
 });
@@ -155,6 +162,7 @@ async function handleProjectChange(projectId) {
 async function loadList() {
   const result = await getHelpRequestsApi({
     status: filters.status,
+    isTimeout: filters.isTimeout || undefined,
     projectId: filters.projectId || undefined,
     taskId: filters.taskId || undefined
   });
@@ -169,4 +177,13 @@ onMounted(async () => {
   await loadProjects();
   await loadList();
 });
+
+watch(
+  () => [route.query.status, route.query.isTimeout],
+  async ([status, isTimeout]) => {
+    filters.status = String(status || '');
+    filters.isTimeout = String(isTimeout || '');
+    await loadList();
+  }
+);
 </script>

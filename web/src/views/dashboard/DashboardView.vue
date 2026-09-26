@@ -18,16 +18,24 @@
     </section>
 
     <section class="dashboard-stats-band">
-      <article
+      <button
         v-for="item in statsCards"
         :key="item.type"
+        type="button"
         class="dashboard-stat-card"
         :class="`dashboard-stat-${item.type}`"
+        @click="openStat(item)"
       >
-        <span>{{ item.label }}</span>
+        <span class="dashboard-stat-head">
+          <el-icon><component :is="item.icon" /></el-icon>
+          <span>{{ item.label }}</span>
+        </span>
         <strong>{{ item.value }}</strong>
-        <small>{{ item.type === 'overdue' ? '需要优先关注' : '当前记录数' }}</small>
-      </article>
+        <span class="dashboard-stat-footer">
+          <small>{{ item.hint }}</small>
+          <span>{{ item.action }} →</span>
+        </span>
+      </button>
     </section>
 
     <section class="dashboard-content-grid">
@@ -152,8 +160,9 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, markRaw, onMounted, reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus';
+import { CircleCheckFilled, Clock, Loading, WarningFilled } from '@element-plus/icons-vue';
 import { useRouter } from 'vue-router';
 import { getDashboardOverviewApi, getHelpRequestsApi } from '../../api';
 import StatusTag from '../../components/StatusTag.vue';
@@ -210,22 +219,38 @@ const statsCards = computed(() => {
     {
       type: 'pending',
       label: '待处理',
-      value: overview.stats.pending
+      value: overview.stats.pending,
+      icon: markRaw(Clock),
+      hint: '等待响应的求助',
+      action: '立即处理',
+      query: { status: 'pending' }
     },
     {
       type: 'processing',
       label: '处理中',
-      value: overview.stats.processing
+      value: overview.stats.processing,
+      icon: markRaw(Loading),
+      hint: '正在推进的求助',
+      action: '继续跟进',
+      query: { status: 'processing' }
     },
     {
       type: 'done',
       label: '已完成',
-      value: overview.stats.completed
+      value: overview.stats.completed,
+      icon: markRaw(CircleCheckFilled),
+      hint: '已经完成的求助',
+      action: '查看记录',
+      query: { status: 'completed' }
     },
     {
       type: 'overdue',
       label: '超时 / 异常',
-      value: overview.stats.timeout
+      value: overview.stats.timeout,
+      icon: markRaw(WarningFilled),
+      hint: '需要优先关注',
+      action: '立即处理',
+      query: { isTimeout: '1' }
     }
   ];
 });
@@ -324,6 +349,13 @@ function goDetail(id) {
 
 function handleRowClick(row) {
   goDetail(row.id);
+}
+
+function openStat(item) {
+  router.push({
+    path: '/help-center',
+    query: item.query
+  });
 }
 
 function formatDateTime(value) {
