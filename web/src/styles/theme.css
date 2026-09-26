@@ -1,34 +1,142 @@
+/* ============================================================
+ * Design tokens — Corporate Clean（企业简洁风）
+ *
+ * 全站唯一的变量来源。原来这里有两套 :root（另一套在文件后半段的
+ * “2026 workspace refresh” 里重新声明了一遍同名变量），已合并到这里一份。
+ * 下面所有规则只引用这里的变量，不再写死色值。
+ * ============================================================ */
 :root {
   color-scheme: light;
-  --brand-primary: #2f5d9f;
-  --brand-primary-dark: #244a80;
-  --brand-primary-light: #eaf2ff;
-  --brand-primary-soft: #f3f7ff;
-  --bg-primary: #f5f7fa;
-  --bg-secondary: #f8fafc;
+
+  /* 主色 blue-600 / 悬停 blue-700 / 浅底 blue-50 / 焦点环 blue-500 */
+  --brand-primary: #2563eb;
+  --brand-primary-dark: #1d4ed8;
+  --brand-primary-light: #eff6ff;
+  --brand-primary-soft: #f5f8ff;
+  --brand-ring: #3b82f6;
+
+  /* 页面底 slate-50 / gray-50，卡片纯白 */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f9fafb;
   --bg-panel: #ffffff;
-  --bg-panel-muted: #f8fbff;
-  --bg-dark: #1e293b;
-  --bg-dark-soft: #334155;
-  --text-primary: #1f2937;
-  --text-secondary: #4b5563;
+  --bg-panel-muted: #f8fafc;
+  --bg-hover: #f9fafb;
+  /* 深色点缀（未读角标、在线圆点这类） */
+  --bg-dark: #111827;
+
+  /* 左侧栏改成浅色面后，原来那组 --sidebar-* 深色阶已经没人引用了：
+     现在它直接用 --bg-panel / --bg-hover / --brand-primary-light 这几个公共 token，
+     深浅切换只要动公共 token 一处。宽度不属于配色，保留在下面 */
+
+  /* 文字 gray-900 / 700 / 500 / 400 */
+  --text-primary: #111827;
+  --text-secondary: #374151;
   --text-muted: #6b7280;
-  --text-light: #cbd5e1;
+  --text-light: #9ca3af;
+  /* 深底上的文字与图标色 */
+  --text-inverse: #ffffff;
+
+  /* 边框 gray-200 / gray-300 */
   --border-color: #e5e7eb;
-  --border-strong: #d7dde6;
-  --border-focus: #9bb7df;
-  --success-soft: #edf7f1;
-  --warning-soft: #fff7ed;
+  --border-strong: #d1d5db;
+  /* 焦点环必须跟主色同系。原来还是 v1 遗留的 #9bb7df，和 #2563eb 对不上 */
+  --border-focus: #3b82f6;
+
+  /* 语义色：成功 green-600 / 警告 amber-600 / 错误 red-600 */
+  --success: #16a34a;
+  --success-soft: #f0fdf4;
+  --warning: #d97706;
+  --warning-soft: #fffbeb;
+  --danger: #dc2626;
   --danger-soft: #fef2f2;
-  --shadow-soft: 0 10px 24px rgba(15, 23, 42, 0.05);
-  --shadow-card: 0 8px 20px rgba(15, 23, 42, 0.05);
-  --shadow-floating: 0 16px 36px rgba(15, 23, 42, 0.08);
-  --radius-xl: 24px;
-  --radius-lg: 18px;
-  --radius-md: 14px;
-  --radius-sm: 12px;
-  --sidebar-width: 248px;
-  --topbar-height: 88px;
+
+  /* 状态标签 / 状态块的三件套：浅底 + 描边 + 深字。
+     状态色是成套出现的，所以底色和描边也进 token，别在各处另配 */
+  --success-border: #bbf7d0;
+  --success-text: #15803d;
+  --warning-border: #fde68a;
+  --warning-text: #b45309;
+  --danger-border: #fecaca;
+  --danger-text: #b91c1c;
+  --info-soft: #eff6ff;
+  --info-border: #bfdbfe;
+  --info-text: #1d4ed8;
+  --neutral-soft: #f9fafb;
+  --neutral-border: #e5e7eb;
+  --neutral-text: #4b5563;
+
+  /* 主按钮禁用态：主色去饱和一档 */
+  --brand-primary-disabled: #93b4f4;
+
+  /* 高对比档：设置页「状态高对比」开关打开时用它替换上面的浅色三件套 */
+  --warning-strong-soft: #fef9c3;
+  --warning-strong-border: #fde68a;
+  --warning-strong-text: #854d0e;
+  --success-strong-soft: #ecfdf5;
+  --success-strong-border: #a7f3d0;
+  --success-strong-text: #047857;
+
+  /* 阴影：静止只用 shadow-sm，悬停升一级，浮动层单独一档 */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-hover: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  --shadow-floating: 0 14px 34px rgba(15, 23, 42, 0.12);
+
+  /* 圆角：rounded-lg 8px 打底，卡片和容器用 rounded-xl 12px，不出现尖角 */
+  --radius-sm: 8px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 12px;
+
+  /* 动效：按钮 150ms、卡片 200ms，一律 ease-out，不超过 200ms */
+  --speed-fast: 150ms;
+  --speed-base: 200ms;
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  --sidebar-width: 236px;
+  --topbar-height: 96px;
+}
+
+/* ------------------------------------------------------------
+ * 对齐 Element Plus 的变量
+ *
+ * 项目用的是预编译的 element-plus/dist/index.css，从来没覆盖过
+ * --el-color-primary，所以按钮、输入框聚焦、下拉选中、开关一直是 Element
+ * 默认的 #409eff —— 跟品牌蓝 #2563eb 并排看就是两个蓝。
+ *
+ * dist 版没有 SCSS 编译期派生，-light-* / -dark-* 这些色阶必须逐个写死。
+ * 取值按 Element 自己的规则算：light-N = 主色混 N*10% 的白，dark-2 混 20% 黑。
+ * ------------------------------------------------------------ */
+:root {
+  /* 色阶值只能写死（混色是编译期算的），但主色本身指向 token，
+     这样改 --brand-primary 时 Element 至少不会掉队 */
+  --el-color-primary: var(--brand-primary);
+  --el-color-primary-light-3: #6692f1;
+  --el-color-primary-light-5: #92b1f5;
+  --el-color-primary-light-7: #bed0f9;
+  --el-color-primary-light-8: #d3e0fb;
+  --el-color-primary-light-9: #e9effd;
+  --el-color-primary-dark-2: #1e4fbc;
+
+  --el-color-success: var(--success);
+  --el-color-warning: var(--warning);
+  --el-color-danger: var(--danger);
+  --el-color-error: var(--danger);
+
+  /* 圆角：rounded-lg 打底，跟 --radius-sm 一致 */
+  --el-border-radius-base: var(--radius-sm);
+  --el-border-radius-small: var(--radius-sm);
+  --el-border-radius-round: 20px;
+
+  --el-text-color-primary: var(--text-primary);
+  --el-text-color-regular: var(--text-secondary);
+  --el-text-color-secondary: var(--text-muted);
+  --el-text-color-placeholder: var(--text-light);
+  --el-border-color: var(--border-color);
+  --el-border-color-light: var(--border-color);
+  /* 比 --border-color 再浅一档，token 里没有对应灰阶，保留原值 */
+  --el-border-color-lighter: #f3f4f6;
+  --el-fill-color-light: var(--bg-secondary);
 }
 
 * {
@@ -42,7 +150,7 @@ body,
   height: 100%;
   margin: 0;
   font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  background: #f3f4f6;
+  background: var(--bg-secondary);
   color: var(--text-primary);
 }
 
@@ -79,10 +187,12 @@ select {
   flex-direction: column;
   justify-content: space-between;
   padding: 24px 18px;
-  background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
-  color: #ffffff;
-  border-right: 1px solid rgba(148, 163, 184, 0.16);
-  box-shadow: 8px 0 24px rgba(15, 23, 42, 0.08);
+  /* 浅色侧栏：白底 + 一条边线和页面分开。深色那一版是靠投影压出来的层次，
+     浅色下再用投影只会显脏，所以 box-shadow 保持 none */
+  background: var(--bg-panel);
+  color: var(--text-secondary);
+  border-right: 1px solid var(--border-color);
+  box-shadow: none;
 }
 
 .sidebar-scroll {
@@ -96,19 +206,19 @@ select {
 .sidebar-footer {
   padding: 16px;
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
 }
 
 .sidebar-footer-title {
   font-size: 13px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .sidebar-footer p {
   margin: 8px 0 0;
-  color: var(--text-light);
+  color: var(--text-muted);
   font-size: 12px;
   line-height: 1.7;
 }
@@ -126,12 +236,12 @@ select {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  background: linear-gradient(180deg, #374151, #111827);
-  color: #ffffff;
+  background: var(--brand-primary-light);
+  color: var(--brand-primary);
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  box-shadow: none;
 }
 
 .brand-copy {
@@ -141,12 +251,12 @@ select {
 .brand-title {
   font-size: 18px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .brand-subtitle {
   margin-top: 4px;
-  color: var(--text-light);
+  color: var(--text-muted);
   font-size: 13px;
 }
 
@@ -156,8 +266,8 @@ select {
   gap: 4px;
   padding: 16px;
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
 }
 
 .sidebar-user-name {
@@ -166,7 +276,7 @@ select {
 }
 
 .sidebar-user-card small {
-  color: var(--text-light);
+  color: var(--text-muted);
 }
 
 .sidebar-section-label {
@@ -174,7 +284,7 @@ select {
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(203, 213, 225, 0.72);
+  color: var(--text-light);
 }
 
 .menu-list {
@@ -190,20 +300,20 @@ select {
   min-height: 44px;
   padding: 0 14px;
   border-radius: var(--radius-md);
-  color: rgba(226, 232, 240, 0.88);
+  color: var(--text-secondary);
   border: 1px solid transparent;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .menu-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(148, 163, 184, 0.12);
+  background: var(--bg-hover);
+  border-color: transparent;
 }
 
 .menu-item.router-link-active {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--brand-primary);
+  background: var(--brand-primary-light);
+  border-color: transparent;
 }
 
 .menu-item.router-link-active::before {
@@ -214,7 +324,7 @@ select {
   bottom: 10px;
   width: 3px;
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--brand-primary);
 }
 
 .main-area {
@@ -236,7 +346,7 @@ select {
   justify-content: space-between;
   gap: 20px;
   padding: 18px 28px;
-  background: #f3f4f6;
+  background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   backdrop-filter: none;
 }
@@ -271,7 +381,7 @@ select {
 .topbar-eyebrow {
   display: inline-flex;
   margin-bottom: 1px;
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -309,15 +419,15 @@ select {
   padding: 0 14px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
-  background: #ffffff;
+  background: var(--bg-panel);
   color: var(--text-primary);
   cursor: pointer;
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .topbar-notification:hover {
-  background: #fafafa;
-  border-color: #d1d5db;
+  background: var(--bg-secondary);
+  border-color: var(--border-strong);
 }
 
 .topbar-notification em {
@@ -325,8 +435,8 @@ select {
   height: 20px;
   padding: 0 6px;
   border-radius: 999px;
-  background: #111827;
-  color: #ffffff;
+  background: var(--bg-dark);
+  color: var(--text-inverse);
   font-style: normal;
   font-size: 12px;
   line-height: 20px;
@@ -339,7 +449,7 @@ select {
   gap: 12px;
   padding: 10px 12px;
   border-radius: var(--radius-md);
-  background: #ffffff;
+  background: var(--bg-panel);
   border: 1px solid var(--border-color);
 }
 
@@ -387,9 +497,7 @@ select {
 }
 
 .page-card,
-.auth-login-panel,
-.auth-brand-card,
-.stat-card {
+.auth-login-panel {
   border: 1px solid var(--border-color);
   background: var(--bg-panel);
   box-shadow: var(--shadow-card);
@@ -426,7 +534,7 @@ select {
   min-height: 10px;
   padding: 0 12px;
   border-radius: 999px;
-  background: #fafafa;
+  background: var(--bg-secondary);
   color: var(--text-muted);
   font-size: 12px;
   border: 1px solid var(--border-color);
@@ -440,32 +548,21 @@ select {
   align-items: center;
   padding: 0 11px;
   border-radius: 999px;
-  background: #f3f4f6;
-  color: #374151;
-  border: 2px solid #e5e7eb;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.09em;
 }
 
-.stats-grid,
+/* statsCards 固定 4 张（待处理 / 处理中 / 已完成 / 超时异常），所以是 4 列。
+   之前写的 5 列被 DashboardView 里那个 scoped 的 4 列规则盖住了，看不出来；
+   那段删掉后就露出来了。 */
 .dashboard-stats-band {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
-}
-
-.stat-card {
-  padding: 20px;
-  border-radius: var(--radius-lg);
-  background: #ffffff;
-}
-
-.stat-card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
 }
 
 .stat-card span {
@@ -488,12 +585,6 @@ select {
   line-height: 1.5;
 }
 
-.timeout-stat-card {
-  background: #ffffff;
-  border-color: #e5e7eb;
-}
-
-.status-tag,
 .timeout-pill,
 .user-role-pill,
 .user-status-pill,
@@ -512,17 +603,16 @@ select {
   font-size: 12px;
   font-weight: 600;
   border: 1px solid var(--border-color);
-  background: #f9fafb;
+  background: var(--bg-secondary);
   color: var(--text-primary);
 }
 
 .timeout-pill {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-  color: #374151;
+  background: var(--bg-secondary);
+  border-color: var(--border-strong);
+  color: var(--text-secondary);
 }
 
-.status-pending,
 .user-role-requester,
 .user-status-0,
 .task-priority-low,
@@ -530,22 +620,20 @@ select {
 .project-priority-low,
 .project-status-not_started,
 .milestone-status-pending {
-  background: #f6f8fb;
+  background: var(--bg-secondary);
 }
 
-.status-processing,
 .user-role-helper,
 .task-priority-medium,
 .task-status-blocked,
 .project-priority-medium,
 .project-status-paused,
 .milestone-status-in_progress {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-  color: #374151;
+  background: var(--bg-secondary);
+  border-color: var(--border-strong);
+  color: var(--text-secondary);
 }
 
-.status-waiting_confirm,
 .user-role-admin,
 .user-status-1,
 .task-priority-high,
@@ -555,28 +643,27 @@ select {
 .project-status-in_progress,
 .project-status-completed,
 .milestone-status-completed {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-  color: #111827;
+  background: var(--bg-secondary);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
 }
 
-.status-completed,
 .task-priority-urgent,
 .task-status-cancelled,
 .project-priority-urgent,
 .project-status-archived,
 .milestone-status-delayed {
-  background: #eef2f7;
-  color: #334155;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
 }
 
 .custom-table {
   --el-table-border-color: var(--border-color);
-  --el-table-header-bg-color: #fafafa;
-  --el-table-row-hover-bg-color: #fafafa;
+  --el-table-header-bg-color: var(--bg-secondary);
+  --el-table-row-hover-bg-color: var(--bg-secondary);
   --el-fill-color-blank: transparent;
-  --el-table-header-text-color: #374151;
-  --el-text-color-regular: #111827;
+  --el-table-header-text-color: var(--text-secondary);
+  --el-text-color-regular: var(--text-primary);
   background: transparent;
 }
 
@@ -594,11 +681,11 @@ select {
 }
 
 .custom-table .timeout-row td.el-table__cell {
-  background: #fff8f5;
+  background: var(--danger-soft);
 }
 
 .text-action {
-  color: #111827 !important;
+  color: var(--text-primary) !important;
 }
 
 .auth-page,
@@ -611,7 +698,7 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f3f4f6;
+  background: var(--bg-secondary);
 }
 
 .auth-shell {
@@ -633,8 +720,8 @@ select {
   min-height: 560px;
   gap: 24px;
   padding: 42px 38px 36px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
   box-shadow: 0 12px 30px rgba(17, 24, 39, 0.05);
 }
@@ -643,7 +730,7 @@ select {
   font-size: 36px;
   line-height: 1.08;
   letter-spacing: -0.03em;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .auth-brand-logo {
@@ -668,7 +755,7 @@ select {
 .auth-brand-top p {
   max-width: 320px;
   margin-top: 12px;
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 14px;
   line-height: 1.75;
 }
@@ -699,13 +786,13 @@ select {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #111827;
+  background: var(--bg-dark);
 }
 
 .auth-brand-note span,
 .login-info-item label {
   display: block;
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 12px;
   margin-bottom: 8px;
 }
@@ -715,13 +802,13 @@ select {
   display: block;
   font-size: 15px;
   line-height: 1.5;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .auth-brand-list span {
   display: block;
   margin-top: 4px;
-  color: #6b7280;
+  color: var(--text-muted);
   line-height: 1.65;
   font-size: 13px;
 }
@@ -732,7 +819,7 @@ select {
   align-items: flex-start;
   gap: 12px;
   padding-top: 18px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border-color);
 }
 
 .auth-brand-note {
@@ -759,8 +846,8 @@ select {
   justify-content: center;
   min-height: 560px;
   padding: 42px 42px 36px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
   box-shadow: 0 12px 30px rgba(17, 24, 39, 0.05);
 }
@@ -773,12 +860,12 @@ select {
 .login-header h2 {
   font-size: 28px;
   line-height: 1.2;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .login-header p {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .auth-login-form {
@@ -801,8 +888,8 @@ select {
   width: min(360px, 100%);
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
-  color: #6b7280;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
   font-size: 13px;
   line-height: 1.65;
 }
@@ -847,38 +934,20 @@ select {
   gap: 18px;
 }
 
-.dashboard-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.75fr) minmax(300px, 0.9fr);
-  gap: 18px;
-  align-items: start;
-}
-
-.dashboard-hero-feature {
-  display: flex;
-  flex-direction: column;
-  gap: 28.5px;
-  padding: 30px;
-  background: #ffffff;
-  border-color: #e5e7eb;
-  border-radius: var(--radius-lg);
-}
-
 .dashboard-hero-heading h2 {
   margin: 0;
   font-size: 39px;
   line-height: 1.12;
   letter-spacing: -0.03em;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .dashboard-hero-heading p {
   margin-top: 9px;
   font-size: 17px;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
-.dashboard-section-kicker,
 .dashboard-summary-item label,
 .dashboard-focus-item label,
 .dashboard-side-metric label {
@@ -887,21 +956,12 @@ select {
   font-size: 12px;
 }
 
-.dashboard-priority-card {
-  width: min(480px, 100%);
-  padding: 24px;
-  border-radius: var(--radius-lg);
-  background: #fafafa;
-  border: 1px solid #e5e7eb;
-  box-shadow: none;
-}
-
 .dashboard-priority-card strong {
   display: block;
   margin-top: 16px;
   font-size: 42px;
   line-height: 1;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .dashboard-priority-card h3 {
@@ -913,46 +973,19 @@ select {
 .dashboard-priority-card p {
   margin-top: 6px;
   font-size: 13px;
-  color: #6b7280;
-}
-
-.dashboard-hero-note {
-  max-width: 520px;
+  color: var(--text-muted);
 }
 
 .dashboard-hero-note strong {
   display: block;
   font-size: 14px;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .dashboard-hero-note p {
   margin-top: 4px;
   font-size: 13px;
-  color: #6b7280;
-}
-
-.dashboard-hero-side {
-  display: flex;
-}
-
-.dashboard-focus-panel {
-  width: 100%;
-  padding: 20px;
-  background: #ffffff;
-}
-
-.dashboard-side-metrics {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-.dashboard-side-metric {
-  padding: 16px;
-  border-radius: var(--radius-md);
-  background: #fafafa;
-  border: 1px solid var(--border-color);
+  color: var(--text-muted);
 }
 
 .dashboard-side-metric strong {
@@ -960,27 +993,15 @@ select {
   margin-top: 8px;
   font-size: 30px;
   line-height: 1;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .dashboard-side-metric span {
   display: block;
   margin-top: 25.8px;
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 12px;
   line-height: 1.5;
-}
-
-.dashboard-system-alert {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: 14px;
-  padding: 16px;
-  border-radius: var(--radius-md);
-  background: #fafafa;
-  border: 1px solid var(--border-color);
 }
 
 .dashboard-system-alert strong {
@@ -991,19 +1012,18 @@ select {
 .dashboard-system-alert p {
   margin-top: 4px;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .dashboard-content-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.8fr) minmax(260px, 0.78fr);
-  gap: 18px;
+  gap: 20px;
   align-items: start;
 }
 
 .dashboard-primary-column,
-.dashboard-secondary-column,
-.dashboard-side-panel {
+.dashboard-secondary-column {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -1038,7 +1058,7 @@ select {
   padding: 18px 20px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
-  background: #fafafa;
+  background: var(--bg-secondary);
 }
 
 .dashboard-work-item:hover,
@@ -1048,8 +1068,8 @@ select {
 .project-task-item:hover,
 .assistant-item:hover,
 .planning-card:hover {
-  border-color: #d1d5db;
-  background: #f3f4f6;
+  border-color: var(--border-strong);
+  background: var(--bg-secondary);
 }
 
 .dashboard-work-item-title {
@@ -1115,16 +1135,10 @@ select {
 .timeline-card,
 .log-item,
 .detail-item,
-.auth-metric-card,
-.dashboard-priority-item,
-.dashboard-key-fact,
-.dashboard-key-metric,
-.dashboard-priority-panel,
-.project-planning-panel,
-.project-placeholder-card {
+.project-planning-panel {
   padding: 18px;
   border-radius: var(--radius-lg);
-  background: #fafafa;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
 }
 
@@ -1138,14 +1152,14 @@ select {
 .dashboard-summary-item span {
   display: block;
   margin-top: 50.5px;
-  color: #6b7280;
+  color: var(--text-muted);
   line-height: 1.5;
   font-size: 12px;
 }
 
 .dashboard-shortcut-card span {
   display: block;
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 12px;
 }
 
@@ -1158,7 +1172,7 @@ select {
 .dashboard-shortcut-card p {
   margin-top: 6px;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .dashboard-recent-panel {
@@ -1230,13 +1244,13 @@ select {
 .help-side-panel {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  background: #ffffff;
+  background: var(--bg-panel);
 }
 
 .help-request-summary {
   padding: 26px;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-  border-color: #dbe6f4;
+  background: var(--brand-primary-soft);
+  border-color: var(--border-color);
 }
 
 .help-request-summary-head,
@@ -1270,12 +1284,12 @@ select {
   margin: 18px 0 0;
   padding: 18px;
   border-radius: var(--radius-md);
-  background: #ffffff;
+  background: var(--bg-panel);
   color: var(--text-primary);
   font-size: 16px;
   font-weight: 600;
   line-height: 1.8;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
 }
 
 .help-detail-section,
@@ -1321,7 +1335,7 @@ select {
 }
 
 .help-detail-page .detail-item {
-  background: #f8fafc;
+  background: var(--bg-panel-muted);
   border-radius: var(--radius-md);
 }
 
@@ -1398,8 +1412,8 @@ select {
 }
 
 .notification-item.unread {
-  background: #f3f7ff;
-  border-color: #d8e5fb;
+  background: var(--brand-primary-light);
+  border-color: var(--info-border);
 }
 
 .notification-main {
@@ -1437,7 +1451,7 @@ select {
   min-height: 26px;
   padding: 0 10px;
   border-radius: 999px;
-  background: #eef4ff;
+  background: var(--brand-primary-light);
   color: var(--brand-primary-dark);
   font-size: 12px;
 }
@@ -1502,7 +1516,7 @@ select {
   height: 8px;
   overflow: hidden;
   border-radius: 999px;
-  background: #e2e8f0;
+  background: var(--border-color);
 }
 
 .project-progress-fill {
@@ -1511,7 +1525,7 @@ select {
   top: 0;
   bottom: 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--brand-primary), #5b88c9);
+  background: var(--brand-primary);
 }
 
 .project-progress span {
@@ -1565,14 +1579,14 @@ select {
   height: 10px;
   border-radius: 50%;
   background: var(--brand-primary);
-  box-shadow: 0 0 0 4px rgba(47, 93, 159, 0.14);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
 }
 
 .timeline-line {
   flex: 1;
   width: 1px;
   margin-top: 8px;
-  background: #dbe3ee;
+  background: var(--border-color);
 }
 
 .timeline-item:last-child .timeline-line {
@@ -1580,8 +1594,7 @@ select {
 }
 
 .primary-action,
-.secondary-action,
-.logout-btn {
+.secondary-action {
   min-height: 40px;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -1590,18 +1603,26 @@ select {
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* 主按钮 = blue-600，和 --el-color-primary 一致，否则自定义按钮与 Element 按钮会两套蓝 */
 .primary-action {
   width: 100%;
-  background: #111827 !important;
-  color: #ffffff !important;
-  border: 1px solid #111827 !important;
-  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.14) !important;
+  background: var(--brand-primary) !important;
+  color: var(--text-inverse) !important;
+  border: 1px solid var(--brand-primary) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
 .primary-action:hover {
-  background: #030712 !important;
-  border-color: #030712 !important;
-  box-shadow: 0 10px 20px rgba(17, 24, 39, 0.18) !important;
+  background: var(--brand-primary-dark) !important;
+  border-color: var(--brand-primary-dark) !important;
+  box-shadow: var(--shadow-hover) !important;
+}
+
+.primary-action:disabled,
+.primary-action.is-disabled {
+  background: var(--brand-primary-disabled) !important;
+  border-color: var(--brand-primary-disabled) !important;
+  box-shadow: none !important;
 }
 
 .primary-action.small {
@@ -1609,34 +1630,32 @@ select {
   padding: 0 22px;
 }
 
-.secondary-action,
-.logout-btn {
-  background: #ffffff !important;
-  color: #111827 !important;
-  border: 1px solid #e5e7eb !important;
+.secondary-action {
+  background: var(--bg-panel) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
   box-shadow: none !important;
 }
 
-.secondary-action:hover,
-.logout-btn:hover {
-  background: #fafafa !important;
-  border-color: #d1d5db !important;
+.secondary-action:hover {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-strong) !important;
 }
 
 .auth-page .eyebrow,
 .auth-page .panel-badge {
-  background: #f3f4f6;
-  color: #374151;
-  border-color: #e5e7eb;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
 }
 
 .auth-page .el-input__wrapper {
-  background: #ffffff !important;
-  border-color: #e5e7eb;
+  background: var(--bg-panel) !important;
+  border-color: var(--border-color);
 }
 
 .auth-page .el-input__wrapper.is-focus {
-  border-color: #111827 !important;
+  border-color: var(--text-primary) !important;
 }
 
 .el-input__wrapper,
@@ -1644,7 +1663,7 @@ select {
 .el-textarea__inner {
   min-height: 44px;
   border-radius: var(--radius-sm) !important;
-  background: #ffffff !important;
+  background: var(--bg-panel) !important;
   box-shadow: none !important;
   border: 1px solid var(--border-color);
   transition: border-color 0.2s ease, background 0.2s ease;
@@ -1654,7 +1673,7 @@ select {
 .el-select__wrapper.is-focused,
 .el-textarea__inner:focus {
   border-color: var(--border-focus) !important;
-  background: #ffffff !important;
+  background: var(--bg-panel) !important;
 }
 
 .el-form-item__label {
@@ -1723,7 +1742,6 @@ select {
 }
 
 @media (max-width: 1280px) {
-  .dashboard-hero,
   .dashboard-content-grid,
   .project-detail-layout,
   .collaboration-layout,
@@ -1772,8 +1790,8 @@ select {
     padding: 0 20px 20px;
   }
 
-  .stats-grid,
-  .dashboard-stats-band,
+  /* 统计卡不在这里折叠：同一个 960px 断点下，后面还有一条把它设成两列
+     （窄屏两列比一列更省纵向空间），这里再写一次只会互相打架 */
   .form-grid,
   .detail-grid,
   .help-detail-layout,
@@ -1793,7 +1811,6 @@ select {
   .log-item,
   .notification-item,
   .auth-brand-footer,
-  .dashboard-system-alert,
   .topbar-user {
     display: flex;
     flex-direction: column;
@@ -1864,41 +1881,25 @@ select {
   }
 }
 
-/* 2026 workspace refresh */
-:root {
-  --brand-primary: #2563eb;
-  --brand-primary-dark: #1d4ed8;
-  --brand-primary-light: #eff6ff;
-  --brand-primary-soft: #f5f8ff;
-  --bg-primary: #f6f7f9;
-  --bg-secondary: #f9fafb;
-  --bg-panel-muted: #f8fafc;
-  --text-primary: #172033;
-  --text-secondary: #475569;
-  --text-muted: #788397;
-  --border-color: #e2e6ec;
-  --border-strong: #cfd6df;
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.03);
-  --shadow-floating: 0 14px 34px rgba(15, 23, 42, 0.12);
-  --radius-xl: 8px;
-  --radius-lg: 8px;
-  --radius-md: 7px;
-  --radius-sm: 6px;
-  --sidebar-width: 236px;
-  --topbar-height: 96px;
-}
+/* ============================================================
+ * 工作台页面（原本是「2026 workspace refresh」那一层，
+ * 它当年重新声明了一遍同名选择器和变量，现已并入上面的 token。
+ * 这一节保留的是它真正新增的规则：工作台欢迎区、统计卡、设置页。）
+ * ============================================================ */
 
 html,
 body,
 #app {
   background: var(--bg-primary);
-  font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
+  /* 原来这里写了 Inter，但项目既没有 @font-face 也没打包字体文件，
+     一直静默回退到 PingFang SC。索性去掉，用回中文优先的系统字体栈。 */
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 }
 
 .sidebar {
   padding: 22px 14px 16px;
-  background: #162033;
-  border-right: 0;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border-color);
   box-shadow: none;
 }
 
@@ -1908,15 +1909,16 @@ body,
 
 .brand-block {
   gap: 12px;
-  padding: 0 8px;
+  /* 12px 和 .menu-item 的左内边距对齐，logo 和下面的导航图标在同一条竖线上 */
+  padding: 0 12px;
 }
 
 .brand-mark {
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  background: #ffffff;
-  color: #172033;
+  background: var(--brand-primary-light);
+  color: var(--brand-primary);
   font-size: 14px;
   box-shadow: none;
 }
@@ -1934,13 +1936,13 @@ body,
 }
 
 .brand-subtitle {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 12px;
 }
 
 .sidebar-section-label {
   padding: 0 10px;
-  color: #718096;
+  color: var(--text-light);
   font-size: 11px;
   letter-spacing: 0;
 }
@@ -1954,7 +1956,7 @@ body,
   gap: 11px;
   padding: 0 12px;
   border-radius: 6px;
-  color: #b8c2d1;
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 500;
 }
@@ -1963,28 +1965,28 @@ body,
   width: 18px;
   height: 18px;
   flex: 0 0 auto;
-  color: #8290a4;
+  color: var(--text-light);
   font-size: 17px;
   transition: color 0.2s ease;
 }
 
 .menu-item:hover .el-icon {
-  color: #cbd5e1;
+  color: var(--text-muted);
 }
 
 .menu-item.router-link-active .el-icon {
-  color: #79aef8;
+  color: var(--brand-primary);
 }
 
 .menu-item:hover {
-  color: #ffffff;
-  background: #202d43;
+  color: var(--text-primary);
+  background: var(--bg-hover);
   border-color: transparent;
 }
 
 .menu-item.router-link-active {
-  color: #ffffff;
-  background: #2b3a52;
+  color: var(--brand-primary);
+  background: var(--brand-primary-light);
   border-color: transparent;
 }
 
@@ -1992,14 +1994,14 @@ body,
   top: 8px;
   bottom: 8px;
   width: 2px;
-  background: #60a5fa;
+  background: var(--brand-primary);
 }
 
 .sidebar-footer {
   padding: 14px;
   border-radius: 8px;
-  background: #1b273a;
-  border-color: #2c3a50;
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
 }
 
 .sidebar-footer p {
@@ -2010,12 +2012,12 @@ body,
 .topbar {
   padding: 16px 30px;
   background: rgba(246, 247, 249, 0.94);
-  border-bottom-color: #e8ebef;
+  border-bottom-color: var(--border-color);
   backdrop-filter: blur(12px);
 }
 
 .topbar-eyebrow {
-  color: #64748b;
+  color: var(--text-muted);
   letter-spacing: 0;
 }
 
@@ -2025,20 +2027,20 @@ body,
 }
 
 .topbar p {
-  color: #788397;
+  color: var(--text-muted);
   font-size: 13px;
 }
 
 .topbar-notification,
 .topbar-user {
   min-height: 42px;
-  border-color: #dfe4ea;
+  border-color: var(--border-color);
   border-radius: 7px;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
 .topbar-notification em {
-  background: #2563eb;
+  background: var(--brand-primary);
 }
 
 .topbar-user {
@@ -2053,8 +2055,8 @@ body,
   justify-content: center;
   flex: 0 0 auto;
   border-radius: 6px;
-  background: #e8eef8;
-  color: #244a80;
+  background: var(--brand-primary-light);
+  color: var(--brand-primary-dark);
   font-size: 11px;
   font-weight: 700;
   text-decoration: none !important;
@@ -2074,17 +2076,13 @@ body,
   font-size: 11px;
 }
 
-.content-area {
-  padding: calc(var(--topbar-height) + 22px) 30px 32px;
-}
-
-.page-section {
-  gap: 16px;
-}
+/* 页面留白 / 区块间距 / 统计卡间距这三条 v2 原样覆盖了 v1，而且是把 v1 改小了
+   （28px→30px、20px→16px、16px→12px）。这次要的是"适度放大"，
+   直接删掉覆盖层，用回 v1 那份更松的节奏即可，不必再写一遍。 */
 
 .page-card {
-  padding: 22px;
-  border-radius: 8px;
+  padding: 24px;
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
 }
 
@@ -2094,7 +2092,7 @@ body,
 
 .page-header h2,
 .panel-header h2 {
-  font-size: 18px;
+  font-size: 20px;
   letter-spacing: 0;
 }
 
@@ -2106,17 +2104,18 @@ body,
 
 .table-meta-note {
   min-height: 26px;
-  border-radius: 6px;
-  background: #f7f8fa;
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
 }
 
 .custom-table {
-  --el-table-header-bg-color: #f7f8fa;
-  --el-table-row-hover-bg-color: #f5f8fc;
+  --el-table-header-bg-color: var(--bg-secondary);
+  /* 行悬停用中性灰。原来是偏蓝的 #f5f8fc，和表格底色叠在一起偏脏 */
+  --el-table-row-hover-bg-color: var(--bg-hover);
 }
 
 .custom-table th.el-table__cell {
-  color: #516072;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 600;
 }
@@ -2127,7 +2126,7 @@ body,
 }
 
 .el-table {
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
 }
 
 .dashboard-page {
@@ -2141,16 +2140,16 @@ body,
   align-items: center;
   min-height: 132px;
   padding: 22px 26px;
-  border: 1px solid #dfe4ea;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--bg-panel);
   box-shadow: var(--shadow-card);
 }
 
 .dashboard-date {
   display: block;
   margin-bottom: 7px;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 600;
 }
@@ -2163,7 +2162,7 @@ body,
 
 .dashboard-hero-heading p {
   margin: 7px 0 0;
-  color: #788397;
+  color: var(--text-muted);
   font-size: 13px;
   line-height: 1.55;
 }
@@ -2175,17 +2174,17 @@ body,
   align-items: center;
   min-width: 0;
   padding-left: 24px;
-  border-left: 1px solid #e2e6ec;
+  border-left: 1px solid var(--border-color);
 }
 
 .dashboard-focus-summary > span {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 12px;
   white-space: nowrap;
 }
 
 .dashboard-focus-summary > strong {
-  color: #172033;
+  color: var(--text-primary);
   font-size: 34px;
   line-height: 1;
 }
@@ -2197,7 +2196,7 @@ body,
 
 .dashboard-focus-summary p {
   margin: 4px 0 0;
-  color: #788397;
+  color: var(--text-muted);
   font-size: 12px;
   line-height: 1.45;
 }
@@ -2205,83 +2204,45 @@ body,
 .dashboard-focus-summary button {
   min-height: 34px;
   padding: 0 13px;
-  border: 1px solid #d7dde6;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  background: #ffffff;
-  color: #263449;
+  background: var(--bg-panel);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
 }
 
 .dashboard-focus-summary button:hover {
-  border-color: #9fb3cc;
-  background: #f7f9fc;
-}
-
-.dashboard-stats-band {
-  gap: 12px;
+  border-color: var(--border-strong);
+  background: var(--bg-secondary);
 }
 
 .dashboard-stat-card {
-  position: relative;
+  /* 原来这里还有 position: relative + overflow: hidden，是给左侧色条
+     （::before）用的；色条去掉后这两个就没用了 */
   min-height: 132px;
-  padding: 17px 18px 15px 20px;
-  overflow: hidden;
-  border: 1px solid transparent;
-  border-radius: 8px;
+  padding: 20px 20px 18px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
   appearance: none;
-  color: #172033;
+  background: var(--bg-panel);
+  color: var(--text-primary);
   text-align: left;
   cursor: pointer;
   box-shadow: var(--shadow-card);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  /* transition 由文件末尾的「交互反馈」一节统一给，这里不重复写 */
 }
 
-.dashboard-stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 4px;
-  background: #94a3b8;
-}
+/* 悬停的上浮/描边/阴影统一由文件末尾的「交互反馈」一节给，
+   这里原来单独写了一套 hover 和 outline，和那边重复，去掉 */
 
-.dashboard-stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-}
-
-.dashboard-stat-card:focus-visible {
-  outline: 3px solid rgba(37, 99, 235, 0.2);
-  outline-offset: 2px;
-}
-
-.dashboard-stat-pending {
-  border-color: #cfe0f8;
-  background: #f1f7ff;
-}
-
-.dashboard-stat-processing {
-  border-color: #f1ddb1;
-  background: #fff8e9;
-}
-
-.dashboard-stat-done {
-  border-color: #c9e5d6;
-  background: #eff9f4;
-}
-
-.dashboard-stat-overdue {
-  border-color: #efcece;
-  background: #fff3f3;
-}
-
-.dashboard-stat-pending::before { background: #3b82f6; }
-.dashboard-stat-processing::before { background: #e99a17; }
-.dashboard-stat-done::before { background: #22a06b; }
-.dashboard-stat-overdue::before { background: #d85c64; }
+/* 四张统计卡改成统一的白色卡片：底色/描边不再按状态区分，
+   状态色收进图标容器（见下面 .dashboard-stat-head .el-icon 那组）。
+   原来的左侧 4px 色条（.dashboard-stat-card::before）一并去掉 —— 白卡 + 色点
+   已经足够表达状态，再加一条色条就是两套表达方式打架。
+   色值和状态标签（.status-tone-*）用同一组 token，
+   否则表格里的「待处理」和卡片上的「待处理」会是两种蓝 */
 
 .dashboard-stat-head {
   display: flex;
@@ -2290,17 +2251,17 @@ body,
 }
 
 .dashboard-stat-head .el-icon {
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   justify-content: center;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.72);
-  font-size: 15px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  font-size: 16px;
 }
 
 .dashboard-stat-head > span {
   display: block;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 600;
 }
@@ -2308,7 +2269,7 @@ body,
 .dashboard-stat-card > strong {
   display: block;
   margin-top: 12px;
-  color: #172033;
+  color: var(--text-primary);
   font-size: 32px;
   line-height: 1;
 }
@@ -2322,34 +2283,51 @@ body,
 }
 
 .dashboard-stat-footer small {
-  color: #778397;
+  color: var(--text-muted);
   font-size: 11px;
 }
 
 .dashboard-stat-footer > span {
-  color: #334155;
+  color: var(--text-secondary);
   font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
 }
 
-.dashboard-stat-pending .dashboard-stat-head .el-icon,
-.dashboard-stat-pending .dashboard-stat-footer > span { color: #2563eb; }
-.dashboard-stat-processing .dashboard-stat-head .el-icon,
-.dashboard-stat-processing .dashboard-stat-footer > span { color: #a86609; }
-.dashboard-stat-done .dashboard-stat-head .el-icon,
-.dashboard-stat-done .dashboard-stat-footer > span { color: #18744d; }
-.dashboard-stat-overdue .dashboard-stat-head .el-icon,
-.dashboard-stat-overdue .dashboard-stat-footer > span { color: #b5474f; }
+/* 状态色只落在图标容器上：浅底 + 同色的深字。
+   放到最后是因为 .dashboard-stat-head .el-icon 已经给过 background，
+   同特异性下靠源顺序覆盖 —— 这两条必须排在它后面 */
+.dashboard-stat-pending .dashboard-stat-head .el-icon {
+  background: var(--brand-primary-light);
+  color: var(--brand-primary);
+}
+
+.dashboard-stat-processing .dashboard-stat-head .el-icon {
+  background: var(--warning-soft);
+  color: var(--warning-text);
+}
+
+.dashboard-stat-done .dashboard-stat-head .el-icon {
+  background: var(--success-soft);
+  color: var(--success-text);
+}
+
+.dashboard-stat-overdue .dashboard-stat-head .el-icon {
+  background: var(--danger-soft);
+  color: var(--danger-text);
+}
+
+.dashboard-stat-pending .dashboard-stat-footer > span { color: var(--brand-primary); }
+.dashboard-stat-processing .dashboard-stat-footer > span { color: var(--warning-text); }
+.dashboard-stat-done .dashboard-stat-footer > span { color: var(--success-text); }
+.dashboard-stat-overdue .dashboard-stat-footer > span { color: var(--danger-text); }
 
 .dashboard-content-grid {
   grid-template-columns: minmax(0, 1.75fr) minmax(270px, 0.62fr);
-  gap: 16px;
 }
 
 .dashboard-primary-column,
 .dashboard-secondary-column {
-  gap: 16px;
   min-width: 0;
 }
 
@@ -2368,20 +2346,20 @@ body,
 .dashboard-work-item {
   padding: 14px 16px;
   border-radius: 7px;
-  background: #ffffff;
+  background: var(--bg-panel);
 }
 
 .dashboard-work-item:hover,
 .dashboard-shortcut-card:hover {
-  border-color: #b9c7d8;
-  background: #f8fafc;
+  border-color: var(--border-strong);
+  background: var(--bg-panel-muted);
 }
 
 .dashboard-shortcut-card,
 .dashboard-summary-item {
   padding: 15px;
   border-radius: 7px;
-  background: #f8fafc;
+  background: var(--bg-panel-muted);
 }
 
 .dashboard-shortcut-card strong {
@@ -2403,12 +2381,11 @@ body,
 }
 
 .dashboard-table-time {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
-.status-tag,
 .timeout-pill,
 .user-role-pill,
 .user-status-pill,
@@ -2431,7 +2408,7 @@ body,
 
   .dashboard-focus-summary {
     padding: 18px 0 0;
-    border-top: 1px solid #e2e6ec;
+    border-top: 1px solid var(--border-color);
     border-left: 0;
   }
 }
@@ -2480,8 +2457,8 @@ body,
 
   .topbar {
     padding: 18px 20px;
-    background: #f6f7f9;
-    border-bottom: 1px solid #e2e6ec;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
   }
 
   .topbar-actions {
@@ -2606,46 +2583,36 @@ body,
 }
 
 .zebra-table-enabled .custom-table .el-table__body tr:nth-child(even) td.el-table__cell {
-  background: #fafcff;
+  background: var(--bg-secondary);
 }
 
 .card-shadow-disabled .page-card,
 .card-shadow-disabled .dashboard-welcome,
-.card-shadow-disabled .dashboard-stat-card,
-.card-shadow-disabled .stat-card {
+.card-shadow-disabled .dashboard-stat-card {
   box-shadow: none;
 }
 
-.status-contrast-enabled .status-pending,
 .status-contrast-enabled .task-status-todo,
 .status-contrast-enabled .milestone-status-pending {
-  background: #fff7ed;
-  border-color: #fed7aa;
-  color: #9a3412;
+  background: var(--warning-strong-soft);
+  border-color: var(--warning-strong-border);
+  color: var(--warning-strong-text);
 }
 
-.status-contrast-enabled .status-processing,
 .status-contrast-enabled .task-status-in_progress,
 .status-contrast-enabled .project-status-in_progress,
 .status-contrast-enabled .milestone-status-in_progress {
-  background: #eff6ff;
-  border-color: #bfdbfe;
-  color: #1d4ed8;
+  background: var(--brand-primary-light);
+  border-color: var(--info-border);
+  color: var(--brand-primary-dark);
 }
 
-.status-contrast-enabled .status-waiting_confirm {
-  background: #fef9c3;
-  border-color: #fde68a;
-  color: #854d0e;
-}
-
-.status-contrast-enabled .status-completed,
 .status-contrast-enabled .task-status-done,
 .status-contrast-enabled .project-status-completed,
 .status-contrast-enabled .milestone-status-completed {
-  background: #ecfdf5;
-  border-color: #a7f3d0;
-  color: #047857;
+  background: var(--success-strong-soft);
+  border-color: var(--success-strong-border);
+  color: var(--success-strong-text);
 }
 
 .settings-hero {
@@ -2655,15 +2622,9 @@ body,
   grid-template-columns: minmax(0, 1fr) 220px;
   gap: 24px;
   align-items: center;
-  background:
-    linear-gradient(135deg, rgba(47, 93, 159, 0.11), rgba(255, 255, 255, 0.86) 48%),
-    #ffffff;
-}
-
-.modern-visual-enabled .settings-hero {
-  background:
-    linear-gradient(135deg, rgba(47, 93, 159, 0.13), rgba(255, 255, 255, 0.94) 48%),
-    #ffffff;
+  /* 原来是一层 v1 蓝 (#2f5d9f) 的斜向渐变叠白底。风格要求不用渐变，
+     而且那个蓝已经不跟 --brand-primary 走了，直接换成 blue-50 纯色。 */
+  background: var(--brand-primary-light);
 }
 
 .modern-visual-enabled .settings-panel {
@@ -2696,12 +2657,13 @@ body,
   line-height: 1.7;
 }
 
+/* 设置页右侧的示意卡片：不是真控件，只是把当前间距/圆角画个样子 */
 .settings-preview {
   height: 140px;
-  border-radius: 12px;
-  border: 1px solid rgba(47, 93, 159, 0.18);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(234, 242, 255, 0.9));
-  box-shadow: 0 18px 38px rgba(47, 93, 159, 0.14);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--info-border);
+  background: var(--brand-primary-light);
+  box-shadow: var(--shadow-floating);
   padding: 18px;
 }
 
@@ -2709,8 +2671,8 @@ body,
 .settings-preview strong,
 .settings-preview em {
   display: block;
-  border-radius: 8px;
-  background: rgba(47, 93, 159, 0.18);
+  border-radius: var(--radius-sm);
+  background: rgba(37, 99, 235, 0.18);
 }
 
 .settings-preview span {
@@ -2758,8 +2720,8 @@ body,
 .preview-card {
   padding: 18px;
   border-radius: 10px;
-  border: 1px solid rgba(47, 93, 159, 0.16);
-  background: #ffffff;
+  border: 1px solid var(--info-border);
+  background: var(--bg-panel);
 }
 
 .preview-card-primary {
@@ -2767,7 +2729,7 @@ body,
 }
 
 .preview-card-secondary {
-  background: #f8fafc;
+  background: var(--bg-panel-muted);
 }
 
 .preview-card span {
@@ -2797,5 +2759,300 @@ body,
   .settings-panel-head,
   .settings-reset-panel {
     flex-direction: column;
+  }
+}
+
+/* ============================================================
+ * 状态标签（StatusTag 组件）
+ *
+ * 原来这套样式写在 StatusTag.vue 的 <style scoped> 里，色值全是 v1 的硬编码。
+ * 移到这里有两个实际原因：
+ *   1. 换肤换不到它 —— 组件内写死的 #fff1f1 之类不会跟着 token 走；
+ *   2. 设置页的“状态高对比”开关选的是 .status-* 类，而组件实际输出的是
+ *      .status-tone-*，所以那个开关对状态标签一直是失效的。
+ * ============================================================ */
+.status-tag-compact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 62px;
+  min-height: 26px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.status-tone-danger {
+  background: var(--danger-soft);
+  border-color: var(--danger-border);
+  color: var(--danger-text);
+}
+
+.status-tone-warning {
+  background: var(--warning-soft);
+  border-color: var(--warning-border);
+  color: var(--warning-text);
+}
+
+.status-tone-neutral {
+  background: var(--neutral-soft);
+  border-color: var(--neutral-border);
+  color: var(--neutral-text);
+}
+
+.status-tone-info {
+  background: var(--info-soft);
+  border-color: var(--info-border);
+  color: var(--info-text);
+}
+
+.status-tone-success {
+  background: var(--success-soft);
+  border-color: var(--success-border);
+  color: var(--success-text);
+}
+
+/* “状态高对比”开关要真的作用到状态标签上（之前漏了 .status-tone-*，开关等于白开） */
+.status-contrast-enabled .status-tone-danger {
+  background: var(--danger-soft);
+  border-color: var(--danger-border);
+  color: var(--danger-text);
+}
+
+.status-contrast-enabled .status-tone-warning {
+  background: var(--warning-strong-soft);
+  border-color: var(--warning-border);
+  color: var(--warning-strong-text);
+}
+
+.status-contrast-enabled .status-tone-neutral {
+  background: var(--neutral-soft);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.status-contrast-enabled .status-tone-info {
+  background: var(--info-soft);
+  border-color: var(--info-border);
+  color: var(--info-text);
+}
+
+.status-contrast-enabled .status-tone-success {
+  background: var(--success-strong-soft);
+  border-color: var(--success-strong-border);
+  color: var(--success-strong-text);
+}
+
+/* ============================================================
+ * 补齐没有样式的挂钩类
+ *
+ * 这几处模板挂了类名但 theme.css 里一直没有对应规则，之前是“碰巧能看”
+ * （靠父级布局和 Element 默认样式撑着）。这里按各自的真实需要补上。
+ * ============================================================ */
+
+/* 网格子项要 min-width:0，否则内部的长表格/长文本会把整列撑破。
+   .dashboard-main-panel 早就有这条，同级的这几块漏了。 */
+.dashboard-quick-panel,
+.dashboard-side-summary,
+.help-detail-card,
+.settings-page {
+  min-width: 0;
+}
+
+/* 效果预览是“样例区”，不是真控件：虚线边框把它和设置项区分开，
+   align-self 让它贴合内容高度，不被同一行的兄弟卡片拉伸 */
+.settings-preview-panel {
+  align-self: start;
+  border-style: dashed;
+}
+
+/* 表格操作列 */
+.user-table-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 间距由上面的 gap 统一给，去掉 Element 给相邻按钮补的 margin */
+.user-table-actions .el-button + .el-button {
+  margin-left: 0;
+}
+
+/* 文字按钮要看起来可点：平时接近正文色，悬停转品牌蓝 */
+.text-action:hover {
+  color: var(--brand-primary) !important;
+}
+
+/* ============================================================
+ * 交互反馈
+ *
+ * 这一节是全站统一的 hover / active / focus 手感。之前整个项目没有一处
+ * 位移、没有一处缩放、也没有 focus-visible 环 —— 按钮点下去毫无反馈，
+ * 键盘 Tab 也看不出焦点在哪。
+ *
+ * 规则（Corporate Clean）：
+ *   - 悬停轻微上浮 + 阴影升一级
+ *   - 按下 scale(0.98)，做出“被按下”的触感
+ *   - 焦点环 2px 主色 + 2px 偏移，用 outline 画（见下方说明）
+ *   - 时长一律不超过 200ms，缓动统一 ease-out
+ *   - 系统开启“减少动态效果”时，全部位移和缩放停用
+ * ============================================================ */
+
+/* --- 统一过渡：只列真正会变的属性，不用 transition: all --- */
+.primary-action,
+.secondary-action,
+.text-action,
+.menu-item,
+.topbar-notification,
+.topbar-user,
+.topbar-alert-btn,
+.notification-main,
+.dashboard-stat-card,
+.dashboard-shortcut-card {
+  transition:
+    background-color var(--speed-fast) var(--ease-out),
+    border-color var(--speed-fast) var(--ease-out),
+    color var(--speed-fast) var(--ease-out),
+    box-shadow var(--speed-fast) var(--ease-out),
+    transform var(--speed-fast) var(--ease-out);
+}
+
+/* --- 按钮：悬停上浮，按下缩回 --- */
+/* 阴影沿用各自规则里已写好的值（primary 是 !important 的），这里只管位移 */
+.primary-action:hover,
+.secondary-action:hover {
+  transform: translateY(-1px);
+}
+
+.primary-action:active,
+.secondary-action:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* --- 可点击的卡片/磁贴：悬停浮起，阴影升级 --- */
+/* 只给真正可点击的元素。page-card / planning-card / timeline-card 都是静态容器，
+   整页跟着浮起会显得画面在抖，所以不参与。 */
+.dashboard-stat-card:hover,
+.dashboard-shortcut-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* 白卡靠描边和底色区分，悬停时描边加深一档，只说"可以点" */
+.dashboard-stat-card:hover {
+  border-color: var(--border-strong);
+}
+
+/* 用户显式关掉了卡片阴影，悬停就不能再把阴影加回来。
+   上面这条和 .card-shadow-disabled .dashboard-stat-card 特异性相同，
+   靠位置取胜的是悬停那条 —— 所以这里必须再压一层。 */
+.card-shadow-disabled .dashboard-stat-card:hover {
+  box-shadow: none;
+}
+
+/* --- 图标容器：悬停放大 + 底色转实心 --- */
+/* 悬停时容器填满「该状态自己的颜色」、图标转白，而不是统一刷成品牌蓝：
+   pending/processing/done/overdue 各一色，抹成一种蓝就把状态信息丢了。
+   每条都在对应状态的选择器下（0,4,0），压得住上面那条 (0,3,0) 的浅底。 */
+.dashboard-stat-head .el-icon {
+  transition:
+    transform var(--speed-base) var(--ease-out),
+    background-color var(--speed-fast) var(--ease-out),
+    color var(--speed-fast) var(--ease-out);
+}
+
+.dashboard-stat-card:hover .dashboard-stat-head .el-icon {
+  transform: scale(1.1);
+}
+
+.dashboard-stat-pending:hover .dashboard-stat-head .el-icon {
+  background: var(--brand-primary);
+  color: var(--text-inverse);
+}
+
+.dashboard-stat-processing:hover .dashboard-stat-head .el-icon {
+  background: var(--warning);
+  color: var(--text-inverse);
+}
+
+.dashboard-stat-done:hover .dashboard-stat-head .el-icon {
+  background: var(--success);
+  color: var(--text-inverse);
+}
+
+.dashboard-stat-overdue:hover .dashboard-stat-head .el-icon {
+  background: var(--danger);
+  color: var(--text-inverse);
+}
+
+/* --- 表格：可点击的行给出指针 --- */
+/* 行悬停底色由 --el-table-row-hover-bg-color 负责，已在 .custom-table 里设为 --bg-hover */
+.clickable-table .el-table__row {
+  cursor: pointer;
+}
+
+/* --- 侧栏菜单：悬停右移一点，做出“被指向”的感觉 --- */
+.menu-item:hover {
+  transform: translateX(2px);
+}
+
+/* --- 通知条目：真正的点击目标是内部的 button --- */
+.notification-main:hover {
+  background: var(--bg-hover);
+}
+
+/* --- 焦点环：键盘可见，鼠标点击不出现 --- */
+/* 用 outline + outline-offset 而不是 box-shadow 模拟 ring：
+   box-shadow 会被 .card-shadow-disabled 之类的规则顶掉（那是 0,3,0 特异性），
+   焦点环要是跟着卡片阴影一起消失，键盘用户就彻底看不到焦点了。
+   outline 走的是另一条渲染通道，和阴影互不干扰。 */
+.primary-action:focus-visible,
+.secondary-action:focus-visible,
+.text-action:focus-visible,
+.menu-item:focus-visible,
+.topbar-notification:focus-visible,
+.topbar-user:focus-visible,
+.topbar-alert-btn:focus-visible,
+.notification-main:focus-visible,
+.dashboard-stat-card:focus-visible,
+.dashboard-shortcut-card:focus-visible,
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--brand-ring);
+  outline-offset: 2px;
+}
+
+/* 输入类控件不叠环：它们已经有边框变色（见上方 .el-input__wrapper.is-focus），
+   再套一层环会跟圆角打架 */
+
+/* --- 无障碍：系统开启“减少动态效果”时停掉所有位移与缩放 --- */
+@media (prefers-reduced-motion: reduce) {
+  .primary-action,
+  .secondary-action,
+  .text-action,
+  .menu-item,
+  .topbar-notification,
+  .topbar-user,
+  .topbar-alert-btn,
+  .notification-main,
+  .dashboard-stat-card,
+  .dashboard-shortcut-card,
+  .dashboard-stat-head .el-icon {
+    transition: none !important;
+  }
+
+  .primary-action:hover,
+  .primary-action:active,
+  .secondary-action:hover,
+  .secondary-action:active,
+  .menu-item:hover,
+  .dashboard-stat-card:hover,
+  .dashboard-shortcut-card:hover,
+  .dashboard-stat-card:hover .dashboard-stat-head .el-icon {
+    transform: none !important;
   }
 }

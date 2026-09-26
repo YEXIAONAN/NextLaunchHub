@@ -90,48 +90,7 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.status-tag-compact {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 62px;
-  min-height: 26px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  font-size: 12px;
-  line-height: 18px;
-  font-weight: 600;
-}
-
-.status-tone-danger {
-  background: #fff1f1;
-  border-color: #f4d2d2;
-  color: #b84646;
-}
-
-.status-tone-warning {
-  background: #fff8e8;
-  border-color: #f1dfb8;
-  color: #9a6713;
-}
-
-.status-tone-neutral {
-  background: #f4f6f8;
-  border-color: #dde2e8;
-  color: #566273;
-}
-
-.status-tone-info {
-  background: #eef5ff;
-  border-color: #d5e3f6;
-  color: #35699e;
-}
-
-.status-tone-success {
-  background: #edf8f2;
-  border-color: #d1eadc;
-  color: #287653;
-}
-</style>
+<!--
+  样式在 src/styles/theme.css 的「状态标签」一节，不再放在这里。
+  这样色值能跟着全站 token 走，「状态高对比」开关也才作用得上。
+-->
