@@ -64,6 +64,7 @@
 
           <el-dropdown trigger="click" placement="bottom-end">
             <button class="topbar-user topbar-user-trigger">
+              <span class="topbar-avatar">{{ userInitials }}</span>
               <div class="topbar-user-copy">
                 <span>{{ authStore.user?.realName }}</span>
                 <small>{{ roleTextMap[authStore.user?.role] || '用户' }}</small>
@@ -122,6 +123,10 @@ const currentPageMeta = computed(() => {
 
 const pageTitle = computed(() => currentPageMeta.value.title);
 const pageDescription = computed(() => currentPageMeta.value.description);
+const userInitials = computed(() => {
+  const name = authStore.user?.realName || authStore.user?.username || 'U';
+  return name.slice(0, 2).toUpperCase();
+});
 
 async function handleLogout() {
   await authStore.logout();
@@ -146,7 +151,7 @@ async function handleEnableSystemNotification() {
 
 onMounted(() => {
   systemNotificationStore.refreshPermission();
-  if (authStore.token) {
+  if (authStore.isLoggedIn) {
     notificationStore.fetchUnreadCount();
   }
 });

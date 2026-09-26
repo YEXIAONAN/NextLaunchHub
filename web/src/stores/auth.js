@@ -21,7 +21,7 @@ export const useAuthStore = defineStore('auth', () => {
     initialized.value = true;
     connectRealtime();
     await notificationStore.fetchUnreadCount();
-    await systemNotificationStore.requestPermissionAfterLogin();
+    systemNotificationStore.refreshPermission();
   }
 
   async function restoreSession() {

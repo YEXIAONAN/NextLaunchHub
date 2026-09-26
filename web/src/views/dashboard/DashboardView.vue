@@ -1,77 +1,32 @@
 <template>
   <div class="page-section dashboard-page">
-    <section class="dashboard-hero">
-      <article class="page-card dashboard-hero-feature">
-        <div class="dashboard-hero-heading">
-<!--          <span class="eyebrow">今日工作台</span>-->
-          <h2>尊敬的 {{ authStore.user?.realName || '用户' }} 欢迎登陆</h2>
-          <p>{{ todayText }} ｜ {{ quoteText }}</p>
-        </div>
-
-        <div class="dashboard-priority-card">
-          <span class="dashboard-section-kicker">当前重点</span>
-          <strong>{{ priorityMetric.count }}</strong>
+    <section class="dashboard-welcome">
+      <div class="dashboard-hero-heading">
+        <span class="dashboard-date">{{ todayText }}</span>
+        <h2>{{ authStore.user?.realName || '用户' }}，欢迎回来</h2>
+        <p>{{ quoteText }}</p>
+      </div>
+      <div class="dashboard-focus-summary">
+        <span>当前重点</span>
+        <strong>{{ priorityMetric.count }}</strong>
+        <div>
           <h3>{{ priorityMetric.title }}</h3>
           <p>{{ priorityMetric.description }}</p>
         </div>
-
-        <div class="dashboard-hero-note">
-          <strong>{{ focusText }}</strong>
-          <p>{{ priorityPanelText }}</p>
-        </div>
-      </article>
-
-      <aside class="dashboard-hero-side">
-        <article class="page-card dashboard-focus-panel">
-          <div class="dashboard-side-metrics">
-            <div class="dashboard-side-metric">
-              <label>待处理数量</label>
-              <strong>{{ overview.stats.pending }}</strong>
-              <span>当前待响应</span>
-            </div>
-            <div class="dashboard-side-metric">
-              <label>{{ pendingSectionTitle }}</label>
-              <strong>{{ myTodoItems.length }}</strong>
-              <span>{{ pendingMetricText }}</span>
-            </div>
-            <div class="dashboard-side-metric">
-              <label>通知提醒</label>
-              <strong>{{ notificationStore.unreadCount }}</strong>
-              <span>未读通知</span>
-            </div>
-          </div>
-
-<!--          <div v-if="systemNotificationStore.shouldShowEnableEntry" class="dashboard-system-alert">-->
-<!--            <div>-->
-<!--              <strong>系统提醒未开启</strong>-->
-<!--              <p>建议开启浏览器通知。</p>-->
-<!--            </div>-->
-<!--            <el-button class="secondary-action" @click="handleEnableSystemNotification">-->
-<!--              开启系统提醒-->
-<!--            </el-button>-->
-<!--          </div>-->
-        </article>
-      </aside>
+        <button @click="router.push('/help-center')">查看求助</button>
+      </div>
     </section>
 
     <section class="dashboard-stats-band">
       <article
         v-for="item in statsCards"
         :key="item.type"
-        class="group flex overflow-hidden rounded-xl border border-gray-200 border-l-4 p-4 shadow-sm transition duration-200 hover:-translate-y-[2px]"
-        :class="[item.backgroundClass, item.borderClass]"
+        class="dashboard-stat-card"
+        :class="`dashboard-stat-${item.type}`"
       >
-        <div class="flex-1">
-          <strong
-            class="block text-3xl font-semibold leading-none"
-            :class="item.numberClass"
-          >
-            {{ item.value }}
-          </strong>
-          <span class="mt-2 block text-sm text-gray-500">
-            {{ item.label }}
-          </span>
-        </div>
+        <span>{{ item.label }}</span>
+        <strong>{{ item.value }}</strong>
+        <small>{{ item.type === 'overdue' ? '需要优先关注' : '当前记录数' }}</small>
       </article>
     </section>
 
@@ -133,7 +88,11 @@
                 <span v-else class="table-meta-note">正常</span>
               </template>
             </el-table-column>
-            <el-table-column prop="request_datetime" label="发起时间" min-width="180" />
+            <el-table-column label="发起时间" min-width="160">
+              <template #default="{ row }">
+                <span class="dashboard-table-time">{{ formatDateTime(row.request_datetime) }}</span>
+              </template>
+            </el-table-column>
           </el-table>
         </article>
       </div>
@@ -246,58 +205,27 @@ const quotes = [
 ];
 const quoteText = quotes[Math.floor(Math.random() * quotes.length)];
 
-function getStatCardStyle(type) {
-  const styleMap = {
-    pending: {
-      borderClass: 'border-l-blue-500',
-      numberClass: 'text-gray-900',
-      backgroundClass: 'bg-white'
-    },
-    processing: {
-      borderClass: 'border-l-yellow-500',
-      numberClass: 'text-gray-900',
-      backgroundClass: 'bg-gray-50'
-    },
-    done: {
-      borderClass: 'border-l-green-500',
-      numberClass: 'text-gray-900',
-      backgroundClass: 'bg-white'
-    },
-    overdue: {
-      borderClass: 'border-l-red-500',
-      numberClass: 'text-red-600',
-      backgroundClass: 'bg-gray-50'
-    }
-  };
-
-  return styleMap[type] || styleMap.pending;
-}
-
 const statsCards = computed(() => {
   return [
     {
       type: 'pending',
       label: '待处理',
-      value: overview.stats.pending,
-      ...getStatCardStyle('pending')
+      value: overview.stats.pending
     },
     {
       type: 'processing',
       label: '处理中',
-      value: overview.stats.processing,
-      ...getStatCardStyle('processing')
+      value: overview.stats.processing
     },
     {
       type: 'done',
       label: '已完成',
-      value: overview.stats.completed,
-      ...getStatCardStyle('done')
+      value: overview.stats.completed
     },
     {
       type: 'overdue',
       label: '超时 / 异常',
-      value: overview.stats.timeout,
-      ...getStatCardStyle('overdue')
+      value: overview.stats.timeout
     }
   ];
 });
@@ -306,19 +234,6 @@ const todayText = computed(() => {
   const now = new Date();
   const weekday = new Intl.DateTimeFormat('zh-CN', { weekday: 'long' }).format(now);
   return `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${weekday}`;
-});
-
-const focusText = computed(() => {
-  if (overview.stats.timeout > 0) {
-    return `当前有 ${overview.stats.timeout} 条超时求助`;
-  }
-  if (overview.stats.pending > 0) {
-    return `当前有 ${overview.stats.pending} 条待处理求助`;
-  }
-  if (overview.stats.processing > 0) {
-    return `当前有 ${overview.stats.processing} 条处理中求助`;
-  }
-  return '当前暂无紧急待办';
 });
 
 const priorityMetric = computed(() => {
@@ -353,18 +268,6 @@ const priorityMetric = computed(() => {
   };
 });
 
-const priorityPanelText = computed(() => {
-  if (authStore.user?.role === 'admin') {
-    return '先处理全局重点，再回看待办与记录。';
-  }
-
-  if (authStore.user?.role === 'requester') {
-    return '先看当前进展，再查看通知反馈。';
-  }
-
-  return '先处理分配事项，再查看提醒与记录。';
-});
-
 const pendingSectionTitle = computed(() => {
   return authStore.user?.role === 'admin' ? '全局待处理' : '我的待处理';
 });
@@ -375,10 +278,6 @@ const pendingSectionDesc = computed(() => {
     : authStore.user?.role === 'requester'
       ? '查看你发起且仍在处理中的求助单'
       : '查看当前分配给你的待处理事项';
-});
-
-const pendingMetricText = computed(() => {
-  return authStore.user?.role === 'admin' ? '优先跟进' : '分配给你';
 });
 
 async function loadOverview() {
@@ -425,6 +324,20 @@ function goDetail(id) {
 
 function handleRowClick(row) {
   goDetail(row.id);
+}
+
+function formatDateTime(value) {
+  if (!value) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat('zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(new Date(value));
 }
 
 async function handleEnableSystemNotification() {
@@ -576,6 +489,12 @@ onMounted(async () => {
 }
 
 @media (max-width: 960px) {
+  .dashboard-stats-band {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
   .dashboard-stats-band {
     grid-template-columns: 1fr;
   }

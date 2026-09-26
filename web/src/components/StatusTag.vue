@@ -56,18 +56,18 @@ const fallbackTextMap = {
 
 const classMap = {
   priority: {
-    high: 'bg-red-100 text-red-600',
-    medium: 'bg-yellow-100 text-yellow-600',
-    low: 'bg-gray-100 text-gray-600'
+    high: 'status-tone-danger',
+    medium: 'status-tone-warning',
+    low: 'status-tone-neutral'
   },
   status: {
-    not_started: 'bg-gray-100 text-gray-600',
-    in_progress: 'bg-blue-100 text-blue-600',
-    completed: 'bg-green-100 text-green-600',
-    blocked: 'bg-red-100 text-red-600',
-    pending: 'bg-gray-100 text-gray-600',
-    processing: 'bg-blue-100 text-blue-600',
-    waiting_confirm: 'bg-yellow-100 text-yellow-600'
+    not_started: 'status-tone-neutral',
+    in_progress: 'status-tone-info',
+    completed: 'status-tone-success',
+    blocked: 'status-tone-danger',
+    pending: 'status-tone-neutral',
+    processing: 'status-tone-info',
+    waiting_confirm: 'status-tone-warning'
   }
 };
 
@@ -81,8 +81,8 @@ const displayText = computed(() => {
 
 const tagClass = computed(() => {
   const typeClassMap = classMap[normalizedType.value] || classMap.status;
-  const colorClass = typeClassMap[normalizedValue.value] || 'bg-gray-100 text-gray-600';
-  return ['inline-flex px-2 py-1 rounded-md text-xs font-medium', colorClass];
+  const colorClass = typeClassMap[normalizedValue.value] || 'status-tone-neutral';
+  return ['status-tag-compact', colorClass];
 });
 
 onMounted(() => {
@@ -91,70 +91,47 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.inline-flex {
+.status-tag-compact {
   display: inline-flex;
-}
-
-.px-2 {
-  padding-left: 8px;
-  padding-right: 8px;
-}
-
-.py-1 {
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-
-.rounded-md {
+  align-items: center;
+  justify-content: center;
+  min-width: 62px;
+  min-height: 26px;
+  padding: 3px 8px;
   border-radius: 6px;
-}
-
-.text-xs {
+  border: 1px solid transparent;
   font-size: 12px;
-  line-height: 1.3334;
+  line-height: 18px;
+  font-weight: 600;
 }
 
-.font-medium {
-  font-weight: 500;
+.status-tone-danger {
+  background: #fff1f1;
+  border-color: #f4d2d2;
+  color: #b84646;
 }
 
-.bg-red-100 {
-  background: #fee2e2;
+.status-tone-warning {
+  background: #fff8e8;
+  border-color: #f1dfb8;
+  color: #9a6713;
 }
 
-.text-red-600 {
-  color: #dc2626;
+.status-tone-neutral {
+  background: #f4f6f8;
+  border-color: #dde2e8;
+  color: #566273;
 }
 
-.bg-yellow-100 {
-  background: #fef3c7;
+.status-tone-info {
+  background: #eef5ff;
+  border-color: #d5e3f6;
+  color: #35699e;
 }
 
-.text-yellow-600 {
-  color: #d97706;
-}
-
-.bg-gray-100 {
-  background: #f3f4f6;
-}
-
-.text-gray-600 {
-  color: #4b5563;
-}
-
-.bg-blue-100 {
-  background: #dbeafe;
-}
-
-.text-blue-600 {
-  color: #2563eb;
-}
-
-.bg-green-100 {
-  background: #dcfce7;
-}
-
-.text-green-600 {
-  color: #16a34a;
+.status-tone-success {
+  background: #edf8f2;
+  border-color: #d1eadc;
+  color: #287653;
 }
 </style>
