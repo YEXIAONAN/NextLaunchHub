@@ -6,6 +6,7 @@ import HelpCenterListView from '../views/help-center/HelpCenterListView.vue';
 import NotificationsView from '../views/notifications/NotificationsView.vue';
 import ProjectDetailView from '../views/projects/ProjectDetailView.vue';
 import ProjectsListView from '../views/projects/ProjectsListView.vue';
+import SystemSettingsView from '../views/settings/SystemSettingsView.vue';
 import TasksListView from '../views/tasks/TasksListView.vue';
 import DictionariesView from '../views/system/DictionariesView.vue';
 import LoginView from '../views/public/LoginView.vue';
@@ -73,6 +74,10 @@ const router = createRouter({
         {
           path: '/notifications',
           component: NotificationsView
+        },
+        {
+          path: '/settings',
+          component: SystemSettingsView
         },
         {
           path: '/users',

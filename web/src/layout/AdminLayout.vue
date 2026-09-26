@@ -1,5 +1,5 @@
 <template>
-  <div class="app-shell">
+  <div class="app-shell" :class="[uiPreferencesStore.motionClass, uiPreferencesStore.densityClass, uiPreferencesStore.glassClass]">
     <aside class="sidebar">
       <div class="sidebar-scroll">
         <div class="brand-block">
@@ -37,6 +37,9 @@
           </router-link>
           <router-link v-if="authStore.user?.role === 'admin'" class="menu-item" to="/system/dictionaries">
             <el-icon><Setting /></el-icon><span>字典配置</span>
+          </router-link>
+          <router-link class="menu-item" to="/settings">
+            <el-icon><Operation /></el-icon><span>系统设置</span>
           </router-link>
         </nav>
       </div>
@@ -91,7 +94,11 @@
       </header>
 
       <main class="content-area">
-        <router-view />
+        <router-view v-slot="{ Component, route: currentRoute }">
+          <transition name="page-fade" mode="out-in">
+            <component :is="Component" :key="currentRoute.fullPath" />
+          </transition>
+        </router-view>
       </main>
     </div>
   </div>
@@ -105,6 +112,7 @@ import {
   FolderOpened,
   HelpFilled,
   HomeFilled,
+  Operation,
   Setting,
   Tickets,
   UserFilled
@@ -113,12 +121,14 @@ import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useNotificationStore } from '../stores/notifications';
 import { useSystemNotificationStore } from '../stores/system-notification';
+import { useUiPreferencesStore } from '../stores/ui-preferences';
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
 const systemNotificationStore = useSystemNotificationStore();
+const uiPreferencesStore = useUiPreferencesStore();
 
 const roleTextMap = {
   admin: '管理员',
@@ -133,7 +143,8 @@ const pageMetaMap = [
   { match: (path) => path.startsWith('/tasks'), title: '任务管理', description: '跟进任务状态、优先级与执行安排。' },
   { match: (path) => path.startsWith('/notifications'), title: '通知中心', description: '集中处理系统消息与待办提醒。' },
   { match: (path) => path.startsWith('/users'), title: '用户管理', description: '维护系统账号、角色权限与启用状态。' },
-  { match: (path) => path.startsWith('/system/dictionaries'), title: '字典配置', description: '维护基础枚举、选项值与系统配置项。' }
+  { match: (path) => path.startsWith('/system/dictionaries'), title: '字典配置', description: '维护基础枚举、选项值与系统配置项。' },
+  { match: (path) => path.startsWith('/settings'), title: '系统设置', description: '调整界面动画、显示密度与视觉效果。' }
 ];
 
 const currentPageMeta = computed(() => {
