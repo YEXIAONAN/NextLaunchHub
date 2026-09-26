@@ -7,7 +7,7 @@
             <h2>求助查询</h2>
             <p>通过求助单号与发起人姓名查询处理进展，并在待确认时完成结果确认。</p>
           </div>
-          <div class="query-header-actions">
+          <div class="page-header-actions">
             <el-button class="secondary-action" @click="router.push('/help-request')">提交求助</el-button>
             <el-button class="secondary-action" @click="router.push('/login')">返回登录</el-button>
           </div>

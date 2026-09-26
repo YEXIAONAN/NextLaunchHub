@@ -25,11 +25,15 @@
         <div class="auth-brand-footer">
           <div class="auth-brand-note">
             <span>公开入口</span>
-            <strong>需要提交求助时，可直接使用公开入口。</strong>
+            <strong>提交求助、按单号查询处理进展，都无需登录。</strong>
           </div>
+          <!-- 有了查询入口，提交后弹出的那个单号才有地方用 -->
           <div class="auth-brand-footer-action">
             <el-button class="secondary-action auth-secondary-btn" @click="router.push('/help-request')">
               提交求助
+            </el-button>
+            <el-button class="secondary-action auth-secondary-btn" @click="router.push('/help-query')">
+              查询求助单
             </el-button>
           </div>
         </div>

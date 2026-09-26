@@ -21,7 +21,10 @@
               </div>
             </div>
             <h3>{{ detail.title || '-' }}</h3>
-            <p>{{ detail.content || '暂无内容' }}</p>
+            <div class="help-content-block">
+              <span class="help-content-label">求助内容</span>
+              <p>{{ detail.content || '暂无内容' }}</p>
+            </div>
           </section>
 
           <section class="help-detail-section">

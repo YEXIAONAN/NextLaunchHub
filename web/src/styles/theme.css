@@ -743,6 +743,9 @@ select {
 .auth-brand-footer-action {
   display: flex;
   align-items: center;
+  /* 窄屏下两个按钮换行，不要横向溢出 */
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .auth-secondary-btn {
@@ -833,7 +836,8 @@ select {
   margin-bottom: 0;
 }
 
-.query-header-actions {
+/* 页头右侧的一组按钮，窄屏自动换行 */
+.page-header-actions {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
@@ -1277,6 +1281,24 @@ select {
 .help-detail-section,
 .help-side-panel {
   padding: 20px;
+}
+
+/* 求助内容正文块上方的小标注：正文和标题挨在一起时容易看成同一段，加一行说明区分开 */
+.help-content-block {
+  margin-top: 20px;
+}
+
+.help-content-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 覆盖 .help-request-summary p 的 margin，间距交给上面的标注控制 */
+.help-content-block p {
+  margin: 0;
 }
 
 .help-section-title h3,

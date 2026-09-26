@@ -6,7 +6,11 @@
           <h2>提交求助</h2>
           <p>请填写完整信息，提交后系统将自动生成求助单号并通知对应帮助人员。</p>
         </div>
-        <el-button class="secondary-action" @click="router.push('/login')">返回登录</el-button>
+        <!-- 提交完拿到单号后，用户多半要跳去查进度 -->
+        <div class="page-header-actions">
+          <el-button class="secondary-action" @click="router.push('/help-query')">查询求助单</el-button>
+          <el-button class="secondary-action" @click="router.push('/login')">返回登录</el-button>
+        </div>
       </div>
 
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
