@@ -32,13 +32,16 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="选择帮助人员" prop="helperUserId">
+          <el-form-item label="选择帮助人员" prop="helperUserIds">
             <el-select
-              v-model="form.helperUserId"
+              v-model="form.helperUserIds"
+              multiple
+              collapse-tags
+              collapse-tags-tooltip
               filterable
               remote
               reserve-keyword
-              placeholder="请输入姓名检索"
+              placeholder="可选择多个帮助人员"
               :remote-method="loadHelpers"
               :loading="loadingHelpers"
             >
@@ -133,7 +136,7 @@ const loadingTasks = ref(false);
 const form = reactive({
   title: '',
   requesterUserId: '',
-  helperUserId: '',
+  helperUserIds: [],
   projectId: '',
   taskId: '',
   content: ''
@@ -142,7 +145,7 @@ const form = reactive({
 const rules = {
   title: [{ required: true, message: '请输入求助标题', trigger: 'blur' }],
   requesterUserId: [{ required: true, message: '请选择发起人', trigger: 'change' }],
-  helperUserId: [{ required: true, message: '请选择帮助人员', trigger: 'change' }],
+  helperUserIds: [{ required: true, type: 'array', min: 1, message: '请至少选择一位帮助人员', trigger: 'change' }],
   content: [{ required: true, message: '请输入求助内容', trigger: 'blur' }]
 };
 
@@ -213,7 +216,7 @@ async function handleSubmit() {
     const result = await submitHelpRequestApi({
       title: form.title,
       requesterUserId: form.requesterUserId,
-      helperUserId: form.helperUserId,
+      helperUserIds: form.helperUserIds,
       projectId: form.projectId || null,
       taskId: form.taskId || null,
       content: form.content
@@ -224,7 +227,7 @@ async function handleSubmit() {
     });
     form.title = '';
     form.requesterUserId = '';
-    form.helperUserId = '';
+    form.helperUserIds = [];
     form.projectId = '';
     form.taskId = '';
     form.content = '';

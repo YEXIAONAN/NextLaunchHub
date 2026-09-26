@@ -887,24 +887,22 @@ docker-compose logs -f
 | waiting | 123456 | helper |
 | xiang | 123456 | helper |
 | hi-tao | 123456 | helper |
-| zhouzhaoshuang | 123456 | helper |
 
 ### 请求帮助者名单
 
 | 姓名 | 用户名 |
 |------|--------|
-| 黄警威 | huangjingwei |
-| 李俊昊 | lijunhao |
-| 黄正宇 | huangzhengyu |
-| 农秋峰 | nongqiufeng |
-| 周朝双 | zhouzhaoshuang |
-| 程语兴 | chengyuxing |
-| 陈启添 | chenqitian |
-| 黄郁珊 | huangyushan |
-| 李易萱 | liyixuan |
-| 付飞谨 | fufeijin |
-| 黄思烨 | huangsiyie |
-| 廖铭森 | liaomingsen |
+| 请求人01 | huangjingwei |
+| 请求人02 | lijunhao |
+| 请求人03 | huangzhengyu |
+| 请求人04 | nongqiufeng |
+| 请求人05 | chengyuxing |
+| 请求人06 | chenqitian |
+| 请求人07 | huangyushan |
+| 请求人08 | liyixuan |
+| 请求人09 | fufeijin |
+| 请求人10 | huangsiyie |
+| 请求人11 | liaomingsen |
 
 > ⚠️ **安全提示**：生产环境请务必修改默认密码！
 

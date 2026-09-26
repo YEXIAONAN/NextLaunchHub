@@ -34,9 +34,12 @@ router.post(
     const title = req.body.title;
     const requesterUserId = req.body.requesterUserId || req.body.requester_user_id;
     const helperUserId = req.body.helperUserId || req.body.helper_user_id;
+    const helperUserIds = req.body.helperUserIds || req.body.helper_user_ids;
     const content = req.body.content;
 
-    if (!title || !requesterUserId || !helperUserId || !content) {
+    const hasHelpers = Array.isArray(helperUserIds) ? helperUserIds.length > 0 : Boolean(helperUserId);
+
+    if (!title || !requesterUserId || !hasHelpers || !content) {
       throw new HttpError(400, '请完整填写求助信息');
     }
 

@@ -25,18 +25,17 @@ INSERT INTO users (
   (2, 'waiting', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', 'Waiting', 'helper', 1, 1, 0, 1, '2026-03-20 09:05:00', '2026-03-20 09:05:00'),
   (3, 'xiang', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', 'Xiang', 'helper', 1, 1, 0, 1, '2026-03-20 09:06:00', '2026-03-20 09:06:00'),
   (4, 'hi-tao', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', 'Hi-Tao', 'helper', 1, 1, 0, 1, '2026-03-20 09:07:00', '2026-03-20 09:07:00'),
-  (5, 'zhouzhaoshuang', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '周朝双', 'helper', 1, 1, 1, 1, '2026-03-20 09:08:00', '2026-03-20 09:08:00'),
-  (6, 'huangjingwei', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '黄警威', 'requester', 1, 0, 1, 0, '2026-03-20 09:10:00', '2026-03-20 09:10:00'),
-  (7, 'lijunhao', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '李俊昊', 'requester', 1, 0, 1, 0, '2026-03-20 09:11:00', '2026-03-20 09:11:00'),
-  (8, 'huangzhengyu', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '黄正宇', 'requester', 1, 0, 1, 0, '2026-03-20 09:12:00', '2026-03-20 09:12:00'),
-  (9, 'nongqiufeng', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '农秋峰', 'requester', 1, 0, 1, 0, '2026-03-20 09:13:00', '2026-03-20 09:13:00'),
-  (10, 'chengyuxing', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '程语兴', 'requester', 1, 0, 1, 0, '2026-03-20 09:14:00', '2026-03-20 09:14:00'),
-  (11, 'chenqitian', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '陈启添', 'requester', 1, 0, 1, 0, '2026-03-20 09:15:00', '2026-03-20 09:15:00'),
-  (12, 'huangyushan', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '黄郁珊', 'requester', 1, 0, 1, 0, '2026-03-20 09:16:00', '2026-03-20 09:16:00'),
-  (13, 'liyixuan', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '李易萱', 'requester', 1, 0, 1, 0, '2026-03-20 09:17:00', '2026-03-20 09:17:00'),
-  (14, 'fufeijin', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '付飞谨', 'requester', 1, 0, 1, 0, '2026-03-20 09:18:00', '2026-03-20 09:18:00'),
-  (15, 'huangsiyie', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '黄思烨', 'requester', 1, 0, 1, 0, '2026-03-20 09:19:00', '2026-03-20 09:19:00'),
-  (16, 'liaomingsen', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '廖铭森', 'requester', 1, 0, 1, 0, '2026-03-20 09:20:00', '2026-03-20 09:20:00');
+  (6, 'huangjingwei', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人01', 'requester', 1, 0, 1, 0, '2026-03-20 09:10:00', '2026-03-20 09:10:00'),
+  (7, 'lijunhao', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人02', 'requester', 1, 0, 1, 0, '2026-03-20 09:11:00', '2026-03-20 09:11:00'),
+  (8, 'huangzhengyu', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人03', 'requester', 1, 0, 1, 0, '2026-03-20 09:12:00', '2026-03-20 09:12:00'),
+  (9, 'nongqiufeng', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人04', 'requester', 1, 0, 1, 0, '2026-03-20 09:13:00', '2026-03-20 09:13:00'),
+  (10, 'chengyuxing', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人05', 'requester', 1, 0, 1, 0, '2026-03-20 09:14:00', '2026-03-20 09:14:00'),
+  (11, 'chenqitian', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人06', 'requester', 1, 0, 1, 0, '2026-03-20 09:15:00', '2026-03-20 09:15:00'),
+  (12, 'huangyushan', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人07', 'requester', 1, 0, 1, 0, '2026-03-20 09:16:00', '2026-03-20 09:16:00'),
+  (13, 'liyixuan', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人08', 'requester', 1, 0, 1, 0, '2026-03-20 09:17:00', '2026-03-20 09:17:00'),
+  (14, 'fufeijin', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人09', 'requester', 1, 0, 1, 0, '2026-03-20 09:18:00', '2026-03-20 09:18:00'),
+  (15, 'huangsiyie', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人10', 'requester', 1, 0, 1, 0, '2026-03-20 09:19:00', '2026-03-20 09:19:00'),
+  (16, 'liaomingsen', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人11', 'requester', 1, 0, 1, 0, '2026-03-20 09:20:00', '2026-03-20 09:20:00');
 
 INSERT INTO system_dictionaries (id, dict_type, dict_label, dict_value, sort_no, status, created_at, updated_at) VALUES
   (1, 'project_status', '未开始', 'not_started', 10, 1, NOW(), NOW()),
@@ -85,7 +84,6 @@ INSERT INTO project_members (
   (1, 1, 2, 'Waiting', 'project_manager', '2026-03-20 10:05:00'),
   (2, 1, 3, 'Xiang', 'backend', '2026-03-20 10:06:00'),
   (3, 1, 4, 'Hi-Tao', 'frontend', '2026-03-20 10:07:00'),
-  (4, 1, 5, '周朝双', 'qa', '2026-03-20 10:08:00'),
   (5, 2, 3, 'Xiang', 'project_manager', '2026-03-21 11:05:00'),
   (6, 2, 4, 'Hi-Tao', 'backend', '2026-03-21 11:06:00');
 
@@ -130,24 +128,20 @@ INSERT INTO task_logs (
 INSERT INTO help_requests (
   id, request_no, title, requester_user_id, requester_name, helper_user_id, helper_name, project_id, project_name, task_id, task_title, content, requester_ip, request_datetime, request_date, expected_handle_hours, deadline_at, is_timeout, status, requester_confirmed_at, requester_feedback, created_at, updated_at
 ) VALUES
-  (1, 'HLP202603250001', '用户列表无法正常筛选', 6, '黄警威', 2, 'Waiting', 1, 'NextLaunch Hub 升级项目', 1, '补齐用户管理与固定名单兼容', '用户管理页按角色筛选后结果为空，请协助排查。', '10.20.18.11', '2026-03-25 09:20:00', '2026-03-25', 24, '2026-03-26 09:20:00', 1, 'processing', NULL, NULL, '2026-03-25 09:20:00', '2026-03-26 08:50:00'),
-  (2, 'HLP202603250002', '项目导出文件为空', 7, '李俊昊', 3, 'Xiang', 1, 'NextLaunch Hub 升级项目', 2, '整合 SQL 初始化文件', '项目列表导出成功但表格没有数据。', '10.20.18.35', '2026-03-25 10:10:00', '2026-03-25', 24, '2026-03-26 10:10:00', 1, 'waiting_confirm', NULL, NULL, '2026-03-25 10:10:00', '2026-03-25 14:25:00'),
-  (3, 'HLP202603250003', '求助详情日志未显示', 8, '黄正宇', 4, 'Hi-Tao', NULL, NULL, NULL, NULL, '求助单详情中的处理日志区域为空白。', '10.20.18.52', '2026-03-25 11:00:00', '2026-03-25', 24, '2026-03-26 11:00:00', 0, 'pending', NULL, NULL, '2026-03-25 11:00:00', '2026-03-25 11:00:00'),
-  (4, 'HLP202603250004', '通知中心未读数不更新', 5, '周朝双', 5, '周朝双', 1, 'NextLaunch Hub 升级项目', 3, '帮助中心状态流转联调', '自己处理后通知角标仍然显示旧数量。', '10.20.18.77', '2026-03-25 13:40:00', '2026-03-25', 24, '2026-03-26 13:40:00', 0, 'completed', '2026-03-25 16:20:00', '已确认处理完成', '2026-03-25 13:40:00', '2026-03-25 16:20:00'),
-  (5, 'HLP202603250005', '希望补充固定请求人名单', 10, '程语兴', 2, 'Waiting', NULL, NULL, NULL, NULL, '公共提交页希望请求人从固定名单中选择，不再手输。', '10.20.18.88', '2026-03-25 16:20:00', '2026-03-25', 24, '2026-03-26 16:20:00', 0, 'pending', NULL, NULL, '2026-03-25 16:20:00', '2026-03-25 16:20:00');
+  (1, 'HLP202603250001', '用户列表无法正常筛选', 6, '请求人01', 2, 'Waiting', 1, 'NextLaunch Hub 升级项目', 1, '补齐用户管理与固定名单兼容', '用户管理页按角色筛选后结果为空，请协助排查。', '10.20.18.11', '2026-03-25 09:20:00', '2026-03-25', 24, '2026-03-26 09:20:00', 1, 'processing', NULL, NULL, '2026-03-25 09:20:00', '2026-03-26 08:50:00'),
+  (2, 'HLP202603250002', '项目导出文件为空', 7, '请求人02', 3, 'Xiang', 1, 'NextLaunch Hub 升级项目', 2, '整合 SQL 初始化文件', '项目列表导出成功但表格没有数据。', '10.20.18.35', '2026-03-25 10:10:00', '2026-03-25', 24, '2026-03-26 10:10:00', 1, 'waiting_confirm', NULL, NULL, '2026-03-25 10:10:00', '2026-03-25 14:25:00'),
+  (3, 'HLP202603250003', '求助详情日志未显示', 8, '请求人03', 4, 'Hi-Tao', NULL, NULL, NULL, NULL, '求助单详情中的处理日志区域为空白。', '10.20.18.52', '2026-03-25 11:00:00', '2026-03-25', 24, '2026-03-26 11:00:00', 0, 'pending', NULL, NULL, '2026-03-25 11:00:00', '2026-03-25 11:00:00'),
+  (5, 'HLP202603250005', '希望补充固定请求人名单', 10, '请求人05', 2, 'Waiting', NULL, NULL, NULL, NULL, '公共提交页希望请求人从固定名单中选择，不再手输。', '10.20.18.88', '2026-03-25 16:20:00', '2026-03-25', 24, '2026-03-26 16:20:00', 0, 'pending', NULL, NULL, '2026-03-25 16:20:00', '2026-03-25 16:20:00');
 
 INSERT INTO help_request_logs (
   id, help_request_id, operator_user_id, operator_name, action_type, action_content, created_at
 ) VALUES
-  (1, 1, 6, '黄警威', 'create', '创建求助单，当前状态：待处理', '2026-03-25 09:20:00'),
+  (1, 1, 6, '请求人01', 'create', '创建求助单，当前状态：待处理', '2026-03-25 09:20:00'),
   (2, 1, 2, 'Waiting', 'status_update', '接单并开始处理，当前状态：处理中', '2026-03-25 09:45:00'),
-  (3, 2, 7, '李俊昊', 'create', '创建求助单，当前状态：待处理', '2026-03-25 10:10:00'),
+  (3, 2, 7, '请求人02', 'create', '创建求助单，当前状态：待处理', '2026-03-25 10:10:00'),
   (4, 2, 3, 'Xiang', 'status_update', '将状态从：待处理 更新为：待确认', '2026-03-25 14:25:00'),
-  (5, 3, 8, '黄正宇', 'create', '创建求助单，当前状态：待处理', '2026-03-25 11:00:00'),
-  (6, 4, 5, '周朝双', 'create', '创建求助单，当前状态：待处理', '2026-03-25 13:40:00'),
-  (7, 4, 5, '周朝双', 'status_update', '将状态从：待处理 更新为：已完成', '2026-03-25 16:10:00'),
-  (8, 4, 5, '周朝双', 'requester_confirm', '发起人确认已解决，说明：已确认处理完成', '2026-03-25 16:20:00'),
-  (9, 5, 10, '程语兴', 'create', '创建求助单，当前状态：待处理', '2026-03-25 16:20:00');
+  (5, 3, 8, '请求人03', 'create', '创建求助单，当前状态：待处理', '2026-03-25 11:00:00'),
+  (9, 5, 10, '请求人05', 'create', '创建求助单，当前状态：待处理', '2026-03-25 16:20:00');
 
 INSERT INTO help_request_assistants (
   id, help_request_id, assistant_user_id, assistant_name, added_by_user_id, added_by_name, created_at
@@ -160,7 +154,6 @@ INSERT INTO notifications (
   (1, 2, 'help_request_created', '收到新的求助单', '求助单 HLP202603250001 已提交，请及时处理。', 1, 'help_request', '/help-center/1', 0, '2026-03-25 09:20:00'),
   (2, 3, 'help_request_created', '收到新的求助单', '求助单 HLP202603250002 已提交，请及时处理。', 2, 'help_request', '/help-center/2', 0, '2026-03-25 10:10:00'),
   (3, 4, 'help_request_created', '收到新的求助单', '求助单 HLP202603250003 已提交，请及时处理。', 3, 'help_request', '/help-center/3', 0, '2026-03-25 11:00:00'),
-  (4, 5, 'help_request_created', '收到新的求助单', '求助单 HLP202603250004 已提交，请及时处理。', 4, 'help_request', '/help-center/4', 1, '2026-03-25 13:40:00'),
   (5, 2, 'help_request_created', '收到新的求助单', '求助单 HLP202603250005 已提交，请及时处理。', 5, 'help_request', '/help-center/5', 0, '2026-03-25 16:20:00'),
   (6, 7, 'help_request_status_changed', '求助单状态已更新', '求助单 HLP202603250002 当前状态为：待确认。', 2, 'help_request', '/help-center/2', 0, '2026-03-25 14:25:00'),
   (7, 2, 'assistant_added', '已被加入协同处理', '您已被加入求助单 HLP202603250001 的协同处理，请及时跟进。', 1, 'help_request', '/help-center/1', 1, '2026-03-25 10:00:00');

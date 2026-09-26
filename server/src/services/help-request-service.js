@@ -214,14 +214,24 @@ export async function createHelpRequest(payload) {
     title,
     requesterUserId,
     helperUserId,
+    helperUserIds,
     projectId,
     taskId,
     content,
     requesterIp
   } = payload;
+  const normalizedHelperIds = Array.from(new Set(
+    (Array.isArray(helperUserIds) && helperUserIds.length > 0 ? helperUserIds : [helperUserId])
+      .map((item) => Number(item))
+      .filter((item) => Number.isInteger(item) && item > 0)
+  ));
+
+  if (normalizedHelperIds.length === 0) {
+    throw new HttpError(400, '帮助人员不能为空');
+  }
 
   const connection = await pool.getConnection();
-  let realtimePayload = null;
+  let realtimePayloads = [];
 
   try {
     await connection.beginTransaction();
@@ -238,18 +248,22 @@ export async function createHelpRequest(payload) {
       throw new HttpError(400, '发起人不存在或不可用');
     }
 
-    const [[helper]] = await connection.query(
+    const [helperRows] = await connection.query(
       `SELECT id, real_name
        FROM users
-       WHERE id = ? AND is_helper = 1 AND status = 1
-       LIMIT 1`,
-      [helperUserId]
+       WHERE id IN (?)
+         AND is_helper = 1
+         AND status = 1`,
+      [normalizedHelperIds]
     );
+    const helperMap = new Map(helperRows.map((item) => [Number(item.id), item]));
+    const helpers = normalizedHelperIds.map((id) => helperMap.get(id)).filter(Boolean);
 
-    if (!helper) {
+    if (helpers.length !== normalizedHelperIds.length) {
       throw new HttpError(400, '帮助人员不存在或不可用');
     }
 
+    const [helper, ...assistantHelpers] = helpers;
     const relation = await resolveHelpRequestRelation(connection, projectId, taskId);
     const requestNo = await generateRequestNo(connection);
 
@@ -281,6 +295,28 @@ export async function createHelpRequest(payload) {
 
     const helpRequestId = result.insertId;
 
+    if (assistantHelpers.length > 0) {
+      await connection.query(
+        `INSERT INTO help_request_assistants
+          (
+            help_request_id,
+            assistant_user_id,
+            assistant_name,
+            added_by_user_id,
+            added_by_name,
+            created_at
+          )
+         VALUES ${assistantHelpers.map(() => '(?, ?, ?, ?, ?, NOW())').join(', ')}`,
+        assistantHelpers.flatMap((assistant) => [
+          helpRequestId,
+          assistant.id,
+          assistant.real_name,
+          requester.id,
+          requester.real_name
+        ])
+      );
+    }
+
     await connection.query(
       `INSERT INTO help_request_logs
         (help_request_id, operator_user_id, operator_name, action_type, action_content, created_at)
@@ -294,6 +330,21 @@ export async function createHelpRequest(payload) {
       ]
     );
 
+    if (assistantHelpers.length > 0) {
+      await connection.query(
+        `INSERT INTO help_request_logs
+          (help_request_id, operator_user_id, operator_name, action_type, action_content, created_at)
+         VALUES (?, ?, ?, ?, ?, NOW())`,
+        [
+          helpRequestId,
+          requester.id,
+          requester.real_name,
+          'assistant_added',
+          `自动添加协同人员：${assistantHelpers.map((item) => item.real_name).join('、')}`
+        ]
+      );
+    }
+
     await createNotification(connection, {
       receiverUserId: helper.id,
       type: 'help_request_created',
@@ -302,25 +353,38 @@ export async function createHelpRequest(payload) {
       relatedId: helpRequestId
     });
 
-    realtimePayload = {
+    for (const assistant of assistantHelpers) {
+      await createNotification(connection, {
+        receiverUserId: assistant.id,
+        type: 'assistant_added',
+        title: '已被加入协同处理',
+        content: `您已被加入求助单 ${requestNo} 的协同处理，请及时跟进。`,
+        relatedId: helpRequestId
+      });
+    }
+
+    realtimePayloads = helpers.map((targetHelper) => ({
       type: 'new_help_request',
       requestId: helpRequestId,
       requestNo,
       title,
       requesterName: requester.real_name,
-      helperUserId: helper.id,
+      helperUserId: targetHelper.id,
       createdAt: new Date().toISOString(),
       message: `求助单 ${requestNo}《${title}》已由 ${requester.real_name} 提交，请及时处理。`
-    };
+    }));
 
     await connection.commit();
 
-    emitToUser(helper.id, 'new_help_request', realtimePayload);
+    for (const payload of realtimePayloads) {
+      emitToUser(payload.helperUserId, 'new_help_request', payload);
+    }
 
     return {
       id: helpRequestId,
       requestNo,
-      request_no: requestNo
+      request_no: requestNo,
+      helper_user_ids: helpers.map((item) => item.id)
     };
   } catch (error) {
     await connection.rollback();
