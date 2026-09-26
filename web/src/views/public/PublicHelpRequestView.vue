@@ -71,9 +71,6 @@
               <el-option label="其他" :value="OTHER_VALUE" />
             </el-select>
           </el-form-item>
-          <el-form-item v-if="form.projectId === OTHER_VALUE" label="其他项目名称" prop="projectName">
-            <el-input v-model="form.projectName" maxlength="100" placeholder="请输入项目名称" />
-          </el-form-item>
           <el-form-item label="关联任务">
             <el-select
               v-model="form.taskId"
@@ -82,6 +79,7 @@
               placeholder="请选择关联任务"
               :disabled="!form.projectId"
               :loading="loadingTasks"
+              @change="handleTaskChange"
             >
               <el-option
                 v-for="item in taskOptions"
@@ -92,8 +90,13 @@
               <el-option label="其他" :value="OTHER_VALUE" />
             </el-select>
           </el-form-item>
-          <el-form-item v-if="form.taskId === OTHER_VALUE" label="其他任务名称" prop="taskTitle">
-            <el-input v-model="form.taskTitle" maxlength="150" placeholder="请输入任务名称" />
+          <el-form-item
+            v-if="isOtherSelected"
+            class="form-grid-full"
+            :label="otherNameLabel"
+            prop="otherName"
+          >
+            <el-input v-model="form.otherName" maxlength="100" :placeholder="otherNamePlaceholder" />
           </el-form-item>
         </div>
 
@@ -118,7 +121,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { ElMessageBox } from 'element-plus';
 import { useRouter } from 'vue-router';
 import {
@@ -147,33 +150,32 @@ const form = reactive({
   requesterUserId: '',
   helperUserIds: [],
   projectId: '',
-  projectName: '',
   taskId: '',
-  taskTitle: '',
+  otherName: '',
   content: ''
 });
+
+// 所属项目和关联任务都选「其他」时，只填一个名称，项目名和任务名共用这段文字
+const isOtherProject = computed(() => form.projectId === OTHER_VALUE);
+const isOtherTask = computed(() => form.taskId === OTHER_VALUE);
+const isOtherSelected = computed(() => isOtherProject.value || isOtherTask.value);
+const otherNameLabel = computed(() => {
+  if (isOtherProject.value && isOtherTask.value) {
+    return '其他名称';
+  }
+  return isOtherProject.value ? '其他项目名称' : '其他任务名称';
+});
+const otherNamePlaceholder = computed(() => `请输入${otherNameLabel.value}`);
 
 const rules = {
   title: [{ required: true, message: '请输入求助标题', trigger: 'blur' }],
   requesterUserId: [{ required: true, message: '请选择发起人', trigger: 'change' }],
   helperUserIds: [{ required: true, type: 'array', min: 1, message: '请至少选择一位帮助人员', trigger: 'change' }],
-  projectName: [
+  otherName: [
     {
       validator: (_rule, value, callback) => {
-        if (form.projectId === OTHER_VALUE && !String(value || '').trim()) {
-          callback(new Error('请输入其他项目名称'));
-          return;
-        }
-        callback();
-      },
-      trigger: 'blur'
-    }
-  ],
-  taskTitle: [
-    {
-      validator: (_rule, value, callback) => {
-        if (form.taskId === OTHER_VALUE && !String(value || '').trim()) {
-          callback(new Error('请输入其他任务名称'));
+        if (isOtherSelected.value && !String(value || '').trim()) {
+          callback(new Error(`请输入${otherNameLabel.value}`));
           return;
         }
         callback();
@@ -237,11 +239,19 @@ async function loadTasks(projectId) {
 
 async function handleProjectChange(projectId) {
   form.taskId = '';
-  form.taskTitle = '';
-  if (projectId !== OTHER_VALUE) {
-    form.projectName = '';
-  }
+  resetOtherNameIfUnused();
   await loadTasks(projectId);
+}
+
+async function handleTaskChange() {
+  resetOtherNameIfUnused();
+}
+
+// 项目和任务都没选「其他」时，清掉名称，避免下次再选「其他」时冒出旧文字
+function resetOtherNameIfUnused() {
+  if (!isOtherProject.value && !isOtherTask.value) {
+    form.otherName = '';
+  }
 }
 
 async function handleSubmit() {
@@ -252,16 +262,15 @@ async function handleSubmit() {
 
   submitting.value = true;
   try {
-    const isOtherProject = form.projectId === OTHER_VALUE;
-    const isOtherTask = form.taskId === OTHER_VALUE;
+    const otherName = form.otherName.trim();
     const result = await submitHelpRequestApi({
       title: form.title,
       requesterUserId: form.requesterUserId,
       helperUserIds: form.helperUserIds,
-      projectId: !isOtherProject && form.projectId ? form.projectId : null,
-      projectName: isOtherProject ? form.projectName.trim() : null,
-      taskId: !isOtherTask && form.taskId ? form.taskId : null,
-      taskTitle: isOtherTask ? form.taskTitle.trim() : null,
+      projectId: !isOtherProject.value && form.projectId ? form.projectId : null,
+      projectName: isOtherProject.value ? otherName : null,
+      taskId: !isOtherTask.value && form.taskId ? form.taskId : null,
+      taskTitle: isOtherTask.value ? otherName : null,
       content: form.content
     });
     const requestNo = result.data.request_no || result.data.requestNo;
@@ -272,9 +281,8 @@ async function handleSubmit() {
     form.requesterUserId = '';
     form.helperUserIds = [];
     form.projectId = '';
-    form.projectName = '';
     form.taskId = '';
-    form.taskTitle = '';
+    form.otherName = '';
     form.content = '';
     taskOptions.value = [];
     formRef.value.clearValidate();
