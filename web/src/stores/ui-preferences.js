@@ -1,12 +1,16 @@
 import { defineStore } from 'pinia';
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 
 const STORAGE_KEY = 'nextlaunch_hub_ui_preferences';
 
 const defaultPreferences = {
-  animationLevel: 2,
   density: 'comfortable',
-  glassEffect: true
+  modernVisual: true,
+  compactSidebar: false,
+  fixedTopbar: true,
+  zebraTable: false,
+  cardShadow: true,
+  highContrastStatus: false
 };
 
 function readStoredPreferences() {
@@ -23,44 +27,46 @@ function readStoredPreferences() {
 export const useUiPreferencesStore = defineStore('uiPreferences', () => {
   const preferences = ref(readStoredPreferences());
 
-  const animationLevel = computed(() => Number(preferences.value.animationLevel) || 0);
-  const motionClass = computed(() => `motion-level-${animationLevel.value}`);
   const densityClass = computed(() => `density-${preferences.value.density || defaultPreferences.density}`);
-  const glassClass = computed(() => preferences.value.glassEffect ? 'glass-enabled' : 'glass-disabled');
+  const preferenceClasses = computed(() => [
+    densityClass.value,
+    preferences.value.modernVisual ? 'modern-visual-enabled' : 'modern-visual-disabled',
+    preferences.value.compactSidebar ? 'sidebar-compact-enabled' : 'sidebar-compact-disabled',
+    preferences.value.fixedTopbar ? 'topbar-fixed-enabled' : 'topbar-fixed-disabled',
+    preferences.value.zebraTable ? 'zebra-table-enabled' : 'zebra-table-disabled',
+    preferences.value.cardShadow ? 'card-shadow-enabled' : 'card-shadow-disabled',
+    preferences.value.highContrastStatus ? 'status-contrast-enabled' : 'status-contrast-disabled'
+  ]);
 
-  function setAnimationLevel(value) {
-    preferences.value.animationLevel = Number(value);
+  function savePreferences(nextPreferences) {
+    preferences.value = {
+      ...defaultPreferences,
+      ...nextPreferences
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences.value));
+  }
+
+  function setPreference(key, value) {
+    savePreferences({
+      ...preferences.value,
+      [key]: value
+    });
   }
 
   function setDensity(value) {
-    preferences.value.density = value;
-  }
-
-  function setGlassEffect(value) {
-    preferences.value.glassEffect = Boolean(value);
+    setPreference('density', value);
   }
 
   function resetPreferences() {
-    preferences.value = { ...defaultPreferences };
+    savePreferences({ ...defaultPreferences });
   }
-
-  watch(
-    preferences,
-    (value) => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
-    },
-    { deep: true }
-  );
 
   return {
     preferences,
-    animationLevel,
-    motionClass,
     densityClass,
-    glassClass,
-    setAnimationLevel,
+    preferenceClasses,
+    setPreference,
     setDensity,
-    setGlassEffect,
     resetPreferences
   };
 });

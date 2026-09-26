@@ -1,5 +1,5 @@
 <template>
-  <div class="app-shell" :class="[uiPreferencesStore.motionClass, uiPreferencesStore.densityClass, uiPreferencesStore.glassClass]">
+  <div class="app-shell" :class="uiPreferencesStore.preferenceClasses">
     <aside class="sidebar">
       <div class="sidebar-scroll">
         <div class="brand-block">
@@ -94,11 +94,7 @@
       </header>
 
       <main class="content-area">
-        <router-view v-slot="{ Component, route: currentRoute }">
-          <transition name="page-fade" mode="out-in">
-            <component :is="Component" :key="currentRoute.fullPath" />
-          </transition>
-        </router-view>
+        <router-view />
       </main>
     </div>
   </div>
@@ -144,7 +140,7 @@ const pageMetaMap = [
   { match: (path) => path.startsWith('/notifications'), title: '通知中心', description: '集中处理系统消息与待办提醒。' },
   { match: (path) => path.startsWith('/users'), title: '用户管理', description: '维护系统账号、角色权限与启用状态。' },
   { match: (path) => path.startsWith('/system/dictionaries'), title: '字典配置', description: '维护基础枚举、选项值与系统配置项。' },
-  { match: (path) => path.startsWith('/settings'), title: '系统设置', description: '调整界面动画、显示密度与视觉效果。' }
+  { match: (path) => path.startsWith('/settings'), title: '系统设置', description: '调整显示密度、侧边栏、顶部栏与表格样式。' }
 ];
 
 const currentPageMeta = computed(() => {
