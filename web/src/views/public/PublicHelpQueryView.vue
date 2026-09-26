@@ -5,7 +5,7 @@
         <div class="page-header with-action">
           <div>
             <h2>求助查询</h2>
-            <p>通过求助单号与发起人姓名查询处理进展，并在待确认时完成结果确认。</p>
+            <p>输入求助单号查询处理进展，并在待确认时完成结果确认。</p>
           </div>
           <div class="page-header-actions">
             <el-button class="secondary-action" @click="router.push('/help-request')">提交求助</el-button>
@@ -14,24 +14,14 @@
         </div>
 
         <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="query-form">
-          <div class="form-grid">
-            <el-form-item label="求助单号" prop="requestNo">
-              <el-input
-                v-model="form.requestNo"
-                maxlength="30"
-                placeholder="请输入求助单号"
-                @keyup.enter="handleQuery"
-              />
-            </el-form-item>
-            <el-form-item label="发起人姓名" prop="requesterName">
-              <el-input
-                v-model="form.requesterName"
-                maxlength="50"
-                placeholder="请输入发起人姓名"
-                @keyup.enter="handleQuery"
-              />
-            </el-form-item>
-          </div>
+          <el-form-item label="求助单号" prop="requestNo">
+            <el-input
+              v-model="form.requestNo"
+              maxlength="30"
+              placeholder="请输入提交成功后拿到的求助单号"
+              @keyup.enter="handleQuery"
+            />
+          </el-form-item>
 
           <el-form-item>
             <el-button class="primary-action" :loading="querying" @click="handleQuery">
@@ -147,13 +137,11 @@ const rejecting = ref(false);
 const detail = ref(null);
 
 const form = reactive({
-  requestNo: '',
-  requesterName: ''
+  requestNo: ''
 });
 
 const rules = {
-  requestNo: [{ required: true, message: '请输入求助单号', trigger: 'blur' }],
-  requesterName: [{ required: true, message: '请输入发起人姓名', trigger: 'blur' }]
+  requestNo: [{ required: true, message: '请输入求助单号', trigger: 'blur' }]
 };
 
 const statusTextMap = {
@@ -169,8 +157,7 @@ const recentLogs = computed(() => {
 
 async function fetchDetail() {
   const result = await queryPublicHelpRequestApi({
-    requestNo: form.requestNo.trim(),
-    requesterName: form.requesterName.trim()
+    requestNo: form.requestNo.trim()
   });
   detail.value = result.data;
 }

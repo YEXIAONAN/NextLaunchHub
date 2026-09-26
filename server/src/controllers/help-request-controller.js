@@ -128,17 +128,14 @@ export async function checkHelpRequestTimeoutController(req, res) {
 
 export async function queryPublicHelpRequestController(req, res) {
   const requestNo = (req.query.requestNo || req.query.request_no || '').trim();
-  const requesterName = (req.query.requesterName || req.query.requester_name || '').trim();
 
-  if (!requestNo || !requesterName) {
-    throw new HttpError(400, '请填写求助单号和发起人姓名');
+  if (!requestNo) {
+    throw new HttpError(400, '请填写求助单号');
   }
 
-  const data = await queryPublicHelpRequest({
-    requestNo,
-    requesterName
-  });
+  const data = await queryPublicHelpRequest({ requestNo });
 
+  // 姓名从查到的记录里取，不再由调用方传入，Cookie 的校验逻辑保持不变
   setPublicHelpRequestAccessCookie(res, {
     helpRequestId: data.id,
     requestNo: data.request_no,
@@ -154,7 +151,7 @@ export async function publicConfirmHelpRequestController(req, res) {
   const accessPayload = getPublicHelpRequestAccessPayload(req);
 
   if (!accessPayload) {
-    throw new HttpError(403, '请先通过求助单号和发起人姓名完成查询后再操作');
+    throw new HttpError(403, '请先通过求助单号完成查询后再操作');
   }
 
   const data = await publicConfirmHelpRequest({

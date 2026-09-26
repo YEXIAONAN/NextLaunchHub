@@ -584,7 +584,11 @@ export async function getHelpRequestDetail(user, id) {
   };
 }
 
-export async function queryPublicHelpRequest({ requestNo, requesterName }) {
+// 公开查询只凭求助单号定位，不再要求填发起人姓名。
+// 姓名这层校验本来就是摆设：/api/public/requesters 是免登录接口，谁都能拿到全部
+// 发起人姓名，配合旧的顺序单号照样能扫单。真正的凭证是单号里的 8 位随机码，
+// 所以这里不需要再叠加姓名；下面的确认/退回仍由签名 Cookie 兜住。
+export async function queryPublicHelpRequest({ requestNo }) {
   const [rows] = await pool.query(
     `SELECT
        hr.id,
@@ -609,9 +613,8 @@ export async function queryPublicHelpRequest({ requestNo, requesterName }) {
        hr.updated_at
      FROM help_requests hr
      WHERE hr.request_no = ?
-       AND hr.requester_name = ?
      LIMIT 1`,
-    [requestNo, requesterName]
+    [requestNo]
   );
 
   if (rows.length === 0) {
