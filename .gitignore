@@ -30,3 +30,6 @@ pnpm-debug.log*
 .vite/
 tmp/
 temp/
+
+# Local handoff notes
+AI_Vibe_Coding.md
