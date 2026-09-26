@@ -1709,22 +1709,29 @@ body,
 
 .menu-item {
   min-height: 42px;
-  padding: 0 12px 0 36px;
+  gap: 11px;
+  padding: 0 12px;
   border-radius: 6px;
   color: #b8c2d1;
   font-size: 14px;
   font-weight: 500;
 }
 
-.menu-item::after {
-  content: '';
-  position: absolute;
-  left: 17px;
-  width: 6px;
-  height: 6px;
-  border: 1.5px solid currentColor;
-  border-radius: 2px;
-  opacity: 0.72;
+.menu-item .el-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  color: #8290a4;
+  font-size: 17px;
+  transition: color 0.2s ease;
+}
+
+.menu-item:hover .el-icon {
+  color: #cbd5e1;
+}
+
+.menu-item.router-link-active .el-icon {
+  color: #79aef8;
 }
 
 .menu-item:hover {
@@ -2149,7 +2156,6 @@ body,
     white-space: nowrap;
   }
 
-  .menu-item::after,
   .menu-item.router-link-active::before,
   .sidebar-section-label {
     display: none;

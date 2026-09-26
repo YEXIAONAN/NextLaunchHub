@@ -17,16 +17,26 @@
 
         <div class="sidebar-section-label">导航菜单</div>
         <nav class="menu-list">
-          <router-link class="menu-item" to="/dashboard">系统主页</router-link>
-          <router-link class="menu-item" to="/help-center">求助中心</router-link>
-          <router-link class="menu-item" to="/projects">项目管理</router-link>
-          <router-link class="menu-item" to="/tasks">任务管理</router-link>
-          <router-link class="menu-item" to="/notifications">通知中心</router-link>
+          <router-link class="menu-item" to="/dashboard">
+            <el-icon><HomeFilled /></el-icon><span>系统主页</span>
+          </router-link>
+          <router-link class="menu-item" to="/help-center">
+            <el-icon><HelpFilled /></el-icon><span>求助中心</span>
+          </router-link>
+          <router-link class="menu-item" to="/projects">
+            <el-icon><FolderOpened /></el-icon><span>项目管理</span>
+          </router-link>
+          <router-link class="menu-item" to="/tasks">
+            <el-icon><Tickets /></el-icon><span>任务管理</span>
+          </router-link>
+          <router-link class="menu-item" to="/notifications">
+            <el-icon><BellFilled /></el-icon><span>通知中心</span>
+          </router-link>
           <router-link v-if="authStore.user?.role === 'admin'" class="menu-item" to="/users">
-            用户管理
+            <el-icon><UserFilled /></el-icon><span>用户管理</span>
           </router-link>
           <router-link v-if="authStore.user?.role === 'admin'" class="menu-item" to="/system/dictionaries">
-            字典配置
+            <el-icon><Setting /></el-icon><span>字典配置</span>
           </router-link>
         </nav>
       </div>
@@ -90,6 +100,15 @@
 <script setup>
 import { computed, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
+import {
+  BellFilled,
+  FolderOpened,
+  HelpFilled,
+  HomeFilled,
+  Setting,
+  Tickets,
+  UserFilled
+} from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useNotificationStore } from '../stores/notifications';
