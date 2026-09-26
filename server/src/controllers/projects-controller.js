@@ -3,6 +3,7 @@ import {
   createProjectMilestone,
   addProjectMember,
   createProject,
+  deleteProject,
   exportProjects,
   getProjectDetail,
   getProjectIterations,
@@ -167,6 +168,11 @@ export async function updateProjectController(req, res) {
     progress: req.body.progress
   });
   res.json(success(data, '项目更新成功'));
+}
+
+export async function deleteProjectController(req, res) {
+  const data = await deleteProject(req.user, Number(req.params.id));
+  res.json(success(data, '项目删除成功'));
 }
 
 export async function addProjectMemberController(req, res) {

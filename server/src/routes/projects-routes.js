@@ -4,6 +4,7 @@ import {
   createProjectIterationController,
   createProjectMilestoneController,
   createProjectController,
+  deleteProjectController,
   exportProjectsController,
   getProjectDetailController,
   getProjectIterationsController,
@@ -36,6 +37,7 @@ router.post(
 
 router.get('/:id', asyncHandler(getProjectDetailController));
 router.patch('/:id', asyncHandler(updateProjectController));
+router.delete('/:id', asyncHandler(deleteProjectController));
 router.get('/:id/tasks', asyncHandler(getProjectTasksController));
 router.get('/:id/iterations', asyncHandler(getProjectIterationsController));
 router.post(

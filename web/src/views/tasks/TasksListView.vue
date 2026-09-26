@@ -100,10 +100,13 @@
         <el-table-column label="截止日期" min-width="130">
           <template #default="{ row }">{{ formatDate(row.due_date) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
             <el-button link class="text-action" @click="openTaskDetail(row.id)">
               查看详情
+            </el-button>
+            <el-button v-if="canDeleteTask" link type="danger" @click="handleDeleteTask(row)">
+              删除
             </el-button>
           </template>
         </el-table-column>
@@ -137,7 +140,8 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
-import { getProjectsApi, getTasksApi } from '../../api';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { deleteTaskApi, getProjectsApi, getTasksApi } from '../../api';
 import TaskCreateDialog from '../../components/tasks/TaskCreateDialog.vue';
 import TaskDetailDrawer from '../../components/tasks/TaskDetailDrawer.vue';
 import { useAuthStore } from '../../stores/auth';
@@ -176,6 +180,7 @@ const priorityOptions = computed(() => dictionaryStore.getOptions('task_priority
 })));
 
 const canCreateTask = computed(() => authStore.user?.role !== 'requester');
+const canDeleteTask = computed(() => authStore.user?.role === 'admin');
 
 async function loadProjectOptions() {
   const result = await getProjectsApi({
@@ -224,6 +229,31 @@ function openTaskDetail(taskId) {
 
 async function handleTaskCreated() {
   await Promise.all([loadTasks(), loadProjectOptions()]);
+}
+
+async function handleDeleteTask(row) {
+  const confirmed = await ElMessageBox.confirm(
+    `确认删除任务“${row.title}”吗？历史求助记录会保留任务名称。`,
+    '删除任务',
+    {
+      confirmButtonText: '确认删除',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).catch(() => false);
+
+  if (!confirmed) {
+    return;
+  }
+
+  await deleteTaskApi(row.id);
+  ElMessage.success('任务已删除');
+
+  if (tasks.value.length === 1 && pagination.page > 1) {
+    pagination.page -= 1;
+  }
+
+  await loadTasks();
 }
 
 onMounted(async () => {

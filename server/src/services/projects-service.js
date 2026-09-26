@@ -549,6 +549,104 @@ export async function updateProject(user, projectId, payload) {
   }
 }
 
+export async function deleteProject(user, projectId) {
+  if (user.role !== 'admin') {
+    throw new HttpError(403, '只有管理员可以删除项目');
+  }
+
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const project = await getProjectBase(connection, projectId);
+    const [tasks] = await connection.query(
+      `SELECT id, title
+       FROM tasks
+       WHERE project_id = ?`,
+      [projectId]
+    );
+    const taskIds = tasks.map((item) => item.id);
+
+    await connection.query(
+      `UPDATE help_requests
+       SET project_id = NULL,
+           project_name = COALESCE(project_name, ?),
+           updated_at = NOW()
+       WHERE project_id = ?`,
+      [project.project_name, projectId]
+    );
+
+    for (const task of tasks) {
+      await connection.query(
+        `UPDATE help_requests
+         SET task_id = NULL,
+             task_title = COALESCE(task_title, ?),
+             updated_at = NOW()
+         WHERE task_id = ?`,
+        [task.title, task.id]
+      );
+    }
+
+    if (taskIds.length > 0) {
+      await connection.query(
+        `DELETE FROM task_logs
+         WHERE task_id IN (?)`,
+        [taskIds]
+      );
+    }
+
+    await connection.query(
+      `DELETE FROM tasks
+       WHERE project_id = ?`,
+      [projectId]
+    );
+
+    await connection.query(
+      `DELETE FROM project_logs
+       WHERE project_id = ?`,
+      [projectId]
+    );
+
+    await connection.query(
+      `DELETE FROM project_members
+       WHERE project_id = ?`,
+      [projectId]
+    );
+
+    await connection.query(
+      `DELETE FROM project_iterations
+       WHERE project_id = ?`,
+      [projectId]
+    );
+
+    await connection.query(
+      `DELETE FROM project_milestones
+       WHERE project_id = ?`,
+      [projectId]
+    );
+
+    await connection.query(
+      `DELETE FROM projects
+       WHERE id = ?`,
+      [projectId]
+    );
+
+    await connection.commit();
+
+    return {
+      id: projectId,
+      projectName: project.project_name,
+      project_name: project.project_name
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
 export async function addProjectMember(user, projectId, payload) {
   const userId = Number(payload.userId);
   const roleInProject = (payload.roleInProject || '').trim();

@@ -68,7 +68,11 @@
                 :label="`${item.project_name}（${item.project_code}）`"
                 :value="item.id"
               />
+              <el-option label="其他" :value="OTHER_VALUE" />
             </el-select>
+          </el-form-item>
+          <el-form-item v-if="form.projectId === OTHER_VALUE" label="其他项目名称" prop="projectName">
+            <el-input v-model="form.projectName" maxlength="100" placeholder="请输入项目名称" />
           </el-form-item>
           <el-form-item label="关联任务">
             <el-select
@@ -85,7 +89,11 @@
                 :label="`${item.title}（${item.task_code}）`"
                 :value="item.id"
               />
+              <el-option label="其他" :value="OTHER_VALUE" />
             </el-select>
+          </el-form-item>
+          <el-form-item v-if="form.taskId === OTHER_VALUE" label="其他任务名称" prop="taskTitle">
+            <el-input v-model="form.taskTitle" maxlength="150" placeholder="请输入任务名称" />
           </el-form-item>
         </div>
 
@@ -132,13 +140,16 @@ const loadingRequesters = ref(false);
 const loadingHelpers = ref(false);
 const loadingProjects = ref(false);
 const loadingTasks = ref(false);
+const OTHER_VALUE = '__other__';
 
 const form = reactive({
   title: '',
   requesterUserId: '',
   helperUserIds: [],
   projectId: '',
+  projectName: '',
   taskId: '',
+  taskTitle: '',
   content: ''
 });
 
@@ -146,6 +157,30 @@ const rules = {
   title: [{ required: true, message: '请输入求助标题', trigger: 'blur' }],
   requesterUserId: [{ required: true, message: '请选择发起人', trigger: 'change' }],
   helperUserIds: [{ required: true, type: 'array', min: 1, message: '请至少选择一位帮助人员', trigger: 'change' }],
+  projectName: [
+    {
+      validator: (_rule, value, callback) => {
+        if (form.projectId === OTHER_VALUE && !String(value || '').trim()) {
+          callback(new Error('请输入其他项目名称'));
+          return;
+        }
+        callback();
+      },
+      trigger: 'blur'
+    }
+  ],
+  taskTitle: [
+    {
+      validator: (_rule, value, callback) => {
+        if (form.taskId === OTHER_VALUE && !String(value || '').trim()) {
+          callback(new Error('请输入其他任务名称'));
+          return;
+        }
+        callback();
+      },
+      trigger: 'blur'
+    }
+  ],
   content: [{ required: true, message: '请输入求助内容', trigger: 'blur' }]
 };
 
@@ -183,7 +218,7 @@ async function loadProjects() {
 }
 
 async function loadTasks(projectId) {
-  if (!projectId) {
+  if (!projectId || projectId === OTHER_VALUE) {
     taskOptions.value = [];
     return;
   }
@@ -202,6 +237,10 @@ async function loadTasks(projectId) {
 
 async function handleProjectChange(projectId) {
   form.taskId = '';
+  form.taskTitle = '';
+  if (projectId !== OTHER_VALUE) {
+    form.projectName = '';
+  }
   await loadTasks(projectId);
 }
 
@@ -213,12 +252,16 @@ async function handleSubmit() {
 
   submitting.value = true;
   try {
+    const isOtherProject = form.projectId === OTHER_VALUE;
+    const isOtherTask = form.taskId === OTHER_VALUE;
     const result = await submitHelpRequestApi({
       title: form.title,
       requesterUserId: form.requesterUserId,
       helperUserIds: form.helperUserIds,
-      projectId: form.projectId || null,
-      taskId: form.taskId || null,
+      projectId: !isOtherProject && form.projectId ? form.projectId : null,
+      projectName: isOtherProject ? form.projectName.trim() : null,
+      taskId: !isOtherTask && form.taskId ? form.taskId : null,
+      taskTitle: isOtherTask ? form.taskTitle.trim() : null,
       content: form.content
     });
     const requestNo = result.data.request_no || result.data.requestNo;
@@ -229,7 +272,9 @@ async function handleSubmit() {
     form.requesterUserId = '';
     form.helperUserIds = [];
     form.projectId = '';
+    form.projectName = '';
     form.taskId = '';
+    form.taskTitle = '';
     form.content = '';
     taskOptions.value = [];
     formRef.value.clearValidate();

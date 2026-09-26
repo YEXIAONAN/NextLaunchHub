@@ -69,6 +69,10 @@ export function updateProjectApi(id, payload) {
   return http.patch(`/projects/${id}`, payload);
 }
 
+export function deleteProjectApi(id) {
+  return http.delete(`/projects/${id}`);
+}
+
 export function getProjectMembersApi(id) {
   return http.get(`/projects/${id}/members`);
 }
@@ -129,6 +133,10 @@ export function getTaskDetailApi(id) {
 
 export function updateTaskApi(id, payload) {
   return http.patch(`/tasks/${id}`, payload);
+}
+
+export function deleteTaskApi(id) {
+  return http.delete(`/tasks/${id}`);
 }
 
 export function updateTaskStatusApi(id, status) {

@@ -1,5 +1,6 @@
 import {
   createTask,
+  deleteTask,
   exportTasks,
   getProjectTasks,
   getTaskDetail,
@@ -122,6 +123,11 @@ export async function updateTaskStatusController(req, res) {
   );
 
   res.json(success(data, '任务状态更新成功'));
+}
+
+export async function deleteTaskController(req, res) {
+  const data = await deleteTask(req.user, Number(req.params.id));
+  res.json(success(data, '任务删除成功'));
 }
 
 export async function getProjectTasksController(req, res) {

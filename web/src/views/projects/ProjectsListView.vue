@@ -74,10 +74,13 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
             <el-button link class="text-action" @click="router.push(`/projects/${row.id}`)">
               查看详情
+            </el-button>
+            <el-button v-if="canDeleteProject" link type="danger" @click="handleDeleteProject(row)">
+              删除
             </el-button>
           </template>
         </el-table-column>
@@ -192,9 +195,9 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { useRouter } from 'vue-router';
-import { createProjectApi, getHelpersApi, getProjectsApi } from '../../api';
+import { createProjectApi, deleteProjectApi, getHelpersApi, getProjectsApi } from '../../api';
 import StatusTag from '../../components/StatusTag.vue';
 import { useAuthStore } from '../../stores/auth';
 import { useDictionaryStore } from '../../stores/dictionaries';
@@ -242,6 +245,7 @@ const priorityOptions = computed(() => dictionaryStore.getOptions('project_prior
 })));
 
 const canCreateProject = computed(() => authStore.user?.role === 'admin');
+const canDeleteProject = computed(() => authStore.user?.role === 'admin');
 
 async function loadProjects() {
   const result = await getProjectsApi({
@@ -329,6 +333,31 @@ async function submitCreate() {
   } finally {
     submitting.value = false;
   }
+}
+
+async function handleDeleteProject(row) {
+  const confirmed = await ElMessageBox.confirm(
+    `确认删除项目“${row.project_name}”吗？项目下的任务、成员、迭代和里程碑会一并删除，历史求助记录会保留显示名称。`,
+    '删除项目',
+    {
+      confirmButtonText: '确认删除',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).catch(() => false);
+
+  if (!confirmed) {
+    return;
+  }
+
+  await deleteProjectApi(row.id);
+  ElMessage.success('项目已删除');
+
+  if (projects.value.length === 1 && pagination.page > 1) {
+    pagination.page -= 1;
+  }
+
+  await loadProjects();
 }
 
 onMounted(async () => {

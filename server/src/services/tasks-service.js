@@ -643,6 +643,53 @@ export async function updateTaskStatus(user, taskId, status) {
   }
 }
 
+export async function deleteTask(user, taskId) {
+  if (user.role !== 'admin') {
+    throw new HttpError(403, '只有管理员可以删除任务');
+  }
+
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const task = await getTaskBase(connection, taskId);
+
+    await connection.query(
+      `UPDATE help_requests
+       SET task_id = NULL,
+           task_title = COALESCE(task_title, ?),
+           updated_at = NOW()
+       WHERE task_id = ?`,
+      [task.title, taskId]
+    );
+
+    await connection.query(
+      `DELETE FROM task_logs
+       WHERE task_id = ?`,
+      [taskId]
+    );
+
+    await connection.query(
+      `DELETE FROM tasks
+       WHERE id = ?`,
+      [taskId]
+    );
+
+    await connection.commit();
+
+    return {
+      id: taskId,
+      title: task.title
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
 export async function getProjectTasks(user, projectId, query = {}) {
   if (!Number.isInteger(projectId) || projectId <= 0) {
     throw new HttpError(400, '项目ID不合法');

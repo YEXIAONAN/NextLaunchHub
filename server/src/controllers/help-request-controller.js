@@ -29,7 +29,9 @@ export async function createHelpRequestController(req, res) {
     helperUserId: req.body.helperUserId || req.body.helper_user_id,
     helperUserIds: req.body.helperUserIds || req.body.helper_user_ids,
     projectId: req.body.projectId || req.body.project_id,
+    projectName: req.body.projectName || req.body.project_name,
     taskId: req.body.taskId || req.body.task_id,
+    taskTitle: req.body.taskTitle || req.body.task_title,
     content: req.body.content,
     requesterIp: getClientIp(req)
   };

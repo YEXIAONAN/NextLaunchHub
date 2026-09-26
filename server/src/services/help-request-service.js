@@ -120,13 +120,24 @@ async function getHelpRequestBase(executor, helpRequestId) {
   return rows[0];
 }
 
-async function resolveHelpRequestRelation(executor, projectIdInput, taskIdInput) {
+function normalizeOptionalText(value) {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const normalized = value.trim();
+  return normalized || null;
+}
+
+async function resolveHelpRequestRelation(executor, projectIdInput, taskIdInput, projectNameInput, taskTitleInput) {
   const normalizedProjectId = projectIdInput === undefined || projectIdInput === null || projectIdInput === ''
     ? null
     : Number(projectIdInput);
   const normalizedTaskId = taskIdInput === undefined || taskIdInput === null || taskIdInput === ''
     ? null
     : Number(taskIdInput);
+  const customProjectName = normalizeOptionalText(projectNameInput);
+  const customTaskTitle = normalizeOptionalText(taskTitleInput);
 
   if (normalizedProjectId !== null && (!Number.isInteger(normalizedProjectId) || normalizedProjectId <= 0)) {
     throw new HttpError(400, '关联项目ID不合法');
@@ -181,9 +192,9 @@ async function resolveHelpRequestRelation(executor, projectIdInput, taskIdInput)
 
   return {
     projectId: project?.id || null,
-    projectName: project?.project_name || null,
+    projectName: project?.project_name || customProjectName,
     taskId: task?.id || null,
-    taskTitle: task?.title || null
+    taskTitle: task?.title || customTaskTitle
   };
 }
 
@@ -216,7 +227,9 @@ export async function createHelpRequest(payload) {
     helperUserId,
     helperUserIds,
     projectId,
+    projectName,
     taskId,
+    taskTitle,
     content,
     requesterIp
   } = payload;
@@ -264,7 +277,7 @@ export async function createHelpRequest(payload) {
     }
 
     const [helper, ...assistantHelpers] = helpers;
-    const relation = await resolveHelpRequestRelation(connection, projectId, taskId);
+    const relation = await resolveHelpRequestRelation(connection, projectId, taskId, projectName, taskTitle);
     const requestNo = await generateRequestNo(connection);
 
     const [result] = await connection.query(

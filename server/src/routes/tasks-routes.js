@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   createTaskController,
+  deleteTaskController,
   exportTasksController,
   getTaskDetailController,
   getTasksController,
@@ -29,6 +30,7 @@ router.post(
 );
 router.get('/:id', asyncHandler(getTaskDetailController));
 router.patch('/:id', asyncHandler(updateTaskController));
+router.delete('/:id', asyncHandler(deleteTaskController));
 router.patch(
   '/:id/status',
   asyncHandler(async (req, res) => {
