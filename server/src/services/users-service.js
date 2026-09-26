@@ -96,13 +96,14 @@ async function getUserBase(executor, userId) {
 }
 
 export async function searchRequesters(keyword = '') {
+  // 请求帮助者名单是固定名单，按下发顺序（即 id 顺序）展示，不按姓名排序
   const [rows] = await pool.query(
     `SELECT id, real_name
      FROM users
      WHERE is_requester = 1
        AND status = 1
        AND real_name LIKE ?
-     ORDER BY real_name ASC, id ASC
+     ORDER BY id ASC
      LIMIT 20`,
     [`%${keyword}%`]
   );

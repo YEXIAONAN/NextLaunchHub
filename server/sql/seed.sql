@@ -25,17 +25,9 @@ INSERT INTO users (
   (2, 'waiting', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', 'Waiting', 'helper', 1, 1, 0, 1, '2026-03-20 09:05:00', '2026-03-20 09:05:00'),
   (3, 'xiang', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', 'Xiang', 'helper', 1, 1, 0, 1, '2026-03-20 09:06:00', '2026-03-20 09:06:00'),
   (4, 'hi-tao', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', 'Hi-Tao', 'helper', 1, 1, 0, 1, '2026-03-20 09:07:00', '2026-03-20 09:07:00'),
-  (6, 'huangjingwei', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人01', 'requester', 1, 0, 1, 0, '2026-03-20 09:10:00', '2026-03-20 09:10:00'),
-  (7, 'lijunhao', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人02', 'requester', 1, 0, 1, 0, '2026-03-20 09:11:00', '2026-03-20 09:11:00'),
-  (8, 'huangzhengyu', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人03', 'requester', 1, 0, 1, 0, '2026-03-20 09:12:00', '2026-03-20 09:12:00'),
-  (9, 'nongqiufeng', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人04', 'requester', 1, 0, 1, 0, '2026-03-20 09:13:00', '2026-03-20 09:13:00'),
-  (10, 'chengyuxing', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人05', 'requester', 1, 0, 1, 0, '2026-03-20 09:14:00', '2026-03-20 09:14:00'),
-  (11, 'chenqitian', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人06', 'requester', 1, 0, 1, 0, '2026-03-20 09:15:00', '2026-03-20 09:15:00'),
-  (12, 'huangyushan', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人07', 'requester', 1, 0, 1, 0, '2026-03-20 09:16:00', '2026-03-20 09:16:00'),
-  (13, 'liyixuan', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人08', 'requester', 1, 0, 1, 0, '2026-03-20 09:17:00', '2026-03-20 09:17:00'),
-  (14, 'fufeijin', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人09', 'requester', 1, 0, 1, 0, '2026-03-20 09:18:00', '2026-03-20 09:18:00'),
-  (15, 'huangsiyie', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人10', 'requester', 1, 0, 1, 0, '2026-03-20 09:19:00', '2026-03-20 09:19:00'),
-  (16, 'liaomingsen', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '请求人11', 'requester', 1, 0, 1, 0, '2026-03-20 09:20:00', '2026-03-20 09:20:00');
+  (6, 'requester-default', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '默认请求帮助人员', 'requester', 1, 0, 1, 0, '2026-03-20 09:10:00', '2026-03-20 09:10:00'),
+  (7, 'requester-vocational', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '职师院帮助人员', 'requester', 1, 0, 1, 0, '2026-03-20 09:11:00', '2026-03-20 09:11:00'),
+  (8, 'requester-other', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '其他帮助人员', 'requester', 1, 0, 1, 0, '2026-03-20 09:12:00', '2026-03-20 09:12:00');
 
 INSERT INTO system_dictionaries (id, dict_type, dict_label, dict_value, sort_no, status, created_at, updated_at) VALUES
   (1, 'project_status', '未开始', 'not_started', 10, 1, NOW(), NOW()),
@@ -128,20 +120,20 @@ INSERT INTO task_logs (
 INSERT INTO help_requests (
   id, request_no, title, requester_user_id, requester_name, helper_user_id, helper_name, project_id, project_name, task_id, task_title, content, requester_ip, request_datetime, request_date, expected_handle_hours, deadline_at, is_timeout, status, requester_confirmed_at, requester_feedback, created_at, updated_at
 ) VALUES
-  (1, 'HLP202603250001', '用户列表无法正常筛选', 6, '请求人01', 2, 'Waiting', 1, 'NextLaunch Hub 升级项目', 1, '补齐用户管理与固定名单兼容', '用户管理页按角色筛选后结果为空，请协助排查。', '10.20.18.11', '2026-03-25 09:20:00', '2026-03-25', 24, '2026-03-26 09:20:00', 1, 'processing', NULL, NULL, '2026-03-25 09:20:00', '2026-03-26 08:50:00'),
-  (2, 'HLP202603250002', '项目导出文件为空', 7, '请求人02', 3, 'Xiang', 1, 'NextLaunch Hub 升级项目', 2, '整合 SQL 初始化文件', '项目列表导出成功但表格没有数据。', '10.20.18.35', '2026-03-25 10:10:00', '2026-03-25', 24, '2026-03-26 10:10:00', 1, 'waiting_confirm', NULL, NULL, '2026-03-25 10:10:00', '2026-03-25 14:25:00'),
-  (3, 'HLP202603250003', '求助详情日志未显示', 8, '请求人03', 4, 'Hi-Tao', NULL, NULL, NULL, NULL, '求助单详情中的处理日志区域为空白。', '10.20.18.52', '2026-03-25 11:00:00', '2026-03-25', 24, '2026-03-26 11:00:00', 0, 'pending', NULL, NULL, '2026-03-25 11:00:00', '2026-03-25 11:00:00'),
-  (5, 'HLP202603250005', '希望补充固定请求人名单', 10, '请求人05', 2, 'Waiting', NULL, NULL, NULL, NULL, '公共提交页希望请求人从固定名单中选择，不再手输。', '10.20.18.88', '2026-03-25 16:20:00', '2026-03-25', 24, '2026-03-26 16:20:00', 0, 'pending', NULL, NULL, '2026-03-25 16:20:00', '2026-03-25 16:20:00');
+  (1, 'HLP202603250001', '用户列表无法正常筛选', 6, '默认请求帮助人员', 2, 'Waiting', 1, 'NextLaunch Hub 升级项目', 1, '补齐用户管理与固定名单兼容', '用户管理页按角色筛选后结果为空，请协助排查。', '10.20.18.11', '2026-03-25 09:20:00', '2026-03-25', 24, '2026-03-26 09:20:00', 1, 'processing', NULL, NULL, '2026-03-25 09:20:00', '2026-03-26 08:50:00'),
+  (2, 'HLP202603250002', '项目导出文件为空', 7, '职师院帮助人员', 3, 'Xiang', 1, 'NextLaunch Hub 升级项目', 2, '整合 SQL 初始化文件', '项目列表导出成功但表格没有数据。', '10.20.18.35', '2026-03-25 10:10:00', '2026-03-25', 24, '2026-03-26 10:10:00', 1, 'waiting_confirm', NULL, NULL, '2026-03-25 10:10:00', '2026-03-25 14:25:00'),
+  (3, 'HLP202603250003', '求助详情日志未显示', 8, '其他帮助人员', 4, 'Hi-Tao', NULL, NULL, NULL, NULL, '求助单详情中的处理日志区域为空白。', '10.20.18.52', '2026-03-25 11:00:00', '2026-03-25', 24, '2026-03-26 11:00:00', 0, 'pending', NULL, NULL, '2026-03-25 11:00:00', '2026-03-25 11:00:00'),
+  (5, 'HLP202603250005', '希望补充固定请求人名单', 6, '默认请求帮助人员', 2, 'Waiting', NULL, NULL, NULL, NULL, '公共提交页希望请求人从固定名单中选择，不再手输。', '10.20.18.88', '2026-03-25 16:20:00', '2026-03-25', 24, '2026-03-26 16:20:00', 0, 'pending', NULL, NULL, '2026-03-25 16:20:00', '2026-03-25 16:20:00');
 
 INSERT INTO help_request_logs (
   id, help_request_id, operator_user_id, operator_name, action_type, action_content, created_at
 ) VALUES
-  (1, 1, 6, '请求人01', 'create', '创建求助单，当前状态：待处理', '2026-03-25 09:20:00'),
+  (1, 1, 6, '默认请求帮助人员', 'create', '创建求助单，当前状态：待处理', '2026-03-25 09:20:00'),
   (2, 1, 2, 'Waiting', 'status_update', '接单并开始处理，当前状态：处理中', '2026-03-25 09:45:00'),
-  (3, 2, 7, '请求人02', 'create', '创建求助单，当前状态：待处理', '2026-03-25 10:10:00'),
+  (3, 2, 7, '职师院帮助人员', 'create', '创建求助单，当前状态：待处理', '2026-03-25 10:10:00'),
   (4, 2, 3, 'Xiang', 'status_update', '将状态从：待处理 更新为：待确认', '2026-03-25 14:25:00'),
-  (5, 3, 8, '请求人03', 'create', '创建求助单，当前状态：待处理', '2026-03-25 11:00:00'),
-  (9, 5, 10, '请求人05', 'create', '创建求助单，当前状态：待处理', '2026-03-25 16:20:00');
+  (5, 3, 8, '其他帮助人员', 'create', '创建求助单，当前状态：待处理', '2026-03-25 11:00:00'),
+  (9, 5, 6, '默认请求帮助人员', 'create', '创建求助单，当前状态：待处理', '2026-03-25 16:20:00');
 
 INSERT INTO help_request_assistants (
   id, help_request_id, assistant_user_id, assistant_name, added_by_user_id, added_by_name, created_at

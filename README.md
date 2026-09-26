@@ -892,17 +892,9 @@ docker-compose logs -f
 
 | 姓名 | 用户名 |
 |------|--------|
-| 请求人01 | huangjingwei |
-| 请求人02 | lijunhao |
-| 请求人03 | huangzhengyu |
-| 请求人04 | nongqiufeng |
-| 请求人05 | chengyuxing |
-| 请求人06 | chenqitian |
-| 请求人07 | huangyushan |
-| 请求人08 | liyixuan |
-| 请求人09 | fufeijin |
-| 请求人10 | huangsiyie |
-| 请求人11 | liaomingsen |
+| 默认请求帮助人员 | requester-default |
+| 职师院帮助人员 | requester-vocational |
+| 其他帮助人员 | requester-other |
 
 > ⚠️ **安全提示**：生产环境请务必修改默认密码！
 
