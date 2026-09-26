@@ -1,3 +1,5 @@
+SET NAMES utf8mb4;
+
 USE nextlaunch_hub;
 
 SET FOREIGN_KEY_CHECKS = 0;
