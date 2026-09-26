@@ -1,0 +1,76 @@
+# NextLaunch Hub 一键部署：MySQL + 后端接口 + 前端静态站点
+#
+# 用法：
+#   docker compose up -d --build      启动（首次会自动建库并导入初始化数据）
+#   docker compose logs -f            查看日志
+#   docker compose down               停止（保留数据库数据）
+#   docker compose down -v            停止并删除数据库数据
+#
+# 所有 ${VAR:-默认值} 的变量都可以写在项目根目录的 .env 里覆盖，不用改这个文件。
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-nextlaunch_hub_password}
+      MYSQL_DATABASE: ${DB_NAME:-nextlaunch_hub}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # 只在数据卷为空时执行，schema.sql 建表、seed.sql 灌初始数据
+      - ./server/sql:/docker-entrypoint-initdb.d:ro
+    # 数据库只在内部网络可达，需要外部连接时再打开下面两行
+    # ports:
+    #   - "${DB_PORT:-3307}:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  api:
+    build: ./server
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: ${DB_PASSWORD:-nextlaunch_hub_password}
+      DB_NAME: ${DB_NAME:-nextlaunch_hub}
+      DB_CONNECT_TIMEOUT_MS: 5000
+      # 生产模式下 JWT_SECRET 至少要 32 位，正式部署务必换成自己的随机串
+      JWT_SECRET: ${JWT_SECRET:-nextlaunch-hub-docker-default-secret-change-me}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      # 浏览器访问站点用的地址，换域名或换端口时要同步改，局域网访问要加上局域网地址
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+      # 走 HTTPS 时改成 true，否则登录 Cookie 带 Secure 标记会在 http 下失效
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    # 需要绕过 Nginx 直接调接口时再打开
+    # ports:
+    #   - "${API_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  web:
+    build: ./web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - api
+
+volumes:
+  mysql_data:

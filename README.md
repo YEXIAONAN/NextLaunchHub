@@ -1,4 +1,8 @@
-# NextLaunch Hub
+<p align="center">
+  <img src="img/nextlaunch-logo-horizontal.png" alt="NextLaunch Hub" width="520">
+</p>
+
+<h1 align="center">NextLaunch Hub</h1>
 
 <p align="center">
   <strong>一款现代化的求助协同与项目任务管理系统</strong>
@@ -186,18 +190,29 @@
 NextLaunchHub
 ├── LICENSE                    # MIT 开源协议
 ├── README.md                  # 项目说明文档
+├── docker-compose.yml         # Docker 一键部署编排（MySQL + 后端 + 前端）
 ├── .env.example               # 环境变量示例
 ├── .gitignore                 # Git 忽略规则
-├── img/                       # 项目截图
-│   ├── index.png
-│   └── dashboard.png
+├── img/                       # README 展示图片
+│   ├── nextlaunch-logo-horizontal.png   # 顶部横幅使用的横向 logo
+│   └── nextlaunch-logo-square.png       # 方形 logo
 ├── .github/
 │   └── workflows/
 │       └── ci.yml             # GitHub Actions CI 配置
+├── start/                     # 一键启动脚本
+│   ├── start-unix.sh          # macOS / Linux 本地开发启动
+│   ├── macos.command          # macOS 双击启动
+│   ├── linux.sh
+│   ├── windows.bat
+│   └── docker-unix.sh         # macOS / Linux Docker 一键部署
 ├── server/                    # 后端服务
+│   ├── Dockerfile             # 后端镜像构建
+│   ├── .dockerignore
 │   ├── package.json
 │   ├── package-lock.json
 │   ├── .env.example
+│   ├── scripts/               # 语法检查、数据库连通性检查
+│   ├── test/                  # node:test 测试
 │   ├── sql/
 │   │   ├── schema.sql         # 数据库表结构
 │   │   └── seed.sql           # 初始化数据
@@ -210,6 +225,7 @@ NextLaunchHub
 │       │   └── pool.js        # 数据库连接池
 │       ├── middleware/
 │       │   ├── auth.js        # JWT 认证中间件
+│       │   ├── rate-limit.js  # 接口限流
 │       │   └── error-handler.js
 │       ├── routes/            # 路由层
 │       │   ├── auth-routes.js
@@ -217,12 +233,12 @@ NextLaunchHub
 │       │   ├── help-request-routes.js
 │       │   ├── projects-routes.js
 │       │   ├── tasks-routes.js
-│       │   ├── notifications-routes.js
+│       │   ├── notification-routes.js
 │       │   ├── dashboard-routes.js
 │       │   ├── users-routes.js
 │       │   └── ...
 │       ├── controllers/       # 控制器层
-│       ├── services/          # 服务层
+│       ├── services/          # 服务层，业务规则都在这里
 │       ├── realtime/          # WebSocket 实时通信
 │       │   ├── socket-server.js
 │       │   ├── socket-auth.js
@@ -230,9 +246,12 @@ NextLaunchHub
 │       └── utils/             # 工具函数
 │           ├── response.js
 │           ├── http-error.js
-│           ├── permission.js
+│           ├── permission.js  # 权限判断核心文件
 │           └── excel-export.js
 └── web/                       # 前端应用
+    ├── Dockerfile             # 前端镜像构建（构建静态资源 + Nginx 托管）
+    ├── nginx.conf             # 容器内 Nginx 配置，转发 /api 与 /socket.io
+    ├── .dockerignore
     ├── package.json
     ├── package-lock.json
     ├── index.html
@@ -248,6 +267,7 @@ NextLaunchHub
         │   ├── auth.js
         │   ├── notifications.js
         │   ├── dictionaries.js
+        │   ├── ui-preferences.js
         │   └── system-notification.js
         ├── api/               # API 接口封装
         │   ├── http.js
@@ -275,10 +295,17 @@ NextLaunchHub
         │   │   └── NotificationsView.vue
         │   ├── users/
         │   │   └── UsersListView.vue
-        │   └── system/
-        │       └── DictionariesView.vue
+        │   ├── system/
+        │   │   └── DictionariesView.vue
+        │   └── settings/
+        │       └── SystemSettingsView.vue
         ├── components/        # 公共组件
-        │   └── StatusTag.vue
+        │   ├── StatusTag.vue
+        │   └── tasks/
+        │       ├── TaskCreateDialog.vue
+        │       └── TaskDetailDrawer.vue
+        ├── assets/
+        │   └── brand/         # 应用内使用的 logo，与 img/ 下的同名文件一致
         └── styles/
             └── theme.css      # 主题样式
 ```
@@ -291,9 +318,18 @@ NextLaunchHub
 
 | 软件 | 版本要求 | 检查命令 |
 |------|----------|----------|
-| Node.js | >= 18.0.0 | `node -v` |
+| Node.js | >= 20.0.0 | `node -v` |
 | npm | >= 9.0.0 | `npm -v` |
 | MySQL | >= 8.0 | `mysql --version` |
+
+### Docker 部署环境（可选）
+
+用 Docker 一键部署时本机不需要装 Node.js 和 MySQL，只要有：
+
+| 软件 | 版本要求 | 检查命令 |
+|------|----------|----------|
+| Docker | >= 20.10 | `docker -v` |
+| Docker Compose | v2 及以上 | `docker compose version` |
 
 ### 推荐配置
 
@@ -434,6 +470,20 @@ Windows: 双击 start/windows.bat
 
 macOS 和 Linux 可按 `Ctrl+C` 同时停止前后端；Windows 会分别打开前后端命令窗口。
 
+### 一键部署（Docker）
+
+本机装了 Docker 的话，不需要装 Node.js 和 MySQL，也不需要手动建库，一条命令拉起整套系统：
+
+```bash
+cd start
+chmod +x docker-unix.sh
+./docker-unix.sh
+```
+
+脚本会自动构建镜像、启动 MySQL / 后端 / 前端，等接口就绪后打印访问地址（默认 http://localhost:8080）和默认账号。前后端由容器内的 Nginx 统一入口，`/api` 和 `/socket.io` 自动转发到后端容器。
+
+详细说明见 [方式二：Docker 部署](#方式二docker-部署)。
+
 ---
 
 ## 部署指南
@@ -541,112 +591,74 @@ sudo systemctl reload nginx
 
 #### 方式二：Docker 部署
 
-##### 1. 创建 Dockerfile（后端）
+仓库里已经带了完整的 Docker 配置，**不需要自己创建文件**：
 
-在 `server/` 目录创建 `Dockerfile`：
+| 文件 | 作用 |
+|------|------|
+| `docker-compose.yml` | 编排 MySQL、后端、前端三个服务 |
+| `server/Dockerfile` | 后端镜像（Node 20 + Express，非 root 运行） |
+| `web/Dockerfile` + `web/nginx.conf` | 前端镜像（Vite 构建 + Nginx 托管，转发 `/api` 与 `/socket.io`） |
 
-```dockerfile
-FROM node:20-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci --only=production
-
-COPY . .
-
-EXPOSE 3000
-
-CMD ["node", "src/server.js"]
-```
-
-##### 2. 创建 Dockerfile（前端）
-
-在 `web/` 目录创建 `Dockerfile`：
-
-```dockerfile
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci
-
-COPY . .
-RUN npm run build
-
-FROM nginx:alpine
-
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-##### 3. Docker Compose
-
-在项目根目录创建 `docker-compose.yml`：
-
-```yaml
-version: '3.8'
-
-services:
-  mysql:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: your_password
-      MYSQL_DATABASE: nextlaunch_hub
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./server/sql:/docker-entrypoint-initdb.d
-    ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  api:
-    build: ./server
-    environment:
-      NODE_ENV: production
-      PORT: 3000
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_USER: root
-      DB_PASSWORD: your_password
-      DB_NAME: nextlaunch_hub
-      JWT_SECRET: replace-with-at-least-32-random-characters
-      JWT_EXPIRES_IN: 7d
-      CORS_ORIGIN: https://your-domain.example
-      COOKIE_SECURE: true
-    ports:
-      - "3000:3000"
-    depends_on:
-      mysql:
-        condition: service_healthy
-
-  web:
-    build: ./web
-    ports:
-      - "80:80"
-    depends_on:
-      - api
-
-volumes:
-  mysql_data:
-```
+##### 1. 启动
 
 ```bash
-# 启动所有服务
-docker-compose up -d
-
-# 查看日志
-docker-compose logs -f
+cd start
+chmod +x docker-unix.sh
+./docker-unix.sh
 ```
+
+脚本会自动构建镜像、拉起容器，等到接口就绪后打印访问地址和默认账号。也可以直接用 compose 命令：
+
+```bash
+cd NextLaunchHub
+
+docker compose up -d --build     # 构建并启动
+docker compose logs -f           # 查看日志
+docker compose down              # 停止，保留数据库数据
+docker compose down -v           # 停止并同时删除数据库数据
+```
+
+启动完成后访问 http://localhost:8080 ，默认管理员账号 `admin / 123456`。
+
+前后端统一由容器内的 Nginx 提供入口：静态页面直接返回，`/api` 和 `/socket.io` 转发到后端容器，所以浏览器侧只访问一个端口，不存在跨域问题。
+
+首次启动时 MySQL 容器会自动执行 `server/sql/schema.sql` 建表、`server/sql/seed.sql` 灌入初始数据；之后重启不会再执行，数据保存在 `mysql_data` 数据卷中。想重新初始化，执行 `docker compose down -v` 后再启动即可。
+
+##### 2. 可配置项
+
+所有变量都可以写在**项目根目录的 `.env`** 里（compose 会自动读取），不写就用默认值：
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `WEB_PORT` | `8080` | 前端对外端口 |
+| `DB_NAME` | `nextlaunch_hub` | 数据库名 |
+| `DB_PASSWORD` | `nextlaunch_hub_password` | MySQL root 密码，后端连接也用它 |
+| `JWT_SECRET` | 内置默认串 | **正式部署务必换成自己的随机串，至少 32 位** |
+| `JWT_EXPIRES_IN` | `7d` | 登录态有效期 |
+| `CORS_ORIGIN` | `http://localhost:8080` | 允许访问的站点地址，多个用英文逗号分隔 |
+| `COOKIE_SECURE` | `false` | 走 HTTPS 时改成 `true`，否则登录 Cookie 会失效 |
+
+举例：如果局域网里同事要用 `http://192.168.1.10:8080` 访问，`.env` 要写成：
+
+```bash
+WEB_PORT=8080
+CORS_ORIGIN=http://localhost:8080,http://192.168.1.10:8080
+```
+
+改完 `.env` 后执行 `docker compose up -d` 让后端容器重新读取。
+
+##### 3. 端口暴露说明
+
+默认**只把前端端口暴露到宿主机**，MySQL 和后端只在容器内部网络可达。需要直接调后端接口排查问题时，把 `docker-compose.yml` 里 `api` 服务的 `ports` 注释打开；需要从外部连数据库时同理打开 `mysql` 的 `ports`（默认建议映射到 `3307`，避免和本机已装的 MySQL 抢 `3306`）。
+
+##### 4. 使用已有的外部 MySQL
+
+不想用容器里的 MySQL 时：
+
+1. 先把 `server/sql/schema.sql`、`server/sql/seed.sql` 导入你自己的库；
+2. 把 `docker-compose.yml` 里 `api` 服务的 `DB_HOST` / `DB_PORT` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` 改成你的库；
+3. 删掉 `mysql` 服务，以及 `api` 下的 `depends_on`；
+4. 执行 `docker compose up -d --build`。
 
 #### 方式三：Vercel + Railway 部署
 

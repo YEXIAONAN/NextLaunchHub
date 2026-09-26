@@ -1,0 +1,12 @@
+# 依赖和构建产物都从零重建，宿主机上的会覆盖容器内架构不一致的文件
+node_modules
+dist
+npm-debug.log*
+
+# 本地环境变量不要打进镜像，构建期的接口地址由代码默认值 /api 决定
+.env
+.env.*
+!.env.example
+
+.DS_Store
+*.log
