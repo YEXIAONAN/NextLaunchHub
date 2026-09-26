@@ -52,7 +52,39 @@ function parseBoolean(key, fallback) {
   return process.env[key] === 'true';
 }
 
+// 反向代理层数。写数字表示信任几跳（Docker 里前面只有一层 Nginx，就是 1），
+// 也可以写 IP / CIDR 列表。默认 false：没有代理时不信任任何 X-Forwarded-For，
+// 否则客户端能自己伪造这个头来绕过限流、并往求助单里写假的来源 IP。
+function parseTrustProxy(value) {
+  if (value === undefined || value.trim() === '' || value.trim() === 'false') {
+    return false;
+  }
+
+  const trimmed = value.trim();
+  if (trimmed === 'true') {
+    return true;
+  }
+
+  const hops = Number(trimmed);
+  if (Number.isInteger(hops) && hops >= 0) {
+    return hops;
+  }
+
+  return trimmed.split(',').map((item) => item.trim()).filter(Boolean);
+}
+
 const nodeEnv = process.env.NODE_ENV || 'development';
+
+// 仓库里公开出现过的示例密钥，任何环境都不允许使用，否则等于没有签名密钥
+const KNOWN_PLACEHOLDER_JWT_SECRETS = [
+  'replace-with-at-least-32-random-characters',
+  'nextlaunch-hub-docker-default-secret-change-me',
+  '请运行-openssl-rand-hex-32-生成随机串'
+];
+
+if (KNOWN_PLACEHOLDER_JWT_SECRETS.includes(process.env.JWT_SECRET)) {
+  throw new Error('JWT_SECRET 还是示例值，请执行 openssl rand -hex 32 生成随机串后填入');
+}
 
 if (nodeEnv === 'production' && process.env.JWT_SECRET.length < 32) {
   throw new Error('JWT_SECRET must contain at least 32 characters');
@@ -77,5 +109,6 @@ export const env = {
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN,
   corsOrigins,
-  cookieSecure: parseBoolean('COOKIE_SECURE', nodeEnv === 'production')
+  cookieSecure: parseBoolean('COOKIE_SECURE', nodeEnv === 'production'),
+  trustProxy: parseTrustProxy(process.env.TRUST_PROXY)
 };

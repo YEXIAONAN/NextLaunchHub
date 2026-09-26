@@ -254,6 +254,34 @@ function resetOtherNameIfUnused() {
   }
 }
 
+// 局域网用 http 访问时 navigator.clipboard 不可用（要求安全上下文），退回旧接口
+async function copyText(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (_error) {
+    // 继续尝试下面的兜底方案
+  }
+
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-1000px';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    document.body.removeChild(textarea);
+    return copied;
+  } catch (_error) {
+    return false;
+  }
+}
+
 async function handleSubmit() {
   const valid = await formRef.value.validate().catch(() => false);
   if (!valid) {
@@ -274,9 +302,24 @@ async function handleSubmit() {
       content: form.content
     });
     const requestNo = result.data.request_no || result.data.requestNo;
-    await ElMessageBox.alert(`提交成功，求助单号：${requestNo}`, '提交成功', {
-      confirmButtonText: '我知道了'
-    });
+    // 单号带随机码，只能复制不能靠手打；用户直接关掉弹窗也不影响下面的表单重置
+    try {
+      await ElMessageBox.confirm(`提交成功，请保存好求助单号：${requestNo}`, '提交成功', {
+        confirmButtonText: '复制单号',
+        cancelButtonText: '关闭',
+        showCancelButton: true,
+        closeOnClickModal: false
+      });
+      const copied = await copyText(requestNo);
+      if (copied) {
+        ElMessage.success('单号已复制');
+      } else {
+        ElMessage.warning(`复制失败，请手动记下单号：${requestNo}`);
+      }
+    } catch (_error) {
+      // 用户点了关闭，不额外提示
+    }
+
     form.title = '';
     form.requesterUserId = '';
     form.helperUserIds = [];

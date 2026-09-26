@@ -211,7 +211,7 @@ NextLaunchHub
 │   ├── package.json
 │   ├── package-lock.json
 │   ├── .env.example
-│   ├── scripts/               # 语法检查、数据库连通性检查
+│   ├── scripts/               # 语法检查、数据库连通性检查、部署后初始化密码
 │   ├── test/                  # node:test 测试
 │   ├── sql/
 │   │   ├── schema.sql         # 数据库表结构
@@ -387,13 +387,16 @@ DB_USER=root
 DB_PASSWORD=your_password
 DB_NAME=nextlaunch_hub
 
-# JWT 配置
-JWT_SECRET=replace-with-at-least-32-random-characters
+# JWT 配置（用 openssl rand -hex 32 生成，别照抄示例值）
+JWT_SECRET=请换成你自己生成的随机串
 JWT_EXPIRES_IN=7d
 
 # CORS 配置（多个源用逗号分隔）
 CORS_ORIGIN=http://localhost:5173,http://localhost:3000
 COOKIE_SECURE=false
+
+# 本地开发是浏览器直连后端，没有反向代理，保持 false
+TRUST_PROXY=false
 ```
 
 **前端配置** (`web/.env`)：
@@ -607,7 +610,7 @@ chmod +x docker-unix.sh
 ./docker-unix.sh
 ```
 
-脚本会自动构建镜像、拉起容器，等到接口就绪后打印访问地址和默认账号。也可以直接用 compose 命令：
+脚本会自动构建镜像、拉起容器，等到接口就绪后打印访问地址和管理员账号。也可以在根目录 `.env` 里按需覆盖配置（不写就自动生成），或者直接用 compose 命令：
 
 ```bash
 cd NextLaunchHub
@@ -618,25 +621,49 @@ docker compose down              # 停止，保留数据库数据
 docker compose down -v           # 停止并同时删除数据库数据
 ```
 
-启动完成后访问 http://localhost:8080 ，默认管理员账号 `admin / 123456`。
+启动完成后访问 http://localhost:8080 ，管理员账号 `admin`，密码由脚本首次运行时随机生成并打印在终端（同时写进根目录 `.env` 的 `ADMIN_PASSWORD`）。
+
+**首次启动会自动做的安全处理**：
+
+- 生成随机的 `DB_PASSWORD` 和 `JWT_SECRET` 写进根目录 `.env`（权限 `600`，已在 `.gitignore` 里，不会提交）；
+- 把演示数据里公开的管理员密码 `123456` 换成上面那个随机密码；
+- 禁用其余仍在用公开示例密码的账号的登录（`waiting` / `xiang` / `hi-tao`），需要时用管理员在「用户管理」里重设密码再启用。
+
+这些操作是幂等的，每次启动都会检查一遍；管理员密码一旦被你自己改过，脚本就不会再覆盖它（要用 `.env` 里的值强制覆盖，把 `RESET_ADMIN_PASSWORD` 设为 `true`）。
 
 前后端统一由容器内的 Nginx 提供入口：静态页面直接返回，`/api` 和 `/socket.io` 转发到后端容器，所以浏览器侧只访问一个端口，不存在跨域问题。
 
 首次启动时 MySQL 容器会自动执行 `server/sql/schema.sql` 建表、`server/sql/seed.sql` 灌入初始数据；之后重启不会再执行，数据保存在 `mysql_data` 数据卷中。想重新初始化，执行 `docker compose down -v` 后再启动即可。
 
+> 注意：`DB_PASSWORD` 只在数据卷为空时生效。库建好之后再改 `.env` 里的数据库密码不会同步到已有数据库，`docker compose down -v` 清库重来最省事。
+
 ##### 2. 可配置项
 
-所有变量都可以写在**项目根目录的 `.env`** 里（compose 会自动读取），不写就用默认值：
+所有变量都可以写在**项目根目录的 `.env`** 里（compose 会自动读取）。密码类变量**没有内置默认值**，缺了 compose 会直接报错并提示，避免误用仓库里公开的示例值：
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
 | `WEB_PORT` | `8080` | 前端对外端口 |
 | `DB_NAME` | `nextlaunch_hub` | 数据库名 |
-| `DB_PASSWORD` | `nextlaunch_hub_password` | MySQL root 密码，后端连接也用它 |
-| `JWT_SECRET` | 内置默认串 | **正式部署务必换成自己的随机串，至少 32 位** |
+| `DB_PASSWORD` | 自动生成 | MySQL root 密码，后端连接也用它 |
+| `JWT_SECRET` | 自动生成 | 登录态签名密钥，至少 32 位；**泄露等于任何人都能伪造管理员登录** |
+| `ADMIN_PASSWORD` | 自动生成 | 首次部署时给 `admin` 设置的密码；改过之后脚本不再覆盖 |
+| `RESET_ADMIN_PASSWORD` | `false` | 设为 `true` 时用 `ADMIN_PASSWORD` 强制覆盖现有管理员密码 |
 | `JWT_EXPIRES_IN` | `7d` | 登录态有效期 |
 | `CORS_ORIGIN` | `http://localhost:8080` | 允许访问的站点地址，多个用英文逗号分隔 |
 | `COOKIE_SECURE` | `false` | 走 HTTPS 时改成 `true`，否则登录 Cookie 会失效 |
+| `TRUST_PROXY` | `1` | 后端前面有几层反向代理。Docker 模式下只有一层 Nginx，所以是 `1`；填 `0`/`false` 会让所有请求都算成 Nginx 的 IP，限流会把整个团队当成同一个人 |
+
+`DB_PASSWORD`、`JWT_SECRET`、`ADMIN_PASSWORD` 不写时由 `start/docker-unix.sh` 生成随机值并写入 `.env`。如果不用脚本、直接 `docker compose up`，就必须自己先准备好这三个值，否则 compose 会报错退出：
+
+```bash
+cat > .env <<EOF
+DB_PASSWORD=$(openssl rand -hex 16)
+JWT_SECRET=$(openssl rand -hex 32)
+ADMIN_PASSWORD=$(openssl rand -hex 8)
+EOF
+chmod 600 .env
+```
 
 举例：如果局域网里同事要用 `http://192.168.1.10:8080` 访问，`.env` 要写成：
 
@@ -886,13 +913,15 @@ CORS_ORIGIN=http://localhost:8080,http://192.168.1.10:8080
 
 ## 默认账号
 
-### 管理员账号
+下面这些账号来自 `server/sql/seed.sql`，**只用于本地开发**。Docker 一键部署虽然也会导入这份演示数据，但启动脚本会立刻把管理员密码换成随机值，并禁用其他仍在用示例密码的账号（详见上面的「首次启动会自动做的安全处理」）。
+
+### 管理员账号（本地开发）
 
 | 用户名 | 密码 | 角色 |
 |--------|------|------|
 | admin | 123456 | admin |
 
-### 帮助人员账号
+### 帮助人员账号（本地开发）
 
 | 用户名 | 密码 | 角色 |
 |--------|------|------|
@@ -908,7 +937,7 @@ CORS_ORIGIN=http://localhost:8080,http://192.168.1.10:8080
 | 职师院帮助人员 | requester-vocational |
 | 其他帮助人员 | requester-other |
 
-> ⚠️ **安全提示**：生产环境请务必修改默认密码！
+> ⚠️ **安全提示**：生产环境请务必修改默认密码。另外 `JWT_SECRET` 一旦泄露，任何人都能伪造出管理员登录态，而且改管理员密码也无法让已伪造的登录态失效——只能换 `JWT_SECRET`。
 
 ---
 

@@ -112,8 +112,9 @@ export async function searchRequesters(keyword = '') {
 }
 
 export async function searchHelpers(keyword = '') {
+  // 这是免登录接口，只返回展示用的姓名，不要带上登录用户名
   const [rows] = await pool.query(
-    `SELECT id, real_name, username
+    `SELECT id, real_name
      FROM users
      WHERE is_helper = 1
        AND status = 1

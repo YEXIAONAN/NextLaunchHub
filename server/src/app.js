@@ -20,7 +20,8 @@ import { success } from './utils/response.js';
 
 const app = express();
 
-app.set('trust proxy', true);
+// 由 TRUST_PROXY 决定信任几层代理，默认不信任，避免客户端伪造 X-Forwarded-For
+app.set('trust proxy', env.trustProxy);
 app.use(
   cors({
     origin: env.corsOrigins,

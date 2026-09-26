@@ -6,14 +6,15 @@
 #   docker compose down               停止（保留数据库数据）
 #   docker compose down -v            停止并删除数据库数据
 #
-# 所有 ${VAR:-默认值} 的变量都可以写在项目根目录的 .env 里覆盖，不用改这个文件。
+# 密码和密钥没有默认值，必须写在项目根目录的 .env 里（复制 .env.example 改名，
+# 或者直接跑 start/docker-unix.sh，它会自动生成一份随机密钥）。
 
 services:
   mysql:
     image: mysql:8.0
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-nextlaunch_hub_password}
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD:?请先在项目根目录的 .env 里设置 DB_PASSWORD}"
       MYSQL_DATABASE: ${DB_NAME:-nextlaunch_hub}
     command:
       - --character-set-server=utf8mb4
@@ -41,16 +42,21 @@ services:
       DB_HOST: mysql
       DB_PORT: 3306
       DB_USER: root
-      DB_PASSWORD: ${DB_PASSWORD:-nextlaunch_hub_password}
+      DB_PASSWORD: "${DB_PASSWORD:?请先在项目根目录的 .env 里设置 DB_PASSWORD}"
       DB_NAME: ${DB_NAME:-nextlaunch_hub}
       DB_CONNECT_TIMEOUT_MS: 5000
-      # 生产模式下 JWT_SECRET 至少要 32 位，正式部署务必换成自己的随机串
-      JWT_SECRET: ${JWT_SECRET:-nextlaunch-hub-docker-default-secret-change-me}
+      # 必须自己生成，至少 32 位。用仓库里的示例值等于没有签名密钥，任何人都能伪造登录态
+      JWT_SECRET: "${JWT_SECRET:?请先在项目根目录的 .env 里设置 JWT_SECRET（至少 32 位随机串）}"
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      # 首次初始化用：把演示密码换成这个密码，并禁用其他示例账号的登录
+      INIT_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       # 浏览器访问站点用的地址，换域名或换端口时要同步改，局域网访问要加上局域网地址
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
       # 走 HTTPS 时改成 true，否则登录 Cookie 带 Secure 标记会在 http 下失效
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      # 前面只有一层 Nginx，所以信任 1 跳。写 0 或不写会退化成「不信任任何代理」，
+      # 导致所有请求都算成 Nginx 容器的 IP，限流会把整个团队算作同一个人
+      TRUST_PROXY: ${TRUST_PROXY:-1}
     depends_on:
       mysql:
         condition: service_healthy
