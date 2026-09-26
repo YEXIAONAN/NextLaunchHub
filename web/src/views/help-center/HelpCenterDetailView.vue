@@ -1,6 +1,6 @@
 <template>
-  <div class="page-section">
-    <section class="page-card">
+  <div class="page-section help-detail-page">
+    <section class="page-card help-detail-card">
       <div class="page-header with-action">
         <div>
           <h2>求助详情</h2>
@@ -9,73 +9,105 @@
         <el-button class="secondary-action" @click="router.push('/help-center')">返回列表</el-button>
       </div>
 
-      <div class="detail-grid">
-        <div class="detail-item">
-          <label>求助单号</label>
-          <span>{{ detail.request_no }}</span>
-        </div>
-        <div class="detail-item">
-          <label>求助标题</label>
-          <span>{{ detail.title }}</span>
-        </div>
-        <div class="detail-item">
-          <label>发起人姓名</label>
-          <span>{{ detail.requester_name }}</span>
-        </div>
-        <div class="detail-item">
-          <label>帮助人员</label>
-          <span>{{ detail.helper_name }}</span>
-        </div>
-        <div class="detail-item">
-          <label>所属项目</label>
-          <span>{{ detail.project_name || '-' }}</span>
-        </div>
-        <div class="detail-item">
-          <label>关联任务</label>
-          <span>{{ detail.task_title || '-' }}</span>
-        </div>
-        <div class="detail-item full-width">
-          <label>内容</label>
-          <span>{{ detail.content }}</span>
-        </div>
-        <div class="detail-item">
-          <label>IP 地址</label>
-          <span>{{ detail.requester_ip }}</span>
-        </div>
-        <div class="detail-item">
-          <label>发起时间</label>
-          <span>{{ formatDateTime(detail.request_datetime) }}</span>
-        </div>
-        <div class="detail-item">
-          <label>发起日期</label>
-          <span>{{ formatDate(detail.request_date) }}</span>
-        </div>
-        <div class="detail-item">
-          <label>当前状态</label>
-          <span><StatusTag :status="detail.status" /></span>
-        </div>
-        <div class="detail-item">
-          <label>超时状态</label>
-          <span>
-            <span v-if="Number(detail.is_timeout) === 1" class="timeout-pill">已超时</span>
-            <span v-else class="table-meta-note">正常</span>
-          </span>
-        </div>
-        <div class="detail-item">
-          <label>截止时间</label>
-          <span>{{ formatDateTime(detail.deadline_at) }}</span>
-        </div>
-        <div class="detail-item">
-          <label>创建时间</label>
-          <span>{{ formatDateTime(detail.created_at) }}</span>
-        </div>
-      </div>
+      <div class="help-detail-layout">
+        <main class="help-detail-main">
+          <section class="help-request-summary">
+            <div class="help-request-summary-head">
+              <span class="table-meta-note">{{ detail.request_no }}</span>
+              <div class="help-detail-tags">
+                <StatusTag :status="detail.status" />
+                <span v-if="Number(detail.is_timeout) === 1" class="timeout-pill">已超时</span>
+                <span v-else class="table-meta-note">正常</span>
+              </div>
+            </div>
+            <h3>{{ detail.title || '-' }}</h3>
+            <p>{{ detail.content || '暂无内容' }}</p>
+          </section>
 
-      <div v-if="canUpdateStatus || isAdmin" class="status-actions">
-        <el-button class="secondary-action" @click="changeStatus('processing')">标记为处理中</el-button>
-        <el-button class="secondary-action" @click="changeStatus('waiting_confirm')">标记为待确认</el-button>
-        <el-button class="primary-action small" @click="changeStatus('completed')">标记为已完成</el-button>
-        <el-button v-if="isAdmin" class="secondary-action" @click="openReassignDialog">改派帮助人员</el-button>
+          <section class="help-detail-section">
+            <div class="help-section-title">
+              <h3>关联信息</h3>
+              <span>项目与任务</span>
+            </div>
+            <div class="help-info-grid">
+              <div class="detail-item">
+                <label>所属项目</label>
+                <span>{{ detail.project_name || '-' }}</span>
+              </div>
+              <div class="detail-item">
+                <label>关联任务</label>
+                <span>{{ detail.task_title || '-' }}</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="help-detail-section">
+            <div class="help-section-title">
+              <h3>人员信息</h3>
+              <span>发起人与负责人</span>
+            </div>
+            <div class="help-info-grid">
+              <div class="detail-item">
+                <label>发起人姓名</label>
+                <span>{{ detail.requester_name }}</span>
+              </div>
+              <div class="detail-item">
+                <label>帮助人员</label>
+                <span>{{ detail.helper_name }}</span>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <aside class="help-detail-side">
+          <section class="help-side-panel">
+            <div class="help-side-panel-head">
+              <h3>处理状态</h3>
+              <StatusTag :status="detail.status" />
+            </div>
+            <div class="help-side-status">
+              <span v-if="Number(detail.is_timeout) === 1" class="timeout-pill">已超时</span>
+              <span v-else class="table-meta-note">未超时</span>
+              <small>截止：{{ formatDateTime(detail.deadline_at) }}</small>
+            </div>
+          </section>
+
+          <section v-if="canUpdateStatus || isAdmin" class="help-side-panel">
+            <div class="help-side-panel-head">
+              <h3>快捷操作</h3>
+            </div>
+            <div class="help-side-actions">
+              <el-button class="secondary-action" @click="changeStatus('processing')">标记为处理中</el-button>
+              <el-button class="secondary-action" @click="changeStatus('waiting_confirm')">标记为待确认</el-button>
+              <el-button class="primary-action small" @click="changeStatus('completed')">标记为已完成</el-button>
+              <el-button v-if="isAdmin" class="secondary-action" @click="openReassignDialog">改派帮助人员</el-button>
+            </div>
+          </section>
+
+          <section class="help-side-panel">
+            <div class="help-side-panel-head">
+              <h3>辅助信息</h3>
+            </div>
+            <dl class="help-meta-list">
+              <div>
+                <dt>IP 地址</dt>
+                <dd>{{ detail.requester_ip || '-' }}</dd>
+              </div>
+              <div>
+                <dt>发起时间</dt>
+                <dd>{{ formatDateTime(detail.request_datetime) }}</dd>
+              </div>
+              <div>
+                <dt>发起日期</dt>
+                <dd>{{ formatDate(detail.request_date) }}</dd>
+              </div>
+              <div>
+                <dt>创建时间</dt>
+                <dd>{{ formatDateTime(detail.created_at) }}</dd>
+              </div>
+            </dl>
+          </section>
+        </aside>
       </div>
     </section>
 
