@@ -421,6 +421,18 @@ npm run preview
 - **后端地址**: http://localhost:3000
 - **健康检查**: http://localhost:3000/api/health
 
+### 一键启动脚本
+
+首次启动前，请先根据 `server/.env.example` 创建并配置 `server/.env`。随后可运行对应系统的脚本：
+
+```text
+macOS:  双击 start/macos.command
+Linux:  ./start/linux.sh
+Windows: 双击 start/windows.bat
+```
+
+macOS 和 Linux 可按 `Ctrl+C` 同时停止前后端；Windows 会分别打开前后端命令窗口。
+
 ---
 
 ## 部署指南
