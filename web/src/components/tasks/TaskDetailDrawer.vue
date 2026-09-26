@@ -46,11 +46,11 @@
             </div>
             <div class="detail-item">
               <label>开始日期</label>
-              <span>{{ detail.start_date || '-' }}</span>
+              <span>{{ formatDate(detail.start_date) }}</span>
             </div>
             <div class="detail-item">
               <label>截止日期</label>
-              <span>{{ detail.due_date || '-' }}</span>
+              <span>{{ formatDate(detail.due_date) }}</span>
             </div>
             <div class="detail-item">
               <label>预计工时</label>
@@ -87,7 +87,7 @@
                     <strong>{{ actionTextMap[item.action_type] || item.action_type }}</strong>
                     <span class="timeline-operator">{{ item.operator_name }}</span>
                   </div>
-                  <span class="timeline-time">{{ item.created_at }}</span>
+                  <span class="timeline-time">{{ formatDateTime(item.created_at) }}</span>
                 </div>
                 <p>{{ item.action_content }}</p>
               </div>
@@ -103,6 +103,7 @@
 <script setup>
 import { computed, reactive, ref, watch } from 'vue';
 import { getTaskDetailApi } from '../../api';
+import { formatDate, formatDateTime } from '../../utils/date-time';
 
 const props = defineProps({
   modelValue: {

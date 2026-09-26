@@ -44,11 +44,11 @@
         </div>
         <div class="detail-item">
           <label>发起时间</label>
-          <span>{{ detail.request_datetime }}</span>
+          <span>{{ formatDateTime(detail.request_datetime) }}</span>
         </div>
         <div class="detail-item">
           <label>发起日期</label>
-          <span>{{ detail.request_date }}</span>
+          <span>{{ formatDate(detail.request_date) }}</span>
         </div>
         <div class="detail-item">
           <label>当前状态</label>
@@ -63,11 +63,11 @@
         </div>
         <div class="detail-item">
           <label>截止时间</label>
-          <span>{{ detail.deadline_at || '-' }}</span>
+          <span>{{ formatDateTime(detail.deadline_at) }}</span>
         </div>
         <div class="detail-item">
           <label>创建时间</label>
-          <span>{{ detail.created_at }}</span>
+          <span>{{ formatDateTime(detail.created_at) }}</span>
         </div>
       </div>
 
@@ -100,7 +100,7 @@
             <div v-for="item in assistants" :key="item.id" class="assistant-item">
               <div>
                 <strong>{{ item.assistant_name }}</strong>
-                <p>加入时间：{{ item.created_at }}</p>
+                <p>加入时间：{{ formatDateTime(item.created_at) }}</p>
               </div>
               <span>添加人：{{ item.added_by_name }}</span>
             </div>
@@ -150,7 +150,7 @@
               <strong>{{ item.operator_name }}</strong>
               <p>{{ item.action_content }}</p>
             </div>
-            <span>{{ item.created_at }}</span>
+            <span>{{ formatDateTime(item.created_at) }}</span>
           </div>
         </div>
         <el-empty v-else description="暂无协同处理记录" />
@@ -176,7 +176,7 @@
                 <strong>{{ actionTypeTextMap[item.action_type] || item.action_type }}</strong>
                 <span class="timeline-operator">{{ item.operator_name }}</span>
               </div>
-              <span class="timeline-time">{{ item.created_at }}</span>
+              <span class="timeline-time">{{ formatDateTime(item.created_at) }}</span>
             </div>
             <p>{{ item.action_content }}</p>
           </div>
@@ -267,6 +267,7 @@ import {
 } from '../../api';
 import StatusTag from '../../components/StatusTag.vue';
 import { useAuthStore } from '../../stores/auth';
+import { formatDate, formatDateTime } from '../../utils/date-time';
 
 const route = useRoute();
 const router = useRouter();

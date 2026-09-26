@@ -55,11 +55,11 @@
               </div>
               <div class="detail-item">
                 <label>开始日期</label>
-                <span>{{ detail.start_date || '-' }}</span>
+                <span>{{ formatDate(detail.start_date) }}</span>
               </div>
               <div class="detail-item">
                 <label>结束日期</label>
-                <span>{{ detail.end_date || '-' }}</span>
+                <span>{{ formatDate(detail.end_date) }}</span>
               </div>
               <div class="detail-item full-width">
                 <label>项目描述</label>
@@ -97,7 +97,7 @@
                   <span class="task-priority-pill" :class="`task-priority-${item.priority}`">
                     {{ dictionaryStore.getLabel('task_priority', item.priority) || item.priority }}
                   </span>
-                  <span>{{ item.due_date || '未设置截止日期' }}</span>
+                  <span>{{ item.due_date ? formatDate(item.due_date) : '未设置截止日期' }}</span>
                   <el-button link class="text-action" @click="openTaskDetail(item.id)">查看详情</el-button>
                 </div>
               </div>
@@ -137,8 +137,8 @@
                       </span>
                     </div>
                     <div class="planning-card-meta">
-                      <span>开始：{{ item.start_date || '-' }}</span>
-                      <span>结束：{{ item.end_date || '-' }}</span>
+                      <span>开始：{{ formatDate(item.start_date) }}</span>
+                      <span>结束：{{ formatDate(item.end_date) }}</span>
                     </div>
                     <div v-if="canManagePlanning" class="planning-card-actions">
                       <el-button link class="text-action" @click="openIterationDialog(item)">编辑迭代</el-button>
@@ -171,8 +171,8 @@
                       </span>
                     </div>
                     <div class="planning-card-meta">
-                      <span>截止：{{ item.due_date || '-' }}</span>
-                      <span>完成：{{ item.completed_at || '-' }}</span>
+                      <span>截止：{{ formatDate(item.due_date) }}</span>
+                      <span>完成：{{ formatDateTime(item.completed_at) }}</span>
                     </div>
                     <div v-if="canManagePlanning" class="planning-card-actions">
                       <el-button link class="text-action" @click="openMilestoneDialog(item)">编辑里程碑</el-button>
@@ -201,7 +201,7 @@
               <div v-for="item in members" :key="item.id" class="project-member-item">
                 <div>
                   <strong>{{ item.real_name }}</strong>
-                  <p>加入时间：{{ item.created_at }}</p>
+                  <p>加入时间：{{ formatDateTime(item.created_at) }}</p>
                 </div>
                 <span class="project-member-meta">{{ item.role_in_project }}</span>
               </div>
@@ -400,6 +400,7 @@ import {
   updateIterationApi,
   updateMilestoneApi
 } from '../../api';
+import { formatDate, formatDateTime } from '../../utils/date-time';
 import TaskCreateDialog from '../../components/tasks/TaskCreateDialog.vue';
 import TaskDetailDrawer from '../../components/tasks/TaskDetailDrawer.vue';
 import { useAuthStore } from '../../stores/auth';

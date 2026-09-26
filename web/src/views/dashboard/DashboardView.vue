@@ -65,7 +65,7 @@
               </div>
               <div class="dashboard-work-item-side">
                 <StatusTag :status="item.status" />
-                <span>{{ item.request_datetime }}</span>
+                <span>{{ formatDateTime(item.request_datetime) }}</span>
               </div>
             </button>
           </div>
@@ -169,6 +169,7 @@ import StatusTag from '../../components/StatusTag.vue';
 import { useAuthStore } from '../../stores/auth';
 import { useNotificationStore } from '../../stores/notifications';
 import { useSystemNotificationStore } from '../../stores/system-notification';
+import { formatDateTime } from '../../utils/date-time';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -356,20 +357,6 @@ function openStat(item) {
     path: '/help-center',
     query: item.query
   });
-}
-
-function formatDateTime(value) {
-  if (!value) {
-    return '-';
-  }
-
-  return new Intl.DateTimeFormat('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  }).format(new Date(value));
 }
 
 async function handleEnableSystemNotification() {

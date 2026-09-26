@@ -78,11 +78,11 @@
             </div>
             <div class="detail-item">
               <label>发起时间</label>
-              <span>{{ detail.request_datetime || '-' }}</span>
+              <span>{{ formatDateTime(detail.request_datetime) }}</span>
             </div>
             <div class="detail-item">
               <label>发起日期</label>
-              <span>{{ detail.request_date || '-' }}</span>
+              <span>{{ formatDate(detail.request_date) }}</span>
             </div>
             <div class="detail-item">
               <label>发起 IP</label>
@@ -118,7 +118,7 @@
                 <strong>{{ item.operator_name }}</strong>
                 <p>{{ item.action_content }}</p>
               </div>
-              <span>{{ item.created_at }}</span>
+              <span>{{ formatDateTime(item.created_at) }}</span>
             </div>
           </div>
           <el-empty v-else description="暂无处理日志" />
@@ -137,6 +137,7 @@ import {
   queryPublicHelpRequestApi
 } from '../../api';
 import StatusTag from '../../components/StatusTag.vue';
+import { formatDate, formatDateTime } from '../../utils/date-time';
 
 const router = useRouter();
 const formRef = ref();

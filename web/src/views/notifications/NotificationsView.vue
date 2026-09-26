@@ -37,7 +37,7 @@
                 <strong>{{ item.title }}</strong>
                 <span class="notification-type">{{ typeTextMap[item.type] || item.type }}</span>
               </div>
-              <span class="notification-time">{{ item.created_at }}</span>
+              <span class="notification-time">{{ formatDateTime(item.created_at) }}</span>
             </div>
             <p>{{ item.content }}</p>
             <div class="notification-meta">
@@ -84,6 +84,7 @@ import {
   markNotificationReadApi
 } from '../../api';
 import { useNotificationStore } from '../../stores/notifications';
+import { formatDateTime } from '../../utils/date-time';
 
 const router = useRouter();
 const notificationStore = useNotificationStore();

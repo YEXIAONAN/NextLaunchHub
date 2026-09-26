@@ -45,7 +45,9 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column prop="updated_at" label="更新时间" min-width="180" />
+        <el-table-column label="更新时间" min-width="170">
+          <template #default="{ row }">{{ formatDateTime(row.updated_at) }}</template>
+        </el-table-column>
         <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
             <el-button link class="text-action" @click="openEditDialog(row)">编辑</el-button>
@@ -110,6 +112,7 @@ import {
   updateDictionaryApi
 } from '../../api';
 import { useDictionaryStore } from '../../stores/dictionaries';
+import { formatDateTime } from '../../utils/date-time';
 
 const dictionaryStore = useDictionaryStore();
 const dictionaries = ref([]);

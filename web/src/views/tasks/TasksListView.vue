@@ -94,8 +94,12 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="start_date" label="开始日期" min-width="130" />
-        <el-table-column prop="due_date" label="截止日期" min-width="130" />
+        <el-table-column label="开始日期" min-width="130">
+          <template #default="{ row }">{{ formatDate(row.start_date) }}</template>
+        </el-table-column>
+        <el-table-column label="截止日期" min-width="130">
+          <template #default="{ row }">{{ formatDate(row.due_date) }}</template>
+        </el-table-column>
         <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
             <el-button link class="text-action" @click="openTaskDetail(row.id)">
@@ -138,6 +142,7 @@ import TaskCreateDialog from '../../components/tasks/TaskCreateDialog.vue';
 import TaskDetailDrawer from '../../components/tasks/TaskDetailDrawer.vue';
 import { useAuthStore } from '../../stores/auth';
 import { useDictionaryStore } from '../../stores/dictionaries';
+import { formatDate } from '../../utils/date-time';
 
 const authStore = useAuthStore();
 const dictionaryStore = useDictionaryStore();

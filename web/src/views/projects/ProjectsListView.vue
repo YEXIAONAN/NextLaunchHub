@@ -58,8 +58,12 @@
             <StatusTag type="status" :value="row.status" />
           </template>
         </el-table-column>
-        <el-table-column prop="start_date" label="开始日期" min-width="130" />
-        <el-table-column prop="end_date" label="结束日期" min-width="130" />
+        <el-table-column label="开始日期" min-width="130">
+          <template #default="{ row }">{{ formatDate(row.start_date) }}</template>
+        </el-table-column>
+        <el-table-column label="结束日期" min-width="130">
+          <template #default="{ row }">{{ formatDate(row.end_date) }}</template>
+        </el-table-column>
         <el-table-column label="进度" min-width="180">
           <template #default="{ row }">
             <div class="project-progress">
@@ -194,6 +198,7 @@ import { createProjectApi, getHelpersApi, getProjectsApi } from '../../api';
 import StatusTag from '../../components/StatusTag.vue';
 import { useAuthStore } from '../../stores/auth';
 import { useDictionaryStore } from '../../stores/dictionaries';
+import { formatDate } from '../../utils/date-time';
 
 const router = useRouter();
 const authStore = useAuthStore();

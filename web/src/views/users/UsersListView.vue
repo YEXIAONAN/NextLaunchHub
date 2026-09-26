@@ -59,7 +59,9 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column prop="created_at" label="创建时间" min-width="180" />
+        <el-table-column label="创建时间" min-width="170">
+          <template #default="{ row }">{{ formatDateTime(row.created_at) }}</template>
+        </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <div class="user-table-actions">
@@ -226,6 +228,7 @@ import {
   resetUserPasswordApi,
   updateUserApi
 } from '../../api';
+import { formatDateTime } from '../../utils/date-time';
 
 const users = ref([]);
 const createDialogVisible = ref(false);

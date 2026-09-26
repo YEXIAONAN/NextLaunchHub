@@ -87,7 +87,9 @@
             <span v-else class="table-meta-note">正常</span>
           </template>
         </el-table-column>
-        <el-table-column prop="request_datetime" label="发起时间" min-width="180" />
+        <el-table-column label="发起时间" min-width="170">
+          <template #default="{ row }">{{ formatDateTime(row.request_datetime) }}</template>
+        </el-table-column>
         <el-table-column prop="requester_ip" label="发起 IP" min-width="140" />
         <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
@@ -106,6 +108,7 @@ import { onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getHelpRequestsApi, getProjectTasksApi, getProjectsApi } from '../../api';
 import StatusTag from '../../components/StatusTag.vue';
+import { formatDateTime } from '../../utils/date-time';
 
 const router = useRouter();
 const route = useRoute();
