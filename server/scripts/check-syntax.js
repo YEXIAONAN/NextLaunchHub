@@ -15,7 +15,10 @@ async function getJavaScriptFiles(directory) {
   return files.flat();
 }
 
-const files = await getJavaScriptFiles(fileURLToPath(new URL('../src', import.meta.url)));
+const directories = ['../src', './'].map((directory) => (
+  fileURLToPath(new URL(directory, import.meta.url))
+));
+const files = (await Promise.all(directories.map(getJavaScriptFiles))).flat();
 for (const file of files) {
   const result = spawnSync(process.execPath, ['--check', file], { stdio: 'inherit' });
   if (result.status !== 0) {

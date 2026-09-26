@@ -59,12 +59,18 @@ if (nodeEnv === 'production' && process.env.JWT_SECRET.length < 32) {
 }
 
 const corsOrigins = parseOrigins(process.env.CORS_ORIGIN);
+const dbConnectTimeoutMs = Number(process.env.DB_CONNECT_TIMEOUT_MS || 5000);
+
+if (!Number.isInteger(dbConnectTimeoutMs) || dbConnectTimeoutMs < 1000) {
+  throw new Error('DB_CONNECT_TIMEOUT_MS must be an integer of at least 1000');
+}
 
 export const env = {
   nodeEnv,
   port: parsePort('PORT', 3000),
   dbHost: process.env.DB_HOST,
   dbPort: parsePort('DB_PORT', 3306),
+  dbConnectTimeoutMs,
   dbUser: process.env.DB_USER,
   dbPassword: process.env.DB_PASSWORD,
   dbName: process.env.DB_NAME,

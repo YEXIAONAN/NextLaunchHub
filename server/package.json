@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "check": "node scripts/check-syntax.js",
+    "check:db": "node scripts/check-database.js",
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "test": "node --test"

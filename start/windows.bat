@@ -47,6 +47,17 @@ if not exist "%PROJECT_DIR%\web\node_modules" (
   popd
 )
 
+echo Checking database connection...
+pushd "%PROJECT_DIR%\server"
+call npm run check:db
+if errorlevel 1 (
+  popd
+  echo Database unavailable. Startup cancelled.
+  pause
+  exit /b 1
+)
+popd
+
 start "NextLaunch Hub API" cmd /k "cd /d ""%PROJECT_DIR%\server"" && npm run dev"
 start "NextLaunch Hub Web" cmd /k "cd /d ""%PROJECT_DIR%\web"" && npm run dev"
 

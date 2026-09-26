@@ -46,6 +46,12 @@ fi
 install_dependencies "${PROJECT_DIR}/server" "后端"
 install_dependencies "${PROJECT_DIR}/web" "前端"
 
+echo "正在检查数据库连接..."
+if ! (cd "${PROJECT_DIR}/server" && npm run check:db); then
+  echo "数据库不可用，已取消启动。"
+  exit 1
+fi
+
 trap cleanup EXIT INT TERM
 
 echo "正在启动 NextLaunch Hub..."
