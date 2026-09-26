@@ -141,6 +141,13 @@ export function getHelpRequestsApi(params = {}) {
   });
 }
 
+export function exportHelpRequestsApi(params = {}) {
+  return http.get('/help-requests/export', {
+    params,
+    responseType: 'blob'
+  });
+}
+
 export function getHelpRequestDetailApi(id) {
   return http.get(`/help-requests/${id}`);
 }

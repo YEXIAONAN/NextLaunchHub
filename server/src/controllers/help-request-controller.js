@@ -38,16 +38,20 @@ export async function createHelpRequestController(req, res) {
 
 export async function getHelpRequestsController(req, res) {
   const data = await getHelpRequests(req.user, {
+    keyword: req.query.keyword || '',
     status: req.query.status || req.query.current_status || '',
     isTimeout: req.query.isTimeout ?? req.query.is_timeout,
     projectId: req.query.projectId || req.query.project_id,
-    taskId: req.query.taskId || req.query.task_id
+    taskId: req.query.taskId || req.query.task_id,
+    page: req.query.page,
+    pageSize: req.query.pageSize || req.query.page_size
   });
   res.json(success(data));
 }
 
 export async function exportHelpRequestsController(req, res) {
   const rows = await exportHelpRequests(req.user, {
+    keyword: req.query.keyword || '',
     status: req.query.status || req.query.current_status || '',
     isTimeout: req.query.isTimeout ?? req.query.is_timeout,
     projectId: req.query.projectId || req.query.project_id,

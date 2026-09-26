@@ -9,6 +9,10 @@ const http = axios.create({
 
 http.interceptors.response.use(
   (response) => {
+    if (response.config.responseType === 'blob') {
+      return response;
+    }
+
     const result = response.data;
     if (result.code !== 0) {
       ElMessage.error(result.message || '请求失败');

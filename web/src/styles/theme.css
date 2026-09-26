@@ -1248,12 +1248,31 @@ select {
 }
 
 .notification-pagination,
+.help-request-pagination,
 .user-pagination,
 .task-pagination,
 .project-pagination,
 .planning-card-actions {
   display: flex;
   justify-content: flex-end;
+}
+
+.help-request-pagination {
+  margin-top: 18px;
+}
+
+.table-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 10px 0 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.clickable-table .el-table__row {
+  cursor: pointer;
 }
 
 .relation-cell strong,
@@ -1503,7 +1522,8 @@ select {
 
 .user-toolbar .user-keyword,
 .project-toolbar .project-keyword,
-.task-toolbar .task-keyword {
+.task-toolbar .task-keyword,
+.help-request-toolbar .help-request-keyword {
   width: 280px;
 }
 
@@ -1603,7 +1623,9 @@ select {
   .user-toolbar .el-input,
   .user-toolbar .el-select,
   .user-toolbar .user-keyword,
+  .help-request-toolbar .el-input,
   .help-request-toolbar .el-select,
+  .help-request-toolbar .help-request-keyword,
   .task-toolbar .el-input,
   .task-toolbar .el-select,
   .task-toolbar .task-keyword {

@@ -340,6 +340,7 @@ function buildListScope(user) {
 
 function buildHelpRequestFilters(filters = {}) {
   return {
+    keyword: (filters.keyword || '').trim(),
     status: (filters.status || '').trim(),
     isTimeout: filters.isTimeout === undefined || filters.isTimeout === null || filters.isTimeout === ''
       ? null
@@ -372,8 +373,25 @@ function buildHelpRequestListQuery(user, filters = {}) {
   }
 
   if (normalizedFilters.status) {
+    if (!ALLOWED_STATUS.includes(normalizedFilters.status)) {
+      throw new HttpError(400, '状态筛选参数不合法');
+    }
     whereSql += ' AND hr.status = ?';
     params.push(normalizedFilters.status);
+  }
+
+  if (normalizedFilters.keyword) {
+    const keyword = `%${normalizedFilters.keyword}%`;
+    whereSql += ` AND (
+      hr.request_no LIKE ?
+      OR hr.title LIKE ?
+      OR hr.requester_name LIKE ?
+      OR hr.helper_name LIKE ?
+      OR hr.project_name LIKE ?
+      OR hr.task_title LIKE ?
+      OR hr.requester_ip LIKE ?
+    )`;
+    params.push(keyword, keyword, keyword, keyword, keyword, keyword, keyword);
   }
 
   if (normalizedFilters.isTimeout !== null) {
@@ -401,9 +419,11 @@ function buildHelpRequestListQuery(user, filters = {}) {
 export async function getHelpRequests(user, filters = {}) {
   await syncHelpRequestTimeouts(pool);
   const { whereSql, params } = buildHelpRequestListQuery(user, filters);
-
-  const [rows] = await pool.query(
-    `SELECT
+  const hasPagination = filters.page !== undefined || filters.pageSize !== undefined;
+  const page = Math.max(Number(filters.page) || 1, 1);
+  const pageSize = Math.min(Math.max(Number(filters.pageSize) || 10, 1), 100);
+  const offset = (page - 1) * pageSize;
+  const selectSql = `SELECT
        hr.id,
        hr.request_no,
        hr.title,
@@ -420,11 +440,29 @@ export async function getHelpRequests(user, filters = {}) {
        hr.requester_ip
      FROM help_requests hr
      ${whereSql}
-     ORDER BY hr.request_datetime DESC, hr.id DESC`,
+     ORDER BY hr.request_datetime DESC, hr.id DESC`;
+
+  if (!hasPagination) {
+    const [rows] = await pool.query(selectSql, params);
+    return rows;
+  }
+
+  const [[countRow]] = await pool.query(
+    `SELECT COUNT(*) AS total
+     FROM help_requests hr
+     ${whereSql}`,
     params
   );
+  const [rows] = await pool.query(`${selectSql} LIMIT ? OFFSET ?`, [...params, pageSize, offset]);
 
-  return rows;
+  return {
+    list: rows,
+    pagination: {
+      page,
+      pageSize,
+      total: Number(countRow.total) || 0
+    }
+  };
 }
 
 export async function exportHelpRequests(user, filters = {}) {

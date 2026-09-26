@@ -75,9 +75,9 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import {
   getNotificationsPageApi,
   markAllNotificationsReadApi,
@@ -87,12 +87,13 @@ import { useNotificationStore } from '../../stores/notifications';
 import { formatDateTime } from '../../utils/date-time';
 
 const router = useRouter();
+const route = useRoute();
 const notificationStore = useNotificationStore();
 const notifications = ref([]);
 
 const filters = reactive({
-  isRead: '',
-  type: ''
+  isRead: String(route.query.isRead || ''),
+  type: String(route.query.type || '')
 });
 
 const pagination = reactive({
@@ -129,6 +130,7 @@ async function loadNotifications() {
   pagination.page = result.data.pagination.page;
   pagination.pageSize = result.data.pagination.pageSize;
   pagination.total = result.data.pagination.total;
+  syncRouteQuery();
 }
 
 async function refreshNotifications() {
@@ -172,7 +174,34 @@ async function handleJump(item) {
   ElMessage.warning('当前通知未配置跳转地址');
 }
 
+function syncRouteQuery() {
+  const query = {};
+  if (filters.isRead) query.isRead = filters.isRead;
+  if (filters.type) query.type = filters.type;
+  if (pagination.page > 1) query.page = pagination.page;
+  router.replace({ query });
+}
+
 onMounted(async () => {
+  pagination.page = Number(route.query.page) || 1;
   await refreshNotifications();
 });
+
+watch(
+  () => [route.query.isRead, route.query.type, route.query.page],
+  async ([isRead, type, page]) => {
+    if (
+      String(filters.isRead) === String(isRead || '') &&
+      String(filters.type) === String(type || '') &&
+      Number(pagination.page) === (Number(page) || 1)
+    ) {
+      return;
+    }
+
+    filters.isRead = String(isRead || '');
+    filters.type = String(type || '');
+    pagination.page = Number(page) || 1;
+    await loadNotifications();
+  }
+);
 </script>

@@ -67,7 +67,7 @@
             开启系统提醒
           </el-button>
 
-          <button class="topbar-notification" @click="router.push('/notifications')">
+          <button class="topbar-notification" @click="openNotifications">
             <span>通知中心</span>
             <em v-if="notificationStore.unreadCount > 0">{{ notificationStore.unreadCount }}</em>
           </button>
@@ -166,6 +166,13 @@ async function handleEnableSystemNotification() {
   }
 
   ElMessage.info('系统提醒暂未开启');
+}
+
+function openNotifications() {
+  router.push({
+    path: '/notifications',
+    query: notificationStore.unreadCount > 0 ? { isRead: '0' } : {}
+  });
 }
 
 onMounted(() => {
