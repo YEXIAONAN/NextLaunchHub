@@ -14,9 +14,13 @@ import {
 } from '../controllers/users-controller.js';
 import { asyncHandler } from '../utils/async-handler.js';
 import { HttpError } from '../utils/http-error.js';
+import { createRateLimit } from '../middleware/rate-limit.js';
 
 const router = Router();
+const publicReadRateLimit = createRateLimit({ windowMs: 60 * 1000, max: 60 });
+const publicWriteRateLimit = createRateLimit({ windowMs: 10 * 60 * 1000, max: 10 });
 
+router.use(publicReadRateLimit);
 router.get('/requesters', asyncHandler(getRequestersController));
 router.get('/helpers', asyncHandler(getHelpersController));
 router.get('/projects', asyncHandler(getPublicProjectsController));
@@ -25,6 +29,7 @@ router.get('/help-requests/query', asyncHandler(queryPublicHelpRequestController
 
 router.post(
   '/help-requests',
+  publicWriteRateLimit,
   asyncHandler(async (req, res) => {
     const title = req.body.title;
     const requesterUserId = req.body.requesterUserId || req.body.requester_user_id;
@@ -41,6 +46,7 @@ router.post(
 
 router.post(
   '/help-requests/:id/confirm',
+  publicWriteRateLimit,
   asyncHandler(async (req, res) => {
     const action = req.body.action;
 

@@ -11,7 +11,7 @@ import { authenticateSocket } from './socket-auth.js';
 let ioInstance = null;
 
 function getCorsOrigins() {
-  return env.corsOrigin.split(',').map((item) => item.trim());
+  return env.corsOrigins;
 }
 
 export function initRealtime(httpServer) {

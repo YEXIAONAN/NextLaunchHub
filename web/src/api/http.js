@@ -7,14 +7,6 @@ const http = axios.create({
   withCredentials: true
 });
 
-http.interceptors.request.use((config) => {
-  const token = localStorage.getItem('nextlaunch_hub_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
 http.interceptors.response.use(
   (response) => {
     const result = response.data;
@@ -26,9 +18,10 @@ http.interceptors.response.use(
   },
   (error) => {
     const message = error.response?.data?.message || error.message || '请求失败';
-    ElMessage.error(message);
-    if (error.response?.status === 401) {
-      localStorage.removeItem('nextlaunch_hub_token');
+    if (!error.config?.skipErrorMessage) {
+      ElMessage.error(message);
+    }
+    if (error.response?.status === 401 && !error.config?.skipAuthRedirect) {
       localStorage.removeItem('nextlaunch_hub_user');
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';

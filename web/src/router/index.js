@@ -12,6 +12,7 @@ import LoginView from '../views/public/LoginView.vue';
 import PublicHelpQueryView from '../views/public/PublicHelpQueryView.vue';
 import PublicHelpRequestView from '../views/public/PublicHelpRequestView.vue';
 import UsersListView from '../views/users/UsersListView.vue';
+import { useAuthStore } from '../stores/auth';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -93,15 +94,14 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
-  const token = localStorage.getItem('nextlaunch_hub_token');
-  const user = JSON.parse(localStorage.getItem('nextlaunch_hub_user') || 'null');
-  if (!to.meta.public && !token) {
+  const authStore = useAuthStore();
+  if (!to.meta.public && !authStore.isLoggedIn) {
     return '/login';
   }
-  if (to.path === '/login' && token) {
+  if (to.path === '/login' && authStore.isLoggedIn) {
     return '/dashboard';
   }
-  if (to.meta.adminOnly && user?.role !== 'admin') {
+  if (to.meta.adminOnly && authStore.user?.role !== 'admin') {
     return '/dashboard';
   }
   return true;

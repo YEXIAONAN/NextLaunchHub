@@ -1,7 +1,15 @@
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
+import { getActiveUserById } from '../services/auth-service.js';
+import { AUTH_COOKIE_NAME } from '../utils/auth-session.js';
+import { parseCookies } from '../utils/cookies.js';
 
 function extractToken(socket) {
+  const cookies = parseCookies(socket.handshake.headers?.cookie || '');
+  if (cookies[AUTH_COOKIE_NAME]) {
+    return cookies[AUTH_COOKIE_NAME];
+  }
+
   const authToken = socket.handshake.auth?.token;
   if (authToken) {
     return authToken;
@@ -16,7 +24,7 @@ function extractToken(socket) {
   return '';
 }
 
-export function authenticateSocket(socket, next) {
+export async function authenticateSocket(socket, next) {
   const token = extractToken(socket);
 
   if (!token) {
@@ -28,11 +36,12 @@ export function authenticateSocket(socket, next) {
 
   try {
     const payload = jwt.verify(token, env.jwtSecret);
+    const user = await getActiveUserById(payload.id);
     socket.data.user = {
-      userId: payload.id,
-      username: payload.username,
-      role: payload.role,
-      realName: payload.realName
+      userId: user.id,
+      username: user.username,
+      role: user.role,
+      realName: user.realName
     };
     next();
   } catch (_error) {

@@ -4,7 +4,8 @@ import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import App from './App.vue';
 import router from './router';
-import { connectRealtime, setupRealtime } from './realtime/socket';
+import { setupRealtime } from './realtime/socket';
+import { useAuthStore } from './stores/auth';
 import './styles/theme.css';
 
 const app = createApp(App);
@@ -16,9 +17,11 @@ app.use(ElementPlus);
 
 setupRealtime({ router, pinia });
 
-const token = localStorage.getItem('nextlaunch_hub_token');
-if (token) {
-  connectRealtime(token);
+async function bootstrap() {
+  const authStore = useAuthStore(pinia);
+  await authStore.restoreSession();
+  await router.isReady();
+  app.mount('#app');
 }
 
-app.mount('#app');
+bootstrap();

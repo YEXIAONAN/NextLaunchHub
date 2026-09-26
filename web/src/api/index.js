@@ -4,6 +4,17 @@ export function loginApi(payload) {
   return http.post('/auth/login', payload);
 }
 
+export function getCurrentUserApi() {
+  return http.get('/auth/me', {
+    skipAuthRedirect: true,
+    skipErrorMessage: true
+  });
+}
+
+export function logoutApi() {
+  return http.post('/auth/logout');
+}
+
 export function getRequestersApi(keyword = '') {
   return http.get('/public/requesters', {
     params: { keyword }

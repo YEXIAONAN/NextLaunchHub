@@ -351,11 +351,12 @@ DB_PASSWORD=your_password
 DB_NAME=nextlaunch_hub
 
 # JWT 配置
-JWT_SECRET=your-jwt-secret-key-change-in-production
+JWT_SECRET=replace-with-at-least-32-random-characters
 JWT_EXPIRES_IN=7d
 
 # CORS 配置（多个源用逗号分隔）
 CORS_ORIGIN=http://localhost:5173,http://localhost:3000
+COOKIE_SECURE=false
 ```
 
 **前端配置** (`web/.env`)：
@@ -598,15 +599,17 @@ services:
   api:
     build: ./server
     environment:
+      NODE_ENV: production
       PORT: 3000
       DB_HOST: mysql
       DB_PORT: 3306
       DB_USER: root
       DB_PASSWORD: your_password
       DB_NAME: nextlaunch_hub
-      JWT_SECRET: your-production-secret
+      JWT_SECRET: replace-with-at-least-32-random-characters
       JWT_EXPIRES_IN: 7d
-      CORS_ORIGIN: http://localhost
+      CORS_ORIGIN: https://your-domain.example
+      COOKIE_SECURE: true
     ports:
       - "3000:3000"
     depends_on:

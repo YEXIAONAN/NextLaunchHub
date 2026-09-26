@@ -23,11 +23,11 @@ const app = express();
 app.set('trust proxy', true);
 app.use(
   cors({
-    origin: env.corsOrigin.split(',').map((item) => item.trim()),
+    origin: env.corsOrigins,
     credentials: true
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
 app.get('/api/health', (_req, res) => {
   res.json(success({ status: 'ok' }));

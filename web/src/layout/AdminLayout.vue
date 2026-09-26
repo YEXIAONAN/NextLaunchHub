@@ -123,8 +123,8 @@ const currentPageMeta = computed(() => {
 const pageTitle = computed(() => currentPageMeta.value.title);
 const pageDescription = computed(() => currentPageMeta.value.description);
 
-function handleLogout() {
-  authStore.logout();
+async function handleLogout() {
+  await authStore.logout();
   router.push('/login');
 }
 

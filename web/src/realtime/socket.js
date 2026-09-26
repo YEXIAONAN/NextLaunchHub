@@ -74,8 +74,8 @@ export function setupRealtime({ router, pinia }) {
   piniaInstance = pinia;
 }
 
-export function connectRealtime(token) {
-  if (!token || !routerInstance || !piniaInstance) {
+export function connectRealtime() {
+  if (!routerInstance || !piniaInstance) {
     return null;
   }
 
@@ -86,9 +86,7 @@ export function connectRealtime(token) {
 
   socketInstance = io(getSocketBaseUrl(), {
     transports: ['websocket', 'polling'],
-    auth: {
-      token
-    }
+    withCredentials: true
   });
 
   bindRealtimeEvents(socketInstance);
