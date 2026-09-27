@@ -58,6 +58,14 @@
               <label>帮助人员</label>
               <span>{{ detail.helper_name || '-' }}</span>
             </div>
+            <div v-if="detail.task_id" class="detail-item full-width request-progress-card">
+              <label>关联任务进度</label>
+              <div class="project-progress">
+                <div class="project-progress-track"><div class="project-progress-fill" :style="{ width: `${Number(detail.task_progress || 0)}%` }"></div></div>
+                <strong>{{ Number(detail.task_progress || 0) }}%</strong>
+              </div>
+              <span class="table-meta-note">{{ taskStatusTextMap[detail.task_status] || '任务状态同步中' }}</span>
+            </div>
             <div class="detail-item full-width">
               <label>内容</label>
               <span>{{ detail.content || '-' }}</span>
@@ -150,6 +158,7 @@ const statusTextMap = {
   waiting_confirm: '待确认',
   completed: '已完成'
 };
+const taskStatusTextMap = { todo: '任务待开始', in_progress: '任务进行中', blocked: '任务受阻', done: '任务已完成', cancelled: '任务已取消' };
 
 const recentLogs = computed(() => {
   return Array.isArray(detail.value?.logs) ? detail.value.logs.slice(0, 5) : [];

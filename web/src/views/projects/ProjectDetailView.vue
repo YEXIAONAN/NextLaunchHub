@@ -6,7 +6,10 @@
           <h2>项目详情</h2>
           <p>查看项目基础信息、成员安排、任务推进以及阶段规划。</p>
         </div>
-        <el-button class="secondary-action" @click="router.push('/projects')">返回列表</el-button>
+        <div class="page-header-actions">
+          <el-button v-if="canDeleteProject" type="danger" plain @click="handleDeleteProject">删除项目</el-button>
+          <el-button class="secondary-action" @click="router.push('/projects')">返回列表</el-button>
+        </div>
       </div>
 
       <div class="project-detail-layout">
@@ -98,6 +101,10 @@
                     </span>
                   </div>
                   <p>{{ item.task_code }} ｜ {{ item.assignee_name || '未分配负责人' }}</p>
+                  <div class="project-task-progress">
+                    <div class="project-progress-track"><div class="project-progress-fill" :style="{ width: `${Number(item.progress || 0)}%` }"></div></div>
+                    <span>{{ Number(item.progress || 0) }}%</span>
+                  </div>
                   <div class="project-task-planning">
                     <span v-if="item.iteration_id">迭代 #{{ item.iteration_id }}</span>
                     <span v-if="item.milestone_id">里程碑 #{{ item.milestone_id }}</span>
@@ -397,12 +404,13 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { useRoute, useRouter } from 'vue-router';
 import {
   addProjectMemberApi,
   createProjectIterationApi,
   createProjectMilestoneApi,
+  deleteProjectApi,
   getHelpersApi,
   getProjectDetailApi,
   getProjectMembersApi,
@@ -500,6 +508,7 @@ const canManageTasks = computed(() => {
   return authStore.user?.role === 'admin' || Number(authStore.user?.id) === Number(detail.owner_user_id);
 });
 const canManagePlanning = computed(() => canManageTasks.value);
+const canDeleteProject = computed(() => authStore.user?.role === 'admin');
 
 async function loadDetail() {
   const result = await getProjectDetailApi(route.params.id);
@@ -672,6 +681,18 @@ async function submitMilestone() {
 function openTaskDetail(taskId) {
   currentTaskId.value = taskId;
   taskDrawerVisible.value = true;
+}
+
+async function handleDeleteProject() {
+  const confirmed = await ElMessageBox.confirm(
+    `确认删除项目“${detail.project_name}”吗？项目下的任务、成员、迭代和里程碑会一并删除，历史求助记录会保留显示名称。`,
+    '删除项目',
+    { confirmButtonText: '确认删除', cancelButtonText: '取消', type: 'warning' }
+  ).catch(() => false);
+  if (!confirmed) return;
+  await deleteProjectApi(route.params.id);
+  ElMessage.success('项目已删除');
+  router.replace('/projects');
 }
 
 onMounted(async () => {

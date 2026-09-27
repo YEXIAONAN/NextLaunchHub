@@ -102,6 +102,7 @@
         </el-table-column>
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
+            <el-button v-if="canSyncTask" link class="text-action" @click="openProgressSync(row)">同步进度</el-button>
             <el-button link class="text-action" @click="openTaskDetail(row.id)">
               查看详情
             </el-button>
@@ -135,6 +136,7 @@
       v-model="detailDrawerVisible"
       :task-id="currentTaskId"
     />
+    <TaskProgressDialog v-model="progressDialogVisible" :task="currentTask" @success="loadTasks" />
   </div>
 </template>
 
@@ -144,6 +146,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { deleteTaskApi, getProjectsApi, getTasksApi } from '../../api';
 import TaskCreateDialog from '../../components/tasks/TaskCreateDialog.vue';
 import TaskDetailDrawer from '../../components/tasks/TaskDetailDrawer.vue';
+import TaskProgressDialog from '../../components/tasks/TaskProgressDialog.vue';
 import { useAuthStore } from '../../stores/auth';
 import { useDictionaryStore } from '../../stores/dictionaries';
 import { formatDate } from '../../utils/date-time';
@@ -155,6 +158,8 @@ const projectOptions = ref([]);
 const createDialogVisible = ref(false);
 const detailDrawerVisible = ref(false);
 const currentTaskId = ref(null);
+const currentTask = ref(null);
+const progressDialogVisible = ref(false);
 
 const filters = reactive({
   keyword: '',
@@ -181,6 +186,7 @@ const priorityOptions = computed(() => dictionaryStore.getOptions('task_priority
 
 const canCreateTask = computed(() => authStore.user?.role !== 'requester');
 const canDeleteTask = computed(() => authStore.user?.role === 'admin');
+const canSyncTask = computed(() => authStore.user?.role !== 'requester');
 
 async function loadProjectOptions() {
   const result = await getProjectsApi({
@@ -225,6 +231,11 @@ function handleSizeChange(pageSize) {
 function openTaskDetail(taskId) {
   currentTaskId.value = taskId;
   detailDrawerVisible.value = true;
+}
+
+function openProgressSync(task) {
+  currentTask.value = task;
+  progressDialogVisible.value = true;
 }
 
 async function handleTaskCreated() {

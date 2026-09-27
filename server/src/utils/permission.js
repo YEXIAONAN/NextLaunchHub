@@ -88,8 +88,9 @@ export function canCreateTask(user, project) {
   return isAdmin(user) || Number(project.owner_user_id) === Number(user.id);
 }
 
-export function canUpdateTask(user, project) {
-  return canCreateTask(user, project);
+export function canUpdateTask(user, project, task) {
+  return canCreateTask(user, project)
+    || Number(task?.assignee_user_id) === Number(user?.id);
 }
 
 export function canUpdateTaskStatus(user, project, task) {

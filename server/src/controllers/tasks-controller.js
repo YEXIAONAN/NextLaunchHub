@@ -37,6 +37,7 @@ export async function createTaskController(req, res) {
     priority: req.body.priority,
     status: req.body.status,
     progress: req.body.progress,
+    progressNote: req.body.progressNote || req.body.progress_note,
     startDate: req.body.startDate || req.body.start_date,
     dueDate: req.body.dueDate || req.body.due_date,
     estimatedHours: req.body.estimatedHours || req.body.estimated_hours,

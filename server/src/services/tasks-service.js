@@ -523,6 +523,16 @@ export async function updateTask(user, taskId, payload) {
       changedFields.push(`任务进度改为：${progress}%`);
     }
 
+    if (payload.progressNote !== undefined) {
+      const progressNote = typeof payload.progressNote === 'string' ? payload.progressNote.trim() : '';
+      if (progressNote.length > 300) {
+        throw new HttpError(400, '进度说明不能超过300个字符');
+      }
+      if (progressNote) {
+        changedFields.push(`进度说明：${progressNote}`);
+      }
+    }
+
     if (payload.startDate !== undefined) {
       updates.push('start_date = ?');
       params.push(payload.startDate || null);

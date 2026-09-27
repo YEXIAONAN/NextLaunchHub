@@ -1193,6 +1193,11 @@ select {
 .command-palette-item small, .command-palette-hint { color: var(--text-muted); font-size: 12px; }
 .command-palette-hint { margin: 14px 0 0; }
 .help-progress-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }
+.progress-sync-control { width: 100%; padding: 0 10px; }
+.form-hint { margin: 0; color: var(--text-muted); font-size: 13px; line-height: 1.65; }
+.request-progress-card .project-progress { max-width: 360px; margin: 7px 0; }
+.project-task-progress { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 12px; }
+.project-task-progress .project-progress-track { width: 150px; }
 
 .topbar-search {
   width: 240px;

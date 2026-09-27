@@ -613,6 +613,7 @@ export async function queryPublicHelpRequest({ requestNo }) {
        hr.requester_name,
        hr.helper_name,
        hr.project_name,
+       hr.task_id,
        hr.task_title,
        hr.content,
        hr.request_datetime,
@@ -642,6 +643,7 @@ export async function queryPublicHelpRequest({ requestNo }) {
        hr.requester_name,
        hr.helper_name,
        hr.project_name,
+       hr.task_id,
        hr.task_title,
        hr.content,
        hr.request_datetime,
@@ -652,7 +654,10 @@ export async function queryPublicHelpRequest({ requestNo }) {
        hr.status,
        hr.requester_confirmed_at,
        hr.requester_feedback
+       ,t.progress AS task_progress,
+       t.status AS task_status
      FROM help_requests hr
+     LEFT JOIN tasks t ON t.id = hr.task_id
      WHERE hr.id = ?
      LIMIT 1`,
     [rows[0].id]
