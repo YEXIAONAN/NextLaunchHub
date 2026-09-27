@@ -192,6 +192,10 @@ export function downloadHelpRequestAttachmentUrl(id) {
   return `${import.meta.env.VITE_API_BASE_URL || '/api'}/help-requests/attachments/${id}/download`;
 }
 
+export function viewHelpRequestAttachmentUrl(id) {
+  return `${import.meta.env.VITE_API_BASE_URL || '/api'}/help-requests/attachments/${id}/view`;
+}
+
 export function getNotificationsApi() {
   return http.get('/notifications');
 }

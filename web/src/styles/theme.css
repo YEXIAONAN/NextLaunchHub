@@ -1185,6 +1185,14 @@ select {
 .dashboard-action-item { display: flex; justify-content: space-between; gap: 16px; width: 100%; padding: 12px; color: var(--text-primary); text-align: left; background: var(--warning-soft); border: 1px solid var(--warning-border); border-radius: var(--radius-md); cursor: pointer; }
 .dashboard-action-item strong { color: var(--warning-text); font-size: 12px; white-space: nowrap; }
 
+.attachment-preview-image { display: block; max-width: 100%; max-height: 70vh; margin: 0 auto; object-fit: contain; }
+.command-palette-list { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+.command-palette-dialog .el-dialog__body { padding-top: 10px; }
+.command-palette-item { display: flex; justify-content: space-between; gap: 16px; width: 100%; padding: 12px 14px; color: var(--text-primary); text-align: left; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer; }
+.command-palette-item:hover { color: var(--brand-primary); border-color: var(--border-focus); background: var(--brand-primary-light); }
+.command-palette-item small, .command-palette-hint { color: var(--text-muted); font-size: 12px; }
+.command-palette-hint { margin: 14px 0 0; }
+
 .topbar-search {
   width: 240px;
 }

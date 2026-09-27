@@ -518,6 +518,7 @@ export async function getHelpRequests(user, filters = {}) {
        hr.request_no,
        hr.title,
        hr.requester_name,
+       hr.helper_user_id,
        hr.helper_name,
        hr.project_id,
        hr.project_name,

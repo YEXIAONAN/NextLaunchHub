@@ -125,9 +125,10 @@
         </el-upload>
       </div>
       <div v-if="detail.attachments?.length" class="attachment-list">
-        <a v-for="item in detail.attachments" :key="item.id" class="attachment-item" :href="downloadHelpRequestAttachmentUrl(item.id)" target="_blank">
+        <div v-for="item in detail.attachments" :key="item.id" class="attachment-item">
           <strong>{{ item.original_name }}</strong><span>{{ formatBytes(item.size_bytes) }}</span>
-        </a>
+          <div><el-button v-if="item.mime_type.startsWith('image/')" link class="text-action" @click="previewAttachment = item">预览</el-button><a class="text-action" :href="downloadHelpRequestAttachmentUrl(item.id)" target="_blank">下载</a></div>
+        </div>
       </div>
       <el-empty v-else description="暂无附件" />
     </section>
@@ -270,6 +271,10 @@
       </template>
     </el-dialog>
 
+    <el-dialog v-model="previewAttachment" title="附件预览" width="760px">
+      <img v-if="previewAttachment" class="attachment-preview-image" :src="viewHelpRequestAttachmentUrl(previewAttachment.id)" :alt="previewAttachment.original_name" />
+    </el-dialog>
+
     <el-dialog v-model="reassignDialogVisible" title="改派帮助人员" width="520px">
       <el-form label-position="top">
         <el-form-item label="新的帮助人员">
@@ -318,6 +323,7 @@ import {
   reassignHelpRequestHelperApi,
   uploadHelpRequestAttachmentApi,
   downloadHelpRequestAttachmentUrl,
+  viewHelpRequestAttachmentUrl,
   updateHelpRequestStatusApi
 } from '../../api';
 import StatusTag from '../../components/StatusTag.vue';
@@ -336,6 +342,7 @@ const loadingHelperOptions = ref(false);
 const helperOptions = ref([]);
 const assistants = ref([]);
 const uploadingAttachment = ref(false);
+const previewAttachment = ref(null);
 
 const detail = reactive({
   assistants: [],

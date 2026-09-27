@@ -109,11 +109,19 @@
         <router-view />
       </main>
     </div>
+
+    <el-dialog v-model="commandPaletteVisible" class="command-palette-dialog" width="640px" :show-close="false" :close-on-click-modal="true">
+      <el-input v-model="commandKeyword" autofocus clearable placeholder="搜索工单、项目、任务，或输入操作…" @input="loadCommandResults" @keyup.enter="runFirstCommand" />
+      <div class="command-palette-list">
+        <button v-for="item in commandItems" :key="item.key" class="command-palette-item" @click="runCommand(item)"><span>{{ item.label }}</span><small>{{ item.hint }}</small></button>
+      </div>
+      <p class="command-palette-hint">按 Esc 关闭 · ⌘K / Ctrl+K 随时打开</p>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
   BellFilled,
@@ -141,6 +149,15 @@ const notificationStore = useNotificationStore();
 const systemNotificationStore = useSystemNotificationStore();
 const uiPreferencesStore = useUiPreferencesStore();
 const searchKeyword = ref('');
+const commandPaletteVisible = ref(false);
+const commandKeyword = ref('');
+const commandResults = ref([]);
+const quickCommands = [
+  { key: 'new-help', label: '新建求助', hint: '创建工单', path: '/help-request' },
+  { key: 'notifications', label: '打开通知中心', hint: '查看提醒', path: '/notifications' },
+  { key: 'dashboard', label: '返回工作台', hint: '查看待办', path: '/dashboard' }
+];
+const commandItems = computed(() => commandKeyword.value.trim().length >= 2 ? commandResults.value : quickCommands);
 
 const roleTextMap = {
   admin: '管理员',
@@ -217,10 +234,33 @@ function openSearchResult(item) {
   router.push(path);
 }
 
+async function loadCommandResults() {
+  const keyword = commandKeyword.value.trim();
+  if (keyword.length < 2) { commandResults.value = []; return; }
+  try {
+    const result = await globalSearchApi(keyword);
+    commandResults.value = result.data.items.map((item) => ({
+      key: `${item.type}-${item.id}`,
+      label: `[${item.type === 'help_request' ? '工单' : item.type === 'project' ? '项目' : '任务'}] ${item.code} ${item.title}`,
+      hint: item.status || '',
+      path: item.type === 'help_request' ? `/help-center/${item.id}` : item.type === 'project' ? `/projects/${item.id}` : '/tasks'
+    }));
+  } catch (_error) { commandResults.value = []; }
+}
+
+function runCommand(item) { commandPaletteVisible.value = false; commandKeyword.value = ''; router.push(item.path); }
+function runFirstCommand() { if (commandItems.value[0]) runCommand(commandItems.value[0]); }
+function handleCommandKeydown(event) {
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); commandPaletteVisible.value = !commandPaletteVisible.value; }
+}
+
 onMounted(() => {
+  window.addEventListener('keydown', handleCommandKeydown);
   systemNotificationStore.refreshPermission();
   if (authStore.isLoggedIn) {
     notificationStore.fetchUnreadCount();
   }
 });
+
+onBeforeUnmount(() => window.removeEventListener('keydown', handleCommandKeydown));
 </script>

@@ -10,7 +10,7 @@ import {
   reassignHelpRequestHelperController,
   updateHelpRequestStatusController
 } from '../controllers/help-request-controller.js';
-import { downloadAttachmentController, uploadAttachmentController } from '../controllers/attachment-controller.js';
+import { downloadAttachmentController, uploadAttachmentController, viewAttachmentController } from '../controllers/attachment-controller.js';
 import { asyncHandler } from '../utils/async-handler.js';
 import { HttpError } from '../utils/http-error.js';
 
@@ -23,6 +23,7 @@ router.get('/:id', asyncHandler(getHelpRequestDetailController));
 router.get('/:id/assistants', asyncHandler(getHelpRequestAssistantsController));
 router.post('/:id/attachments', asyncHandler(uploadAttachmentController));
 router.get('/attachments/:attachmentId/download', asyncHandler(downloadAttachmentController));
+router.get('/attachments/:attachmentId/view', asyncHandler(viewAttachmentController));
 
 router.post(
   '/:id/assistants',

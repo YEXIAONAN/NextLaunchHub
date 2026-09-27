@@ -118,8 +118,11 @@
           <template #default="{ row }">{{ formatDateTime(row.request_datetime) }}</template>
         </el-table-column>
         <el-table-column prop="requester_ip" label="发起 IP" min-width="140" />
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column label="操作" width="210" fixed="right">
           <template #default="{ row }">
+            <el-button v-if="canUpdateRow(row) && row.status === 'pending'" link class="text-action" @click.stop="quickUpdateStatus(row, 'processing')">接单</el-button>
+            <el-button v-if="canUpdateRow(row) && row.status === 'processing'" link class="text-action" @click.stop="quickUpdateStatus(row, 'waiting_confirm')">待确认</el-button>
+            <el-button v-if="canUpdateRow(row) && row.status === 'waiting_confirm'" link class="text-action" @click.stop="quickUpdateStatus(row, 'completed')">完成</el-button>
             <el-button link class="text-action" @click.stop="goDetail(row)">
               查看详情
             </el-button>
@@ -145,13 +148,16 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { ElMessage } from 'element-plus';
 import { useRoute, useRouter } from 'vue-router';
-import { exportHelpRequestsApi, getHelpRequestsApi, getProjectTasksApi, getProjectsApi } from '../../api';
+import { exportHelpRequestsApi, getHelpRequestsApi, getProjectTasksApi, getProjectsApi, updateHelpRequestStatusApi } from '../../api';
 import StatusTag from '../../components/StatusTag.vue';
 import { formatDateTime } from '../../utils/date-time';
+import { useAuthStore } from '../../stores/auth';
 
 const router = useRouter();
 const route = useRoute();
+const authStore = useAuthStore();
 const list = ref([]);
 const projectOptions = ref([]);
 const taskOptions = ref([]);
@@ -255,6 +261,13 @@ function getRowClassName({ row }) {
 
 function goDetail(row) {
   router.push(`/help-center/${row.id}`);
+}
+
+function canUpdateRow(row) { return authStore.user?.role === 'admin' || Number(authStore.user?.id) === Number(row.helper_user_id); }
+async function quickUpdateStatus(row, status) {
+  await updateHelpRequestStatusApi(row.id, status);
+  ElMessage.success('工单状态已更新');
+  await loadList();
 }
 
 function syncRouteQuery() {

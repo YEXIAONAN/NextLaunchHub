@@ -10,3 +10,9 @@ export async function downloadAttachmentController(req, res) {
   res.type(attachment.mime_type);
   res.download(filePath, attachment.original_name);
 }
+
+export async function viewAttachmentController(req, res) {
+  const { attachment, filePath } = await downloadAttachment(req.user, Number(req.params.attachmentId));
+  res.type(attachment.mime_type);
+  res.sendFile(filePath);
+}
