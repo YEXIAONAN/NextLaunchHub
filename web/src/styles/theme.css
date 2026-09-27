@@ -231,6 +231,40 @@ select {
   line-height: 1.7;
 }
 
+.sidebar-runtime-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidebar-runtime-status span {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+.sidebar-version-link,
+.sidebar-footer a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--speed-fast) var(--ease-out);
+}
+
+.sidebar-version-link {
+  display: inline-flex;
+  margin-top: 5px;
+  color: var(--brand-primary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sidebar-version-link:hover,
+.sidebar-footer a:hover {
+  color: var(--brand-primary-dark);
+}
+
 .brand-block {
   display: flex;
   align-items: center;

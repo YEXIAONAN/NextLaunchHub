@@ -48,9 +48,11 @@
 
       <div class="sidebar-footer">
         <div class="sidebar-footer-title">当前运行系统</div>
-        <p><span></span></p>
-        <p><a href="https://github.com/YEXIAONAN/NextLaunchHub">稳定版</a></p>
-        <p><a href="https://github.com/YEXIAONAN">Powered By Waiting</a></p>
+        <p class="sidebar-runtime-status"><span></span>运行中</p>
+        <a class="sidebar-version-link" :href="appConfig.repositoryUrl" target="_blank" rel="noopener noreferrer">
+          v{{ appConfig.version }} · {{ appConfig.releaseName }}
+        </a>
+        <p><a :href="appConfig.authorUrl" target="_blank" rel="noopener noreferrer">Powered By Waiting</a></p>
       </div>
     </aside>
 
@@ -129,6 +131,7 @@ import { useNotificationStore } from '../stores/notifications';
 import { useSystemNotificationStore } from '../stores/system-notification';
 import { useUiPreferencesStore } from '../stores/ui-preferences';
 import { globalSearchApi } from '../api';
+import { appConfig } from '../config/app-config';
 import logoSquare from '../assets/brand/nextlaunch-logo-square.png';
 
 const route = useRoute();
