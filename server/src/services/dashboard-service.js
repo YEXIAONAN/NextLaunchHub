@@ -75,6 +75,28 @@ export async function getOverview(user) {
     scope.params
   );
 
+  let myTasks = [];
+  if (user.role === 'admin') {
+    const [rows] = await pool.query(
+      `SELECT t.id, t.title, t.status, t.progress, t.due_date, t.assignee_name, p.project_name
+         FROM tasks t INNER JOIN projects p ON p.id = t.project_id
+        WHERE t.status NOT IN ('done', 'cancelled')
+        ORDER BY (t.status = 'blocked') DESC, (t.due_date IS NOT NULL AND t.due_date < CURDATE()) DESC, t.due_date ASC
+        LIMIT 6`
+    );
+    myTasks = rows;
+  } else if (user.role === 'helper') {
+    const [rows] = await pool.query(
+      `SELECT t.id, t.title, t.status, t.progress, t.due_date, t.assignee_name, p.project_name
+         FROM tasks t INNER JOIN projects p ON p.id = t.project_id
+        WHERE t.assignee_user_id = ? AND t.status NOT IN ('done', 'cancelled')
+        ORDER BY (t.status = 'blocked') DESC, (t.due_date IS NOT NULL AND t.due_date < CURDATE()) DESC, t.due_date ASC
+        LIMIT 6`,
+      [user.id]
+    );
+    myTasks = rows;
+  }
+
   return {
     stats: {
       pending: Number(summary.pending_count || 0),
@@ -89,6 +111,7 @@ export async function getOverview(user) {
       unresponded: Number(service.unresponded_count || 0)
     },
     actionItems,
-    recentItems: recentRows
+    recentItems: recentRows,
+    myTasks
   };
 }

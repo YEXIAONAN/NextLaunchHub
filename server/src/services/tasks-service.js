@@ -76,6 +76,26 @@ async function writeTaskLog(executor, payload) {
   );
 }
 
+// 项目进度以有效任务的平均完成度为准，避免项目卡片和任务实际推进脱节。
+async function syncProjectProgress(executor, projectId) {
+  const [[summary]] = await executor.query(
+    `SELECT COUNT(*) AS task_count,
+            COALESCE(ROUND(AVG(CASE WHEN status = 'cancelled' THEN NULL ELSE progress END)), 0) AS progress
+       FROM tasks
+      WHERE project_id = ?`,
+    [projectId]
+  );
+
+  if (Number(summary.task_count) === 0) {
+    return;
+  }
+
+  await executor.query(
+    `UPDATE projects SET progress = ?, updated_at = NOW() WHERE id = ?`,
+    [Number(summary.progress || 0), projectId]
+  );
+}
+
 async function getProjectBase(executor, projectId) {
   const [rows] = await executor.query(
     `SELECT
@@ -339,6 +359,8 @@ export async function createTask(user, payload) {
       actionType: 'create',
       actionContent: `创建任务：${title}`
     });
+
+    await syncProjectProgress(connection, projectId);
 
     await connection.commit();
 
@@ -606,6 +628,8 @@ export async function updateTask(user, taskId, payload) {
       actionContent: changedFields.join('；')
     });
 
+    await syncProjectProgress(connection, task.project_id);
+
     await connection.commit();
 
     return getTaskBase(pool, taskId);
@@ -633,9 +657,11 @@ export async function updateTaskStatus(user, taskId, status) {
 
     await connection.query(
       `UPDATE tasks
-       SET status = ?, updated_at = NOW()
+       SET status = ?,
+           progress = CASE WHEN ? = 'done' THEN 100 ELSE progress END,
+           updated_at = NOW()
        WHERE id = ?`,
-      [status, taskId]
+      [status, status, taskId]
     );
 
     await writeTaskLog(connection, {
@@ -645,6 +671,8 @@ export async function updateTaskStatus(user, taskId, status) {
       actionType: 'status_update',
       actionContent: `将任务状态从：${task.status} 更新为：${status}`
     });
+
+    await syncProjectProgress(connection, task.project_id);
 
     await connection.commit();
 
@@ -689,6 +717,8 @@ export async function deleteTask(user, taskId) {
        WHERE id = ?`,
       [taskId]
     );
+
+    await syncProjectProgress(connection, task.project_id);
 
     await connection.commit();
 

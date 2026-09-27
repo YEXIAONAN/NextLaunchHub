@@ -80,6 +80,17 @@
           <el-empty v-else description="当前没有需要优先处理的求助单" />
         </article>
 
+        <article v-if="authStore.user?.role !== 'requester'" class="page-card dashboard-main-panel">
+          <div class="page-header with-action"><div><h2>{{ authStore.user?.role === 'admin' ? '全局任务风险' : '我的任务' }}</h2><p>优先处理受阻、逾期和即将到期的任务；进度由任务同步自动汇总到项目。</p></div><el-button link class="text-action" @click="router.push('/tasks')">查看任务</el-button></div>
+          <div v-if="overview.myTasks.length" class="dashboard-work-list">
+            <button v-for="item in overview.myTasks" :key="item.id" class="dashboard-work-item" @click="router.push('/tasks')">
+              <div class="dashboard-work-item-main"><div class="dashboard-work-item-title"><strong>{{ item.title }}</strong><span v-if="item.status === 'blocked'" class="timeout-pill">受阻</span></div><p>{{ item.project_name }} ｜ {{ item.assignee_name || '未分配负责人' }}</p></div>
+              <div class="dashboard-work-item-side"><strong>{{ Number(item.progress || 0) }}%</strong><span>{{ item.due_date || '未设置截止日期' }}</span></div>
+            </button>
+          </div>
+          <el-empty v-else description="当前没有需要推进的任务" />
+        </article>
+
         <article class="page-card dashboard-recent-panel">
           <div class="page-header with-action">
             <div>
@@ -213,7 +224,8 @@ const overview = reactive({
     unresponded: 0
   },
   actionItems: [],
-  recentItems: []
+  recentItems: [],
+  myTasks: []
 });
 const myTodoItems = ref([]);
 const quotes = [
@@ -341,6 +353,7 @@ async function loadOverview() {
   overview.serviceMetrics = result.data.serviceMetrics;
   overview.actionItems = result.data.actionItems || [];
   overview.recentItems = result.data.recentItems;
+  overview.myTasks = result.data.myTasks || [];
 }
 
 async function loadMyTodoItems() {
