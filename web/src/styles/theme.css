@@ -1192,6 +1192,7 @@ select {
 .command-palette-item:hover { color: var(--brand-primary); border-color: var(--border-focus); background: var(--brand-primary-light); }
 .command-palette-item small, .command-palette-hint { color: var(--text-muted); font-size: 12px; }
 .command-palette-hint { margin: 14px 0 0; }
+.help-progress-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }
 
 .topbar-search {
   width: 240px;

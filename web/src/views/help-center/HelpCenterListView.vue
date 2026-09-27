@@ -103,29 +103,31 @@
 <!--            </div>-->
 <!--          </template>-->
 <!--        </el-table-column>-->
-        <el-table-column label="当前状态" min-width="120">
+        <el-table-column label="处理进度" min-width="150">
           <template #default="{ row }">
-            <StatusTag :status="row.status" />
-          </template>
-        </el-table-column>
-        <el-table-column label="超时状态" min-width="120">
-          <template #default="{ row }">
-            <span v-if="Number(row.is_timeout) === 1" class="timeout-pill">已超时</span>
-            <span v-else class="table-meta-note">正常</span>
+            <div class="help-progress-cell">
+              <StatusTag :status="row.status" />
+              <span v-if="Number(row.is_timeout) === 1" class="timeout-pill">已超时</span>
+              <span v-else class="table-meta-note">正常</span>
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="发起时间" min-width="170">
           <template #default="{ row }">{{ formatDateTime(row.request_datetime) }}</template>
         </el-table-column>
-        <el-table-column prop="requester_ip" label="发起 IP" min-width="140" />
-        <el-table-column label="操作" width="210" fixed="right">
+        <el-table-column label="操作" width="108">
           <template #default="{ row }">
-            <el-button v-if="canUpdateRow(row) && row.status === 'pending'" link class="text-action" @click.stop="quickUpdateStatus(row, 'processing')">接单</el-button>
-            <el-button v-if="canUpdateRow(row) && row.status === 'processing'" link class="text-action" @click.stop="quickUpdateStatus(row, 'waiting_confirm')">待确认</el-button>
-            <el-button v-if="canUpdateRow(row) && row.status === 'waiting_confirm'" link class="text-action" @click.stop="quickUpdateStatus(row, 'completed')">完成</el-button>
-            <el-button link class="text-action" @click.stop="goDetail(row)">
-              查看详情
-            </el-button>
+            <el-dropdown trigger="click" @click.stop>
+              <el-button link class="text-action">操作⌄</el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="goDetail(row)">查看详情</el-dropdown-item>
+                  <el-dropdown-item v-if="canUpdateRow(row) && row.status === 'pending'" @click="quickUpdateStatus(row, 'processing')">接单并处理</el-dropdown-item>
+                  <el-dropdown-item v-if="canUpdateRow(row) && row.status === 'processing'" @click="quickUpdateStatus(row, 'waiting_confirm')">标记待确认</el-dropdown-item>
+                  <el-dropdown-item v-if="canUpdateRow(row) && row.status === 'waiting_confirm'" @click="quickUpdateStatus(row, 'completed')">标记完成</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
