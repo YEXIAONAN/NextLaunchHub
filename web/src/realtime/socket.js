@@ -99,3 +99,5 @@ export function disconnectRealtime() {
     socketInstance = null;
   }
 }
+
+export function getRealtimeSocket() { return socketInstance; }

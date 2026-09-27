@@ -40,6 +40,9 @@
           <router-link v-if="authStore.user?.role === 'admin'" class="menu-item" to="/system/dictionaries">
             <el-icon><Setting /></el-icon><span>字典配置</span>
           </router-link>
+          <router-link v-if="authStore.user?.role === 'admin'" class="menu-item" to="/system/webssh">
+            <el-icon><Operation /></el-icon><span>WebSSH</span>
+          </router-link>
           <router-link class="menu-item" to="/settings">
             <el-icon><Operation /></el-icon><span>系统设置</span>
           </router-link>

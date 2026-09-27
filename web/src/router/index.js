@@ -9,6 +9,7 @@ import ProjectsListView from '../views/projects/ProjectsListView.vue';
 import SystemSettingsView from '../views/settings/SystemSettingsView.vue';
 import TasksListView from '../views/tasks/TasksListView.vue';
 import DictionariesView from '../views/system/DictionariesView.vue';
+import WebSshView from '../views/system/WebSshView.vue';
 import LoginView from '../views/public/LoginView.vue';
 import PublicHelpQueryView from '../views/public/PublicHelpQueryView.vue';
 import PublicHelpRequestView from '../views/public/PublicHelpRequestView.vue';
@@ -93,6 +94,7 @@ const router = createRouter({
             adminOnly: true
           }
         }
+        ,{ path: '/system/webssh', component: WebSshView, meta: { adminOnly: true } }
       ]
     }
   ]

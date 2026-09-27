@@ -1202,6 +1202,13 @@ select {
 .permission-guide-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .permission-guide-item { padding: 10px 12px; border-radius: 10px; color: var(--text-secondary); background: var(--brand-primary-light); font-size: 13px; line-height: 1.5; }
 @media (max-width: 760px) { .permission-guide-panel { grid-column: span 1; } .permission-guide-list { grid-template-columns: 1fr; } }
+.webssh-hosts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.webssh-page { gap: 18px; }
+.webssh-terminal-card { min-height: 0; }
+.webssh-host-card { text-align: left; border: 1px solid var(--border-color); background: var(--bg-card); border-radius: 12px; padding: 14px; cursor: pointer; display: grid; gap: 6px; color: var(--text-primary); }
+.webssh-host-card.active { border-color: var(--brand-primary); background: var(--brand-primary-light); }
+.webssh-host-card span { color: var(--text-muted); font-size: 13px; }
+.webssh-terminal { height: 560px; border-radius: 10px; overflow: hidden; padding: 10px; background: #0b1220; }
 
 .topbar-search {
   width: 240px;

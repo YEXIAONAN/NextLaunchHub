@@ -73,6 +73,21 @@ CREATE TABLE IF NOT EXISTS project_logs (
   CONSTRAINT fk_project_logs_user FOREIGN KEY (operator_user_id) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS ssh_hosts (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  host_name VARCHAR(100) NOT NULL,
+  host VARCHAR(255) NOT NULL,
+  port INT NOT NULL DEFAULT 22,
+  username VARCHAR(100) NOT NULL,
+  encrypted_password TEXT NOT NULL,
+  created_by BIGINT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_ssh_hosts_name (host_name),
+  KEY idx_ssh_hosts_created_by (created_by),
+  CONSTRAINT fk_ssh_hosts_created_by FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
 CREATE TABLE IF NOT EXISTS project_iterations (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   project_id BIGINT NOT NULL,

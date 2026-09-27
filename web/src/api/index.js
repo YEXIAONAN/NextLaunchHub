@@ -147,6 +147,10 @@ export function updateTaskStatusApi(id, status) {
   return http.patch(`/tasks/${id}/status`, { status });
 }
 
+export function getSshHostsApi() { return http.get('/webssh/hosts'); }
+export function saveSshHostApi(payload) { return http.post('/webssh/hosts', payload); }
+export function deleteSshHostApi(id) { return http.delete(`/webssh/hosts/${id}`); }
+
 export function getHelpRequestsApi(params = {}) {
   return http.get('/help-requests', {
     params

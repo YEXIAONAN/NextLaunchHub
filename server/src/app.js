@@ -18,6 +18,7 @@ import searchRoutes from './routes/search-routes.js';
 import tasksRoutes from './routes/tasks-routes.js';
 import usersRoutes from './routes/users-routes.js';
 import adminDictionariesRoutes from './routes/admin-dictionaries-routes.js';
+import websshRoutes from './routes/webssh-routes.js';
 import { success } from './utils/response.js';
 
 const app = express();
@@ -52,6 +53,7 @@ app.use('/api/dictionaries', authMiddleware, dictionariesRoutes);
 app.use('/api/admin/dictionaries', authMiddleware, adminDictionariesRoutes);
 app.use('/api/realtime', authMiddleware, realtimeRoutes);
 app.use('/api/search', authMiddleware, searchRoutes);
+app.use('/api/webssh', authMiddleware, websshRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
