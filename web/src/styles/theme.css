@@ -565,26 +565,6 @@ select {
   gap: 16px;
 }
 
-.stat-card span {
-  color: var(--text-secondary);
-  font-size: 13px;
-}
-
-.stat-card strong {
-  display: block;
-  margin-top: 14px;
-  font-size: 34px;
-  line-height: 1;
-  color: var(--text-primary);
-}
-
-.stat-card p {
-  margin: 8px 0 0;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
 .timeout-pill,
 .user-role-pill,
 .user-status-pill,
@@ -789,8 +769,7 @@ select {
   background: var(--bg-dark);
 }
 
-.auth-brand-note span,
-.login-info-item label {
+.auth-brand-note span {
   display: block;
   color: var(--text-muted);
   font-size: 12px;
@@ -948,71 +927,10 @@ select {
   color: var(--text-muted);
 }
 
-.dashboard-summary-item label,
-.dashboard-focus-item label,
-.dashboard-side-metric label {
+.dashboard-summary-item label {
   display: block;
   color: var(--text-muted);
   font-size: 12px;
-}
-
-.dashboard-priority-card strong {
-  display: block;
-  margin-top: 16px;
-  font-size: 42px;
-  line-height: 1;
-  color: var(--text-primary);
-}
-
-.dashboard-priority-card h3 {
-  margin: 10px 0 0;
-  font-size: 20px;
-  line-height: 1.4;
-}
-
-.dashboard-priority-card p {
-  margin-top: 6px;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.dashboard-hero-note strong {
-  display: block;
-  font-size: 14px;
-  color: var(--text-primary);
-}
-
-.dashboard-hero-note p {
-  margin-top: 4px;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.dashboard-side-metric strong {
-  display: block;
-  margin-top: 8px;
-  font-size: 30px;
-  line-height: 1;
-  color: var(--text-primary);
-}
-
-.dashboard-side-metric span {
-  display: block;
-  margin-top: 25.8px;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.dashboard-system-alert strong {
-  display: block;
-  font-size: 14px;
-}
-
-.dashboard-system-alert p {
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--text-muted);
 }
 
 .dashboard-content-grid {
@@ -1092,8 +1010,7 @@ select {
 .notification-main p,
 .timeline-card p,
 .log-item p,
-.planning-card-head p,
-.project-placeholder-card p {
+.planning-card-head p {
   margin: 8px 0 0;
   color: var(--text-secondary);
   line-height: 1.7;
@@ -1444,8 +1361,7 @@ select {
 }
 
 .notification-type,
-.timeline-operator,
-.project-placeholder-card span {
+.timeline-operator {
   display: inline-flex;
   align-items: center;
   min-height: 26px;
