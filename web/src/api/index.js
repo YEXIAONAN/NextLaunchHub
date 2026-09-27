@@ -45,6 +45,10 @@ export function getDashboardOverviewApi() {
   return http.get('/dashboard/overview');
 }
 
+export function globalSearchApi(keyword) {
+  return http.get('/search', { params: { keyword } });
+}
+
 export function getProjectsApi(params) {
   return http.get('/projects', {
     params
@@ -178,6 +182,14 @@ export function updateHelpRequestStatusApi(id, status) {
 
 export function reassignHelpRequestHelperApi(id, payload) {
   return http.patch(`/help-requests/${id}/reassign-helper`, payload);
+}
+
+export function uploadHelpRequestAttachmentApi(id, payload) {
+  return http.post(`/help-requests/${id}/attachments`, payload);
+}
+
+export function downloadHelpRequestAttachmentUrl(id) {
+  return `${import.meta.env.VITE_API_BASE_URL || '/api'}/help-requests/attachments/${id}/download`;
 }
 
 export function getNotificationsApi() {

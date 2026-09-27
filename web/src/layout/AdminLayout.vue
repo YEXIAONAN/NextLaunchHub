@@ -63,6 +63,14 @@
         </div>
 
         <div class="topbar-actions">
+          <el-autocomplete
+            v-model="searchKeyword"
+            class="topbar-search"
+            clearable
+            :fetch-suggestions="searchSuggestions"
+            placeholder="搜索工单、项目、任务"
+            @select="openSearchResult"
+          />
           <el-button
             v-if="systemNotificationStore.shouldShowEnableEntry"
             class="secondary-action topbar-alert-btn"
@@ -103,7 +111,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
   BellFilled,
@@ -120,6 +128,7 @@ import { useAuthStore } from '../stores/auth';
 import { useNotificationStore } from '../stores/notifications';
 import { useSystemNotificationStore } from '../stores/system-notification';
 import { useUiPreferencesStore } from '../stores/ui-preferences';
+import { globalSearchApi } from '../api';
 import logoSquare from '../assets/brand/nextlaunch-logo-square.png';
 
 const route = useRoute();
@@ -128,6 +137,7 @@ const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
 const systemNotificationStore = useSystemNotificationStore();
 const uiPreferencesStore = useUiPreferencesStore();
+const searchKeyword = ref('');
 
 const roleTextMap = {
   admin: '管理员',
@@ -183,6 +193,25 @@ function openNotifications() {
     path: '/notifications',
     query: notificationStore.unreadCount > 0 ? { isRead: '0' } : {}
   });
+}
+
+async function searchSuggestions(keyword, callback) {
+  if (keyword.trim().length < 2) {
+    callback([]);
+    return;
+  }
+  try {
+    const result = await globalSearchApi(keyword);
+    callback(result.data.items.map((item) => ({ ...item, value: `[${item.type === 'help_request' ? '工单' : item.type === 'project' ? '项目' : '任务'}] ${item.code} ${item.title}` })));
+  } catch (_error) {
+    callback([]);
+  }
+}
+
+function openSearchResult(item) {
+  const path = item.type === 'help_request' ? `/help-center/${item.id}` : item.type === 'project' ? `/projects/${item.id}` : `/tasks`;
+  searchKeyword.value = '';
+  router.push(path);
 }
 
 onMounted(() => {

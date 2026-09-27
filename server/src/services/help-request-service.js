@@ -37,6 +37,10 @@ async function syncHelpRequestTimeouts(executor, helpRequestId = null) {
          AND status <> 'completed'
        THEN 1
        ELSE 0
+     END,
+     sla_breached_at = CASE
+       WHEN deadline_at IS NOT NULL AND NOW() > deadline_at AND status <> 'completed' AND sla_breached_at IS NULL THEN NOW()
+       ELSE sla_breached_at
      END
      ${whereSql}`,
     params
@@ -576,15 +580,17 @@ export async function getHelpRequestDetail(user, id) {
   await syncHelpRequestTimeouts(pool, id);
   const context = await getAccessibleHelpRequest(pool, user, id);
   const logs = await getHelpRequestLogs(pool, id);
+  const attachments = await getHelpRequestAttachments(pool, id);
 
   return {
     ...context.helpRequest,
     assistants: context.assistants,
-    logs
+    logs,
+    attachments
   };
 }
 
-// 公开查询只凭求助单号定位，不再要求填发起人姓名。
+// 公开查询只凭求助单号定位，但只返回发起人处理所需的最小信息。
 // 姓名这层校验本来就是摆设：/api/public/requesters 是免登录接口，谁都能拿到全部
 // 发起人姓名，配合旧的顺序单号照样能扫单。真正的凭证是单号里的 8 位随机码，
 // 所以这里不需要再叠加姓名；下面的确认/退回仍由签名 Cookie 兜住。
@@ -596,9 +602,7 @@ export async function queryPublicHelpRequest({ requestNo }) {
        hr.title,
        hr.requester_name,
        hr.helper_name,
-       hr.project_id,
        hr.project_name,
-       hr.task_id,
        hr.task_title,
        hr.content,
        hr.request_datetime,
@@ -608,9 +612,7 @@ export async function queryPublicHelpRequest({ requestNo }) {
        hr.is_timeout,
        hr.status,
        hr.requester_confirmed_at,
-       hr.requester_feedback,
-       hr.created_at,
-       hr.updated_at
+       hr.requester_feedback
      FROM help_requests hr
      WHERE hr.request_no = ?
      LIMIT 1`,
@@ -629,9 +631,7 @@ export async function queryPublicHelpRequest({ requestNo }) {
        hr.title,
        hr.requester_name,
        hr.helper_name,
-       hr.project_id,
        hr.project_name,
-       hr.task_id,
        hr.task_title,
        hr.content,
        hr.request_datetime,
@@ -641,21 +641,14 @@ export async function queryPublicHelpRequest({ requestNo }) {
        hr.is_timeout,
        hr.status,
        hr.requester_confirmed_at,
-       hr.requester_feedback,
-       hr.created_at,
-       hr.updated_at
+       hr.requester_feedback
      FROM help_requests hr
      WHERE hr.id = ?
      LIMIT 1`,
     [rows[0].id]
   );
 
-  const logs = await getHelpRequestLogs(pool, rows[0].id);
-
-  return {
-    ...updatedRows[0],
-    logs
-  };
+  return updatedRows[0];
 }
 
 export async function updateHelpRequestStatus(user, id, status) {
@@ -679,6 +672,8 @@ export async function updateHelpRequestStatus(user, id, status) {
     await connection.query(
       `UPDATE help_requests
        SET status = ?,
+           first_response_at = CASE WHEN first_response_at IS NULL AND ? <> 'pending' THEN NOW() ELSE first_response_at END,
+           resolved_at = CASE WHEN ? = 'completed' THEN NOW() ELSE resolved_at END,
            is_timeout = CASE
              WHEN deadline_at IS NOT NULL
                AND NOW() > deadline_at
@@ -688,7 +683,7 @@ export async function updateHelpRequestStatus(user, id, status) {
            END,
            updated_at = NOW()
        WHERE id = ?`,
-      [status, status, id]
+      [status, status, status, status, id]
     );
 
     await connection.query(
@@ -712,6 +707,11 @@ export async function updateHelpRequestStatus(user, id, status) {
       relatedId: id
     });
 
+    await connection.query(
+      `INSERT INTO audit_logs (actor_user_id, action, target_type, target_id, summary)
+       VALUES (?, 'help_request.status_updated', 'help_request', ?, ?)`,
+      [user.id, id, `${helpRequest.request_no}: ${previousStatus} -> ${status}`]
+    );
     await connection.commit();
 
     return {
@@ -725,6 +725,20 @@ export async function updateHelpRequestStatus(user, id, status) {
   } finally {
     connection.release();
   }
+}
+
+async function getHelpRequestAttachments(executor, helpRequestId) {
+  const [rows] = await executor.query(
+    `SELECT id, original_name, mime_type, size_bytes, uploaded_by_user_id, created_at
+     FROM help_request_attachments WHERE help_request_id = ? ORDER BY created_at DESC, id DESC`,
+    [helpRequestId]
+  );
+  return rows;
+}
+
+export async function getAttachments(user, id) {
+  const context = await getAccessibleHelpRequest(pool, user, id);
+  return getHelpRequestAttachments(pool, context.helpRequest.id);
 }
 
 function buildStatusLogContent(previousStatus, nextStatus) {
@@ -1113,12 +1127,26 @@ export async function publicConfirmHelpRequest({ id, action, feedback, accessPay
   }
 }
 
-export async function checkHelpRequestTimeouts(user) {
-  if (user.role !== 'admin') {
-    throw new HttpError(403, '只有管理员可以执行超时检查');
-  }
-
+export async function runSlaEscalations() {
   await syncHelpRequestTimeouts(pool);
+
+  const [newlyBreached] = await pool.query(
+    `SELECT id, request_no, title, helper_user_id
+     FROM help_requests
+     WHERE is_timeout = 1 AND sla_notified_at IS NULL`
+  );
+  for (const item of newlyBreached) {
+    await createNotification(pool, {
+      receiverUserId: item.helper_user_id,
+      type: 'sla_breached',
+      title: '求助单 SLA 已超时',
+      content: `求助单 ${item.request_no}《${item.title}》已超过处理时限，请优先处理或更新状态。`,
+      relatedId: item.id
+    });
+  }
+  if (newlyBreached.length) {
+    await pool.query('UPDATE help_requests SET sla_notified_at = NOW() WHERE is_timeout = 1 AND sla_notified_at IS NULL');
+  }
 
   const [[summary]] = await pool.query(
     `SELECT COUNT(*) AS timeout_count
@@ -1127,6 +1155,14 @@ export async function checkHelpRequestTimeouts(user) {
   );
 
   return {
-    timeoutCount: Number(summary?.timeout_count || 0)
+    timeoutCount: Number(summary?.timeout_count || 0),
+    escalatedCount: newlyBreached.length
   };
+}
+
+export async function checkHelpRequestTimeouts(user) {
+  if (user.role !== 'admin') {
+    throw new HttpError(403, '只有管理员可以执行超时检查');
+  }
+  return runSlaEscalations();
 }

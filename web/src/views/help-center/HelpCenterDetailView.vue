@@ -117,6 +117,24 @@
     <section class="page-card">
       <div class="page-header with-action">
         <div>
+          <h2>附件与截图</h2>
+          <p>支持 PNG、JPG、WebP、PDF 与 TXT，单个文件最大 5MB。</p>
+        </div>
+        <el-upload :show-file-list="false" :auto-upload="false" :on-change="handleAttachmentChange">
+          <el-button class="secondary-action" :loading="uploadingAttachment">上传附件</el-button>
+        </el-upload>
+      </div>
+      <div v-if="detail.attachments?.length" class="attachment-list">
+        <a v-for="item in detail.attachments" :key="item.id" class="attachment-item" :href="downloadHelpRequestAttachmentUrl(item.id)" target="_blank">
+          <strong>{{ item.original_name }}</strong><span>{{ formatBytes(item.size_bytes) }}</span>
+        </a>
+      </div>
+      <el-empty v-else description="暂无附件" />
+    </section>
+
+    <section class="page-card">
+      <div class="page-header with-action">
+        <div>
           <h2>协同处理</h2>
           <p>查看协同人员、补充协同记录，并保持处理过程可追踪。</p>
         </div>
@@ -298,6 +316,8 @@ import {
   getHelpRequestDetailApi,
   getHelpersApi,
   reassignHelpRequestHelperApi,
+  uploadHelpRequestAttachmentApi,
+  downloadHelpRequestAttachmentUrl,
   updateHelpRequestStatusApi
 } from '../../api';
 import StatusTag from '../../components/StatusTag.vue';
@@ -315,6 +335,7 @@ const submittingReassign = ref(false);
 const loadingHelperOptions = ref(false);
 const helperOptions = ref([]);
 const assistants = ref([]);
+const uploadingAttachment = ref(false);
 
 const detail = reactive({
   assistants: [],
@@ -361,6 +382,33 @@ async function loadDetail() {
   const result = await getHelpRequestDetailApi(route.params.id);
   Object.assign(detail, result.data);
   assistants.value = Array.isArray(result.data.assistants) ? result.data.assistants : [];
+}
+
+function formatBytes(value) {
+  return `${Math.max(1, Math.ceil(Number(value || 0) / 1024))} KB`;
+}
+
+async function handleAttachmentChange(uploadFile) {
+  const file = uploadFile.raw;
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    ElMessage.warning('附件不能超过 5MB');
+    return;
+  }
+  uploadingAttachment.value = true;
+  try {
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    await uploadHelpRequestAttachmentApi(route.params.id, { name: file.name, mimeType: file.type, dataUrl });
+    ElMessage.success('附件上传成功');
+    await loadDetail();
+  } finally {
+    uploadingAttachment.value = false;
+  }
 }
 
 async function loadAssistants() {

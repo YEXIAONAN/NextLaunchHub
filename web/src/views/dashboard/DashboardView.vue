@@ -152,6 +152,21 @@
               <strong>{{ overview.stats.completed }}</strong>
               <span>已完成归档</span>
             </div>
+            <div class="dashboard-summary-item">
+              <label>SLA 达标率</label>
+              <strong>{{ overview.serviceMetrics.slaComplianceRate }}%</strong>
+              <span>已完成工单</span>
+            </div>
+            <div class="dashboard-summary-item">
+              <label>平均解决时长</label>
+              <strong>{{ overview.serviceMetrics.avgResolutionMinutes }} 分钟</strong>
+              <span>已完成工单</span>
+            </div>
+            <div class="dashboard-summary-item">
+              <label>尚未响应</label>
+              <strong>{{ overview.serviceMetrics.unresponded }}</strong>
+              <span>待接单事项</span>
+            </div>
           </div>
         </article>
       </aside>
@@ -183,6 +198,11 @@ const overview = reactive({
     waitingConfirm: 0,
     completed: 0,
     timeout: 0
+  },
+  serviceMetrics: {
+    slaComplianceRate: 100,
+    avgResolutionMinutes: 0,
+    unresponded: 0
   },
   recentItems: []
 });
@@ -309,6 +329,7 @@ const pendingSectionDesc = computed(() => {
 async function loadOverview() {
   const result = await getDashboardOverviewApi();
   overview.stats = result.data.stats;
+  overview.serviceMetrics = result.data.serviceMetrics;
   overview.recentItems = result.data.recentItems;
 }
 

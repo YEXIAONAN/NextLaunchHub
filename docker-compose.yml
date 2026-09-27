@@ -57,9 +57,13 @@ services:
       # 前面只有一层 Nginx，所以信任 1 跳。写 0 或不写会退化成「不信任任何代理」，
       # 导致所有请求都算成 Nginx 容器的 IP，限流会把整个团队算作同一个人
       TRUST_PROXY: ${TRUST_PROXY:-1}
+      UPLOAD_DIR: /app/uploads
+      UPLOAD_MAX_BYTES: ${UPLOAD_MAX_BYTES:-5242880}
     depends_on:
       mysql:
         condition: service_healthy
+    volumes:
+      - api_uploads:/app/uploads
     # 需要绕过 Nginx 直接调接口时再打开
     # ports:
     #   - "${API_PORT:-3000}:3000"
@@ -80,3 +84,4 @@ services:
 
 volumes:
   mysql_data:
+  api_uploads:

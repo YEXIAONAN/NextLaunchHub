@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { currentUserController, loginController, logoutController } from '../controllers/auth-controller.js';
 import { authMiddleware } from '../middleware/auth.js';
-import { createRateLimit } from '../middleware/rate-limit.js';
+import { createPersistentRateLimit } from '../middleware/rate-limit.js';
 import { asyncHandler } from '../utils/async-handler.js';
 import { HttpError } from '../utils/http-error.js';
 
 const router = Router();
-const loginRateLimit = createRateLimit({ windowMs: 15 * 60 * 1000, max: 10 });
+const loginRateLimit = createPersistentRateLimit({ windowMs: 15 * 60 * 1000, max: 10 });
 
 router.post(
   '/login',
@@ -21,6 +21,6 @@ router.post(
 );
 
 router.get('/me', authMiddleware, currentUserController);
-router.post('/logout', logoutController);
+router.post('/logout', authMiddleware, logoutController);
 
 export default router;

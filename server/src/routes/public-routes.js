@@ -14,11 +14,11 @@ import {
 } from '../controllers/users-controller.js';
 import { asyncHandler } from '../utils/async-handler.js';
 import { HttpError } from '../utils/http-error.js';
-import { createRateLimit } from '../middleware/rate-limit.js';
+import { createPersistentRateLimit } from '../middleware/rate-limit.js';
 
 const router = Router();
-const publicReadRateLimit = createRateLimit({ windowMs: 60 * 1000, max: 60 });
-const publicWriteRateLimit = createRateLimit({ windowMs: 10 * 60 * 1000, max: 10 });
+const publicReadRateLimit = createPersistentRateLimit({ windowMs: 60 * 1000, max: 60 });
+const publicWriteRateLimit = createPersistentRateLimit({ windowMs: 10 * 60 * 1000, max: 10 });
 
 router.use(publicReadRateLimit);
 router.get('/requesters', asyncHandler(getRequestersController));

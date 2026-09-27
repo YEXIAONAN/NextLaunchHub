@@ -10,6 +10,7 @@ import {
   reassignHelpRequestHelperController,
   updateHelpRequestStatusController
 } from '../controllers/help-request-controller.js';
+import { downloadAttachmentController, uploadAttachmentController } from '../controllers/attachment-controller.js';
 import { asyncHandler } from '../utils/async-handler.js';
 import { HttpError } from '../utils/http-error.js';
 
@@ -20,6 +21,8 @@ router.get('/export', asyncHandler(exportHelpRequestsController));
 router.post('/check-timeout', asyncHandler(checkHelpRequestTimeoutController));
 router.get('/:id', asyncHandler(getHelpRequestDetailController));
 router.get('/:id/assistants', asyncHandler(getHelpRequestAssistantsController));
+router.post('/:id/attachments', asyncHandler(uploadAttachmentController));
+router.get('/attachments/:attachmentId/download', asyncHandler(downloadAttachmentController));
 
 router.post(
   '/:id/assistants',

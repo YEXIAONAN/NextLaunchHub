@@ -1076,10 +1076,48 @@ select {
 
 .dashboard-summary-item span {
   display: block;
-  margin-top: 50.5px;
+  margin-top: 8px;
   color: var(--text-muted);
   line-height: 1.5;
   font-size: 12px;
+}
+
+.attachment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  color: var(--text-primary);
+  text-decoration: none;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.attachment-item:hover {
+  color: var(--brand-primary);
+  border-color: var(--border-focus);
+}
+
+.attachment-item span {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.topbar-search {
+  width: 240px;
+}
+
+.topbar-search .el-input__wrapper {
+  background: var(--bg-secondary);
+  box-shadow: 0 0 0 1px var(--border-color) inset;
 }
 
 .dashboard-shortcut-card span {

@@ -55,6 +55,16 @@ export async function getOverview(user) {
   );
 
   const summary = countRows[0] || {};
+  const [[serviceRows]] = await pool.query(
+    `SELECT
+       SUM(CASE WHEN deadline_at IS NOT NULL AND (status = 'completed' OR NOW() <= deadline_at) THEN 1 ELSE 0 END) AS within_sla_count,
+       SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS resolved_count,
+       AVG(CASE WHEN resolved_at IS NOT NULL THEN TIMESTAMPDIFF(MINUTE, request_datetime, resolved_at) END) AS avg_resolution_minutes,
+       SUM(CASE WHEN first_response_at IS NULL AND status = 'pending' THEN 1 ELSE 0 END) AS unresponded_count
+     FROM help_requests hr ${scope.clause}`,
+    scope.params
+  );
+  const service = serviceRows || {};
 
   return {
     stats: {
@@ -63,6 +73,11 @@ export async function getOverview(user) {
       waitingConfirm: Number(summary.waiting_confirm_count || 0),
       completed: Number(summary.completed_count || 0),
       timeout: Number(summary.timeout_count || 0)
+    },
+    serviceMetrics: {
+      slaComplianceRate: Number(service.resolved_count || 0) ? Math.round((Number(service.within_sla_count || 0) / Number(service.resolved_count)) * 100) : 100,
+      avgResolutionMinutes: Math.round(Number(service.avg_resolution_minutes || 0)),
+      unresponded: Number(service.unresponded_count || 0)
     },
     recentItems: recentRows
   };

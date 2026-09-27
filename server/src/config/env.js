@@ -92,9 +92,14 @@ if (nodeEnv === 'production' && process.env.JWT_SECRET.length < 32) {
 
 const corsOrigins = parseOrigins(process.env.CORS_ORIGIN);
 const dbConnectTimeoutMs = Number(process.env.DB_CONNECT_TIMEOUT_MS || 5000);
+const uploadMaxBytes = Number(process.env.UPLOAD_MAX_BYTES || 5 * 1024 * 1024);
 
 if (!Number.isInteger(dbConnectTimeoutMs) || dbConnectTimeoutMs < 1000) {
   throw new Error('DB_CONNECT_TIMEOUT_MS must be an integer of at least 1000');
+}
+
+if (!Number.isInteger(uploadMaxBytes) || uploadMaxBytes < 1 || uploadMaxBytes > 20 * 1024 * 1024) {
+  throw new Error('UPLOAD_MAX_BYTES must be an integer between 1 and 20971520');
 }
 
 export const env = {
@@ -110,5 +115,7 @@ export const env = {
   jwtExpiresIn: process.env.JWT_EXPIRES_IN,
   corsOrigins,
   cookieSecure: parseBoolean('COOKIE_SECURE', nodeEnv === 'production'),
-  trustProxy: parseTrustProxy(process.env.TRUST_PROXY)
+  trustProxy: parseTrustProxy(process.env.TRUST_PROXY),
+  uploadDir: process.env.UPLOAD_DIR || 'uploads',
+  uploadMaxBytes
 };
