@@ -1,6 +1,5 @@
 import { HttpError } from '../utils/http-error.js';
 import crypto from 'node:crypto';
-import { pool } from '../db/pool.js';
 
 const buckets = new Map();
 
@@ -32,6 +31,8 @@ export function createRateLimit({ windowMs, max, message = '请求过于频繁�
 // 生产端点使用数据库桶：多 Node 实例共享同一上限，重启也不会清空计数。
 export function createPersistentRateLimit({ windowMs, max, message = '请求过于频繁，请稍后再试' }) {
   return async function persistentRateLimit(req, _res, next) {
+    // 延迟加载数据库：内存限流单元测试不应要求 CI 配置运行期数据库环境变量。
+    const { pool } = await import('../db/pool.js');
     const rawKey = `${req.ip}:${req.baseUrl}${req.route?.path || req.path}`;
     const bucketKey = crypto.createHash('sha256').update(rawKey).digest('hex');
     const connection = await pool.getConnection();
