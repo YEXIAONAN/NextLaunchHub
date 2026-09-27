@@ -100,18 +100,20 @@ async function getProjectBase(executor, projectId) {
 
 async function getProjectMemberUserIds(executor, projectId) {
   const [rows] = await executor.query(
-    `SELECT user_id
+    `SELECT user_id, role_in_project
      FROM project_members
      WHERE project_id = ?`,
     [projectId]
   );
 
-  return rows.map((item) => Number(item.user_id));
+  return rows;
 }
 
 async function getAccessibleProject(executor, user, projectId) {
   const project = await getProjectBase(executor, projectId);
-  const memberUserIds = await getProjectMemberUserIds(executor, projectId);
+  const members = await getProjectMemberUserIds(executor, projectId);
+  const memberUserIds = members.map((item) => Number(item.user_id));
+  const memberRole = members.find((item) => Number(item.user_id) === Number(user.id))?.role_in_project || '';
 
   if (!canViewProject(user, project, memberUserIds)) {
     throw new HttpError(403, '项目不存在或无权限访问');
@@ -119,7 +121,8 @@ async function getAccessibleProject(executor, user, projectId) {
 
   return {
     project,
-    memberUserIds
+    memberUserIds,
+    memberRole
   };
 }
 
@@ -160,11 +163,12 @@ async function getTaskBase(executor, taskId) {
 
 async function getAccessibleTask(executor, user, taskId) {
   const task = await getTaskBase(executor, taskId);
-  const { project } = await getAccessibleProject(executor, user, task.project_id);
+  const { project, memberRole } = await getAccessibleProject(executor, user, task.project_id);
 
   return {
     task,
-    project
+    project,
+    memberRole
   };
 }
 
@@ -280,9 +284,9 @@ export async function createTask(user, payload) {
   try {
     await connection.beginTransaction();
 
-    const { project } = await getAccessibleProject(connection, user, projectId);
+    const { project, memberRole } = await getAccessibleProject(connection, user, projectId);
 
-    if (!canCreateTask(user, project)) {
+    if (!canCreateTask(user, project, memberRole)) {
       throw new HttpError(403, '无权限在当前项目下创建任务');
     }
 
@@ -458,9 +462,9 @@ export async function updateTask(user, taskId, payload) {
   try {
     await connection.beginTransaction();
 
-    const { task, project } = await getAccessibleTask(connection, user, taskId);
+    const { task, project, memberRole } = await getAccessibleTask(connection, user, taskId);
 
-    if (!canUpdateTask(user, project, task)) {
+    if (!canUpdateTask(user, project, task, memberRole)) {
       throw new HttpError(403, '无权限更新任务');
     }
 
@@ -621,9 +625,9 @@ export async function updateTaskStatus(user, taskId, status) {
   try {
     await connection.beginTransaction();
 
-    const { task, project } = await getAccessibleTask(connection, user, taskId);
+    const { task, project, memberRole } = await getAccessibleTask(connection, user, taskId);
 
-    if (!canUpdateTaskStatus(user, project, task)) {
+    if (!canUpdateTaskStatus(user, project, task, memberRole)) {
       throw new HttpError(403, '无权限更新任务状态');
     }
 

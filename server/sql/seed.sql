@@ -25,9 +25,9 @@ INSERT INTO users (
   (2, 'waiting', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', 'Waiting', 'helper', 1, 1, 0, 1, '2026-03-20 09:05:00', '2026-03-20 09:05:00'),
   (3, 'xiang', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', 'Xiang', 'helper', 1, 1, 0, 1, '2026-03-20 09:06:00', '2026-03-20 09:06:00'),
   (4, 'hi-tao', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', 'Hi-Tao', 'helper', 1, 1, 0, 1, '2026-03-20 09:07:00', '2026-03-20 09:07:00'),
-  (6, 'requester-default', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '默认请求帮助人员', 'requester', 1, 0, 1, 0, '2026-03-20 09:10:00', '2026-03-20 09:10:00'),
-  (7, 'requester-vocational', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '职师院帮助人员', 'requester', 1, 0, 1, 0, '2026-03-20 09:11:00', '2026-03-20 09:11:00'),
-  (8, 'requester-other', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '其他帮助人员', 'requester', 1, 0, 1, 0, '2026-03-20 09:12:00', '2026-03-20 09:12:00');
+  (6, 'requester-default', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '默认请求帮助人员', 'requester', 1, 0, 1, 1, '2026-03-20 09:10:00', '2026-03-20 09:10:00'),
+  (7, 'requester-vocational', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '职师院帮助人员', 'requester', 1, 0, 1, 1, '2026-03-20 09:11:00', '2026-03-20 09:11:00'),
+  (8, 'requester-other', '$2b$10$Wdj1lOudt3JXEc6TBI2C6.Wafuv33FRdv9jRd9qtVdPYWmKmbtiTm', '其他帮助人员', 'requester', 1, 0, 1, 1, '2026-03-20 09:12:00', '2026-03-20 09:12:00');
 
 INSERT INTO system_dictionaries (id, dict_type, dict_label, dict_value, sort_no, status, created_at, updated_at) VALUES
   (1, 'project_status', '未开始', 'not_started', 10, 1, NOW(), NOW()),

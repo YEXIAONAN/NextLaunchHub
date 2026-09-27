@@ -25,10 +25,10 @@
           <router-link class="menu-item" to="/help-center">
             <el-icon><HelpFilled /></el-icon><span>求助中心</span>
           </router-link>
-          <router-link class="menu-item" to="/projects">
+          <router-link v-if="canAccessProjectWork" class="menu-item" to="/projects">
             <el-icon><FolderOpened /></el-icon><span>项目管理</span>
           </router-link>
-          <router-link class="menu-item" to="/tasks">
+          <router-link v-if="canAccessProjectWork" class="menu-item" to="/tasks">
             <el-icon><Tickets /></el-icon><span>任务管理</span>
           </router-link>
           <router-link class="menu-item" to="/notifications">
@@ -164,6 +164,7 @@ const roleTextMap = {
   helper: '帮助人员',
   requester: '发起人'
 };
+const canAccessProjectWork = computed(() => authStore.user?.role !== 'requester');
 
 const pageMetaMap = [
   { match: (path) => path === '/dashboard', title: '系统主页', description: '查看重点事项、统计概览与最近求助记录。' },

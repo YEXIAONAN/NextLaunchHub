@@ -72,34 +72,37 @@ export function canUpdateProject(user) {
   return isAdmin(user);
 }
 
-export function canAddProjectMember(user, project) {
+export function canAddProjectMember(user, project, memberRole = '') {
   if (!user || !project) {
     return false;
   }
 
-  return isAdmin(user) || Number(project.owner_user_id) === Number(user.id);
+  return isAdmin(user) || Number(project.owner_user_id) === Number(user.id)
+    || ['project_manager', 'product_owner'].includes(memberRole);
 }
 
-export function canCreateTask(user, project) {
+export function canCreateTask(user, project, memberRole = '') {
   if (!user || !project) {
     return false;
   }
 
-  return isAdmin(user) || Number(project.owner_user_id) === Number(user.id);
+  return isAdmin(user) || Number(project.owner_user_id) === Number(user.id)
+    || ['project_manager', 'product_owner'].includes(memberRole);
 }
 
-export function canUpdateTask(user, project, task) {
-  return canCreateTask(user, project)
+export function canUpdateTask(user, project, task, memberRole = '') {
+  return canCreateTask(user, project, memberRole)
     || Number(task?.assignee_user_id) === Number(user?.id);
 }
 
-export function canUpdateTaskStatus(user, project, task) {
+export function canUpdateTaskStatus(user, project, task, memberRole = '') {
   if (!user || !project || !task) {
     return false;
   }
 
   return isAdmin(user)
     || Number(project.owner_user_id) === Number(user.id)
+    || ['project_manager', 'product_owner'].includes(memberRole)
     || Number(task.assignee_user_id) === Number(user.id);
 }
 

@@ -252,7 +252,9 @@
         </el-form-item>
 
         <el-form-item label="项目角色">
-          <el-input v-model="memberForm.roleInProject" maxlength="50" placeholder="请输入项目角色" />
+          <el-select v-model="memberForm.roleInProject" placeholder="请选择项目职责" style="width: 100%">
+            <el-option v-for="item in projectRoleOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
       </el-form>
 
@@ -463,6 +465,15 @@ const memberForm = reactive({
   userId: '',
   roleInProject: ''
 });
+const projectRoleOptions = [
+  { label: '项目经理（可管理任务、计划和成员）', value: 'project_manager' },
+  { label: '产品负责人（可管理任务、计划和成员）', value: 'product_owner' },
+  { label: '前端开发（仅执行本人任务）', value: 'frontend' },
+  { label: '后端开发（仅执行本人任务）', value: 'backend' },
+  { label: '测试（仅执行本人任务）', value: 'qa' },
+  { label: '设计（仅执行本人任务）', value: 'designer' },
+  { label: '观察者（只读）', value: 'observer' }
+];
 
 const iterationForm = reactive({
   id: null,
@@ -502,10 +513,12 @@ const iterations = computed(() => detail.iterations || []);
 const milestones = computed(() => detail.milestones || []);
 
 const canManageMembers = computed(() => {
-  return authStore.user?.role === 'admin' || Number(authStore.user?.id) === Number(detail.owner_user_id);
+  const role = members.value.find((item) => Number(item.user_id) === Number(authStore.user?.id))?.role_in_project;
+  return authStore.user?.role === 'admin' || Number(authStore.user?.id) === Number(detail.owner_user_id) || ['project_manager', 'product_owner'].includes(role);
 });
 const canManageTasks = computed(() => {
-  return authStore.user?.role === 'admin' || Number(authStore.user?.id) === Number(detail.owner_user_id);
+  const role = members.value.find((item) => Number(item.user_id) === Number(authStore.user?.id))?.role_in_project;
+  return authStore.user?.role === 'admin' || Number(authStore.user?.id) === Number(detail.owner_user_id) || ['project_manager', 'product_owner'].includes(role);
 });
 const canManagePlanning = computed(() => canManageTasks.value);
 const canDeleteProject = computed(() => authStore.user?.role === 'admin');

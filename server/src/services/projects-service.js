@@ -22,6 +22,7 @@ import {
 
 const PROJECT_STATUS = ['not_started', 'in_progress', 'paused', 'completed', 'archived'];
 const PROJECT_PRIORITY = ['low', 'medium', 'high', 'urgent'];
+const PROJECT_MEMBER_ROLES = ['project_manager', 'product_owner', 'frontend', 'backend', 'qa', 'designer', 'observer'];
 
 function parsePagination(value, defaultValue) {
   const parsed = Number(value);
@@ -679,15 +680,20 @@ export async function addProjectMember(user, projectId, payload) {
   if (!roleInProject) {
     throw new HttpError(400, '项目角色不能为空');
   }
+  if (!PROJECT_MEMBER_ROLES.includes(roleInProject)) {
+    throw new HttpError(400, '项目角色不合法');
+  }
 
   const connection = await pool.getConnection();
 
   try {
     await connection.beginTransaction();
 
-    const { project } = await getProjectPermissionContext(connection, projectId);
+    const context = await getProjectPermissionContext(connection, projectId);
+    const { project } = context;
+    const memberRole = context.members.find((item) => Number(item.user_id) === Number(user.id))?.role_in_project || '';
 
-    if (!canAddProjectMember(user, project)) {
+    if (!canAddProjectMember(user, project, memberRole)) {
       throw new HttpError(403, '无权限添加项目成员');
     }
 

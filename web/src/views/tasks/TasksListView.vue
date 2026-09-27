@@ -102,7 +102,7 @@
         </el-table-column>
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button v-if="canSyncTask" link class="text-action" @click="openProgressSync(row)">同步进度</el-button>
+            <el-button v-if="canSyncTask(row)" link class="text-action" @click="openProgressSync(row)">同步进度</el-button>
             <el-button link class="text-action" @click="openTaskDetail(row.id)">
               查看详情
             </el-button>
@@ -186,7 +186,9 @@ const priorityOptions = computed(() => dictionaryStore.getOptions('task_priority
 
 const canCreateTask = computed(() => authStore.user?.role !== 'requester');
 const canDeleteTask = computed(() => authStore.user?.role === 'admin');
-const canSyncTask = computed(() => authStore.user?.role !== 'requester');
+function canSyncTask(task) {
+  return authStore.user?.role === 'admin' || Number(task.assignee_user_id) === Number(authStore.user?.id);
+}
 
 async function loadProjectOptions() {
   const result = await getProjectsApi({

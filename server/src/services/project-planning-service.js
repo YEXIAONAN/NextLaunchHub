@@ -37,18 +37,20 @@ async function getProjectBase(executor, projectId) {
 
 async function getProjectMemberUserIds(executor, projectId) {
   const [rows] = await executor.query(
-    `SELECT user_id
+    `SELECT user_id, role_in_project
      FROM project_members
      WHERE project_id = ?`,
     [projectId]
   );
 
-  return rows.map((item) => Number(item.user_id));
+  return rows;
 }
 
 async function getAccessibleProject(executor, user, projectId) {
   const project = await getProjectBase(executor, projectId);
-  const memberUserIds = await getProjectMemberUserIds(executor, projectId);
+  const members = await getProjectMemberUserIds(executor, projectId);
+  const memberUserIds = members.map((item) => Number(item.user_id));
+  const memberRole = members.find((item) => Number(item.user_id) === Number(user.id))?.role_in_project || '';
 
   if (!canViewProject(user, project, memberUserIds)) {
     throw new HttpError(403, '项目不存在或无权限访问');
@@ -56,14 +58,15 @@ async function getAccessibleProject(executor, user, projectId) {
 
   return {
     project,
-    memberUserIds
+    memberUserIds,
+    memberRole
   };
 }
 
 async function getManageableProject(executor, user, projectId) {
-  const { project } = await getAccessibleProject(executor, user, projectId);
+  const { project, memberRole } = await getAccessibleProject(executor, user, projectId);
 
-  if (!canCreateTask(user, project)) {
+  if (!canCreateTask(user, project, memberRole)) {
     throw new HttpError(403, '无权限操作当前项目的规划信息');
   }
 

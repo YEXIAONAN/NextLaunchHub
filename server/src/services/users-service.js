@@ -65,7 +65,7 @@ function resolveUserFlags(role) {
   return {
     isHelper: 0,
     isRequester: 1,
-    canLogin: 0
+    canLogin: 1
   };
 }
 

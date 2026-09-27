@@ -14,6 +14,12 @@
     </section>
 
     <section class="settings-grid">
+      <article class="page-card settings-panel permission-guide-panel">
+        <div class="settings-panel-head"><div><h2>当前身份与权限</h2><p>{{ roleGuide.summary }}</p></div></div>
+        <div class="permission-guide-list">
+          <div v-for="item in roleGuide.items" :key="item" class="permission-guide-item">{{ item }}</div>
+        </div>
+      </article>
       <article class="page-card settings-panel">
         <div class="settings-panel-head">
           <div>
@@ -140,9 +146,17 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useUiPreferencesStore } from '../../stores/ui-preferences';
+import { useAuthStore } from '../../stores/auth';
 
 const uiPreferencesStore = useUiPreferencesStore();
+const authStore = useAuthStore();
+const roleGuide = computed(() => {
+  if (authStore.user?.role === 'admin') return { summary: '系统管理员拥有全局运营、治理与处置权限。', items: ['管理用户账号、系统角色与字典', '查看并改派全部求助单，处理超时风险', '创建、删除全部项目与任务', '查看全局项目、任务与服务运营数据'] };
+  if (authStore.user?.role === 'helper') return { summary: '协作人员仅处理自己被分配或所属项目内的工作。', items: ['同步本人任务进度、状态与进展说明', '处理分配给自己的求助单并提交协同记录', '项目经理 / 产品负责人可管理项目任务、计划与成员', '观察者只能查看项目，不可修改任何内容'] };
+  return { summary: '发起人可登录并跟踪自己的求助处理过程。', items: ['提交并查看本人发起的求助单', '查看关联任务的实时进度', '对待确认结果进行确认或退回', '不接触项目内部成员、任务和管理数据'] };
+});
 
 const densityOptions = [
   { label: '紧凑', value: 'compact' },
