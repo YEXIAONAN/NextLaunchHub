@@ -19,6 +19,7 @@ const STATUS_TEXT_MAP = {
   waiting_confirm: '待确认',
   completed: '已完成'
 };
+const PRIORITY_SLA_HOURS = { urgent: 4, high: 8, medium: 24, low: 48 };
 
 async function syncHelpRequestTimeouts(executor, helpRequestId = null) {
   const params = [];
@@ -100,6 +101,7 @@ async function getHelpRequestBase(executor, helpRequestId) {
        hr.task_id,
        hr.task_title,
        hr.content,
+       hr.priority,
        hr.requester_ip,
        hr.request_datetime,
        hr.request_date,
@@ -235,8 +237,12 @@ export async function createHelpRequest(payload) {
     taskId,
     taskTitle,
     content,
+    priority = 'medium',
     requesterIp
   } = payload;
+  if (!Object.hasOwn(PRIORITY_SLA_HOURS, priority)) {
+    throw new HttpError(400, '求助优先级不合法');
+  }
   const normalizedHelperIds = Array.from(new Set(
     (Array.isArray(helperUserIds) && helperUserIds.length > 0 ? helperUserIds : [helperUserId])
       .map((item) => Number(item))
@@ -289,11 +295,11 @@ export async function createHelpRequest(payload) {
         (
           request_no, title, requester_user_id, requester_name,
           helper_user_id, helper_name, project_id, project_name,
-          task_id, task_title, content, requester_ip,
+          task_id, task_title, content, priority, requester_ip,
           request_datetime, request_date, expected_handle_hours,
           deadline_at, is_timeout, status, created_at, updated_at
         )
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), CURDATE(), 24, DATE_ADD(NOW(), INTERVAL 24 HOUR), 0, 'pending', NOW(), NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), CURDATE(), ?, DATE_ADD(NOW(), INTERVAL ? HOUR), 0, 'pending', NOW(), NOW())`,
       [
         requestNo,
         title,
@@ -306,7 +312,10 @@ export async function createHelpRequest(payload) {
         relation.taskId,
         relation.taskTitle,
         content,
-        requesterIp
+        priority,
+        requesterIp,
+        PRIORITY_SLA_HOURS[priority],
+        PRIORITY_SLA_HOURS[priority]
       ]
     );
 
@@ -906,6 +915,24 @@ export async function addHelpRequestCollaborationLog(user, id, payload) {
        LIMIT 1`,
       [result.insertId]
     );
+
+    const mentionedNames = Array.from(new Set([...content.matchAll(/@([^\s@，,。；;]{1,20})/g)].map((item) => item[1])));
+    if (mentionedNames.length > 0) {
+      const [mentionedUsers] = await connection.query(
+        'SELECT id, real_name FROM users WHERE status = 1 AND real_name IN (?)',
+        [mentionedNames]
+      );
+      for (const mentionedUser of mentionedUsers) {
+        if (Number(mentionedUser.id) === Number(user.id)) continue;
+        await createNotification(connection, {
+          receiverUserId: mentionedUser.id,
+          type: 'collaboration_mentioned',
+          title: '你被提及协同处理',
+          content: `${user.realName} 在求助单 ${helpRequest.request_no} 的处理记录中提及了你：${content.slice(0, 100)}`,
+          relatedId: id
+        });
+      }
+    }
 
     await connection.commit();
 

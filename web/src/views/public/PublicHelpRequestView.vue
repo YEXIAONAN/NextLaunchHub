@@ -57,6 +57,14 @@
               />
             </el-select>
           </el-form-item>
+          <el-form-item label="求助优先级" prop="priority">
+            <el-select v-model="form.priority" placeholder="请选择优先级">
+              <el-option label="紧急 · 4 小时内响应" value="urgent" />
+              <el-option label="高 · 8 小时内响应" value="high" />
+              <el-option label="中 · 24 小时内响应" value="medium" />
+              <el-option label="低 · 48 小时内响应" value="low" />
+            </el-select>
+          </el-form-item>
           <el-form-item label="所属项目">
             <el-select
               v-model="form.projectId"
@@ -113,6 +121,7 @@
             show-word-limit
             placeholder="请填写问题现象、影响范围以及期望协助内容"
           />
+          <div class="public-identity-note">提交即确认所选发起人信息真实有效；工单单号仅供本人查询与确认。</div>
         </el-form-item>
         <el-form-item>
           <el-button class="primary-action" :loading="submitting" @click="handleSubmit">
@@ -153,6 +162,7 @@ const form = reactive({
   title: '',
   requesterUserId: '',
   helperUserIds: [],
+  priority: 'medium',
   projectId: '',
   taskId: '',
   otherName: '',
@@ -175,6 +185,7 @@ const rules = {
   title: [{ required: true, message: '请输入求助标题', trigger: 'blur' }],
   requesterUserId: [{ required: true, message: '请选择发起人', trigger: 'change' }],
   helperUserIds: [{ required: true, type: 'array', min: 1, message: '请至少选择一位帮助人员', trigger: 'change' }],
+  priority: [{ required: true, message: '请选择优先级', trigger: 'change' }],
   otherName: [
     {
       validator: (_rule, value, callback) => {
@@ -299,6 +310,7 @@ async function handleSubmit() {
       title: form.title,
       requesterUserId: form.requesterUserId,
       helperUserIds: form.helperUserIds,
+      priority: form.priority,
       projectId: !isOtherProject.value && form.projectId ? form.projectId : null,
       projectName: isOtherProject.value ? otherName : null,
       taskId: !isOtherTask.value && form.taskId ? form.taskId : null,
@@ -327,6 +339,7 @@ async function handleSubmit() {
     form.title = '';
     form.requesterUserId = '';
     form.helperUserIds = [];
+    form.priority = 'medium';
     form.projectId = '';
     form.taskId = '';
     form.otherName = '';

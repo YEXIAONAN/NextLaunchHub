@@ -40,6 +40,14 @@
 
     <section class="dashboard-content-grid">
       <div class="dashboard-primary-column">
+        <article v-if="overview.actionItems.length" class="page-card dashboard-action-panel">
+          <div class="page-header"><div><h2>需要你立即关注</h2><p>超时、8 小时内到期或长时间未响应的事项。</p></div></div>
+          <div class="dashboard-action-list">
+            <button v-for="item in overview.actionItems" :key="item.id" class="dashboard-action-item" @click="goDetail(item.id)">
+              <span>{{ item.request_no }} · {{ item.title }}</span><strong>{{ Number(item.is_timeout) ? '已超时' : '即将到期' }}</strong>
+            </button>
+          </div>
+        </article>
         <article class="page-card dashboard-main-panel">
           <div class="page-header with-action">
             <div>
@@ -204,6 +212,7 @@ const overview = reactive({
     avgResolutionMinutes: 0,
     unresponded: 0
   },
+  actionItems: [],
   recentItems: []
 });
 const myTodoItems = ref([]);
@@ -330,6 +339,7 @@ async function loadOverview() {
   const result = await getDashboardOverviewApi();
   overview.stats = result.data.stats;
   overview.serviceMetrics = result.data.serviceMetrics;
+  overview.actionItems = result.data.actionItems || [];
   overview.recentItems = result.data.recentItems;
 }
 

@@ -65,6 +65,15 @@ export async function getOverview(user) {
     scope.params
   );
   const service = serviceRows || {};
+  const [actionItems] = await pool.query(
+    `SELECT hr.id, hr.request_no, hr.title, hr.status, hr.deadline_at, hr.priority, hr.is_timeout
+     FROM help_requests hr ${scope.clause}
+       AND hr.status <> 'completed'
+       AND (hr.is_timeout = 1 OR hr.deadline_at <= DATE_ADD(NOW(), INTERVAL 8 HOUR) OR (hr.status = 'pending' AND hr.request_datetime <= DATE_SUB(NOW(), INTERVAL 4 HOUR)))
+     ORDER BY hr.is_timeout DESC, hr.deadline_at ASC
+     LIMIT 8`,
+    scope.params
+  );
 
   return {
     stats: {
@@ -79,6 +88,7 @@ export async function getOverview(user) {
       avgResolutionMinutes: Math.round(Number(service.avg_resolution_minutes || 0)),
       unresponded: Number(service.unresponded_count || 0)
     },
+    actionItems,
     recentItems: recentRows
   };
 }

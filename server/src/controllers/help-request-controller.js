@@ -33,6 +33,7 @@ export async function createHelpRequestController(req, res) {
     taskId: req.body.taskId || req.body.task_id,
     taskTitle: req.body.taskTitle || req.body.task_title,
     content: req.body.content,
+    priority: req.body.priority,
     requesterIp: getClientIp(req)
   };
   const data = await createHelpRequest(payload);

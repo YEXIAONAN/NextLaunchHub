@@ -175,7 +175,7 @@
             :rows="4"
             maxlength="1000"
             show-word-limit
-            placeholder="请输入协同处理说明"
+            placeholder="请输入协同处理说明；使用 @姓名 可提醒相关协同人"
             :disabled="!canSubmitCollaborationLog"
           />
 

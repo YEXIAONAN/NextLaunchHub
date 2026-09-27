@@ -430,12 +430,33 @@ export async function getProjectDetail(user, projectId) {
   const logs = await getProjectLogsByProjectId(pool, projectId);
   const iterations = await getProjectIterationsByProjectId(pool, projectId);
   const milestones = await getProjectMilestonesByProjectId(pool, projectId);
+  const [[health]] = await pool.query(
+    `SELECT
+       COUNT(*) AS task_count,
+       SUM(CASE WHEN status = 'blocked' THEN 1 ELSE 0 END) AS blocked_task_count,
+       SUM(CASE WHEN due_date IS NOT NULL AND due_date < CURDATE() AND status NOT IN ('completed', 'cancelled') THEN 1 ELSE 0 END) AS overdue_task_count,
+       SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed_task_count
+     FROM tasks WHERE project_id = ?`,
+    [projectId]
+  );
+  const [[milestoneHealth]] = await pool.query(
+    `SELECT COUNT(*) AS total, SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed
+     FROM project_milestones WHERE project_id = ?`,
+    [projectId]
+  );
 
   return {
     ...context.project,
     iterations,
     milestones,
-    logs
+    logs,
+    health: {
+      taskCount: Number(health.task_count || 0),
+      blockedTaskCount: Number(health.blocked_task_count || 0),
+      overdueTaskCount: Number(health.overdue_task_count || 0),
+      taskCompletionRate: Number(health.task_count || 0) ? Math.round(Number(health.completed_task_count || 0) / Number(health.task_count) * 100) : 0,
+      milestoneCompletionRate: Number(milestoneHealth.total || 0) ? Math.round(Number(milestoneHealth.completed || 0) / Number(milestoneHealth.total) * 100) : 0
+    }
   };
 }
 

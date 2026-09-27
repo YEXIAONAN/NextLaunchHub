@@ -68,6 +68,16 @@
             </div>
           </section>
 
+          <section class="project-health-section">
+            <div class="page-header"><div><h2>项目健康度</h2><p>快速识别阻塞、逾期与交付风险。</p></div></div>
+            <div class="project-health-grid">
+              <div class="project-health-card"><span>逾期任务</span><strong>{{ detail.health?.overdueTaskCount || 0 }}</strong></div>
+              <div class="project-health-card"><span>受阻任务</span><strong>{{ detail.health?.blockedTaskCount || 0 }}</strong></div>
+              <div class="project-health-card"><span>任务完成率</span><strong>{{ detail.health?.taskCompletionRate || 0 }}%</strong></div>
+              <div class="project-health-card"><span>里程碑完成率</span><strong>{{ detail.health?.milestoneCompletionRate || 0 }}%</strong></div>
+            </div>
+          </section>
+
           <section class="page-card project-placeholder-section">
             <div class="page-header with-action">
               <div>
@@ -424,6 +434,7 @@ const detail = reactive({
   description: '',
   iterations: [],
   milestones: []
+  ,health: {}
 });
 
 const members = ref([]);

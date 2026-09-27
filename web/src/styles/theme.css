@@ -1145,6 +1145,46 @@ select {
   font-size: 12px;
 }
 
+.public-identity-note {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.project-health-section {
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--bg-panel);
+}
+
+.project-health-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.project-health-card {
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+}
+
+.project-health-card span,
+.project-health-card strong {
+  display: block;
+}
+
+.project-health-card span { color: var(--text-muted); font-size: 12px; }
+.project-health-card strong { margin-top: 8px; color: var(--text-primary); font-size: 24px; }
+
+.dashboard-action-panel { border-color: var(--warning-border); }
+.dashboard-action-list { display: flex; flex-direction: column; gap: 8px; }
+.dashboard-action-item { display: flex; justify-content: space-between; gap: 16px; width: 100%; padding: 12px; color: var(--text-primary); text-align: left; background: var(--warning-soft); border: 1px solid var(--warning-border); border-radius: var(--radius-md); cursor: pointer; }
+.dashboard-action-item strong { color: var(--warning-text); font-size: 12px; white-space: nowrap; }
+
 .topbar-search {
   width: 240px;
 }
