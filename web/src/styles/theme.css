@@ -200,6 +200,14 @@ select {
   flex-direction: column;
   gap: 18px;
   min-height: 0;
+  /* 只在纵向滚，横向永远不要。
+     两个原因：
+       1. 菜单项是整行宽（stretch），任何横向位移都会顶出去 ——
+          悬停时的 translateX(2px) 就曾经在侧栏底部顶出一条横向滚动条；
+       2. overflow-y 一旦不是 visible，另一轴写 visible 会被算成 auto，
+          所以只写 overflow-y: auto 等于把横向滚动条也打开了。
+     侧栏里没有需要横向溢出的东西（没有 tooltip/popover），裁掉是安全的 */
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
@@ -2911,6 +2919,10 @@ body,
 }
 
 /* --- 侧栏菜单：悬停右移一点，做出“被指向”的感觉 --- */
+/* 菜单项是整行宽，右移会让它越出 .sidebar-scroll 2px。
+   靠 .sidebar-scroll 的 overflow-x: hidden 裁掉 —— 注意别把那行删了，
+   删了侧栏底部就会重新冒出一条横向滚动条。
+   裁掉的只是菜单项最右边 2px（那里是圆角和同样的底色），看不出来。 */
 .menu-item:hover {
   transform: translateX(2px);
 }
